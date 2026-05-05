@@ -1,0 +1,24 @@
+# 🔐 Environment
+.env
+
+# 🗄️ Database
+*.db
+*.sqlite3
+
+# 📦 Python cache
+__pycache__/
+*.pyc
+
+# 📁 Uploads
+static/uploads/
+
+# 🔧 Virtual env
+venv/
+env/
+
+# 🧾 Logs
+*.log
+
+# IDE
+.vscode/
+.idea/
