@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Edit Profile</title>
+
+    <style>
+        body{
+            font-family: Arial;
+            background:#f4f6f9;
+            margin:0;
+            padding:20px;
+        }
+
+        .card{
+            max-width:600px;
+            margin:auto;
+            background:white;
+            padding:20px;
+            border-radius:12px;
+            box-shadow:0 5px 20px rgba(0,0,0,0.1);
+        }
+
+        h2{
+            text-align:center;
+        }
+
+        input, textarea{
+            width:100%;
+            padding:10px;
+            margin:8px 0;
+            border:1px solid #ddd;
+            border-radius:8px;
+            outline:none;
+        }
+
+        textarea{
+            height:100px;
+            resize:none;
+        }
+
+        label{
+            font-weight:bold;
+            margin-top:10px;
+            display:block;
+        }
+
+        .btn{
+            width:100%;
+            padding:12px;
+            background:#28a745;
+            color:white;
+            border:none;
+            border-radius:8px;
+            font-size:16px;
+            cursor:pointer;
+            margin-top:10px;
+        }
+
+        .btn:hover{
+            background:#218838;
+        }
+
+        .section-title{
+            margin-top:15px;
+            font-size:14px;
+            color:#555;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="card">
+
+    <h2>Edit Profile</h2>
+
+    <form method="POST" enctype="multipart/form-data">
+
+        <label>Name</label>
+        <input name="name" value="{{ profile.name }}">
+
+        <label>Address</label>
+        <input name="address" value="{{ profile.address }}">
+
+        <label>Age</label>
+        <input name="age" value="{{ profile.age }}">
+
+        <label>Education</label>
+        <input name="education" value="{{ profile.education }}">
+
+        <label>Area</label>
+        <input name="area" value="{{ profile.area }}">
+
+        <label>Work Description</label>
+        <textarea name="work_desc">{{ profile.work_desc }}</textarea>
+
+        <div class="section-title">Profile Image</div>
+        <input type="file" name="profile_img">
+
+        <div class="section-title">Cover Image</div>
+        <input type="file" name="cover_img">
+
+        <div class="section-title">Gallery (Multiple Images)</div>
+        <input type="file" name="gallery" multiple>
+
+        <button class="btn">Save Changes</button>
+
+    </form>
+
+</div>
+
+</body>
+</html>
