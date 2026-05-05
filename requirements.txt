@@ -1,8 +1,0 @@
-Flask
-Flask-SQLAlchemy
-Flask-SocketIO
-eventlet
-gunicorn
-python-dotenv
-bcrypt
-Flask-Migrate
