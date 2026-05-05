@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Profile</title>
+
+    <style>
+        body{
+            margin:0;
+            font-family: Arial;
+            background:#f4f6f9;
+        }
+
+        /* COVER */
+        .cover{
+            height:220px;
+            background-size:cover;
+            background-position:center;
+        }
+
+        /* PROFILE CARD */
+        .card{
+            max-width:600px;
+            margin:-60px auto 20px;
+            background:white;
+            border-radius:15px;
+            padding:20px;
+            text-align:center;
+            box-shadow:0 5px 20px rgba(0,0,0,0.1);
+        }
+
+        .profile-img{
+            width:120px;
+            height:120px;
+            border-radius:50%;
+            border:4px solid white;
+            object-fit:cover;
+            margin-top:-60px;
+            background:white;
+        }
+
+        .name{
+            font-size:22px;
+            font-weight:bold;
+            margin-top:10px;
+        }
+
+        .info{
+            color:#555;
+            margin:5px 0;
+        }
+
+        .btn{
+            display:inline-block;
+            padding:10px 15px;
+            background:#007bff;
+            color:white;
+            border-radius:8px;
+            text-decoration:none;
+            margin-top:10px;
+        }
+
+        .section{
+            margin-top:20px;
+            text-align:left;
+        }
+
+        .gallery{
+            display:flex;
+            flex-wrap:wrap;
+            gap:10px;
+            margin-top:10px;
+        }
+
+        .gallery img{
+            width:100px;
+            height:100px;
+            object-fit:cover;
+            border-radius:8px;
+        }
+    </style>
+</head>
+
+<body>
+
+<!-- COVER -->
+<div class="cover" style="background-image:url('/{{ profile.cover_img }}')"></div>
+
+<!-- PROFILE CARD -->
+<div class="card">
+
+    <img src="/{{ profile.profile_img }}" class="profile-img">
+
+    <div class="name">{{ profile.name }}</div>
+
+    <div class="info">{{ profile.work_desc }}</div>
+
+    <div class="info">📍 {{ profile.area }} | 🎓 {{ profile.education }}</div>
+    <div class="info">📞 {{ phone }}</div>
+
+    <a href="/profile/edit" class="btn">Edit Profile</a>
+
+    <!-- DETAILS -->
+    <div class="section">
+        <h3>About</h3>
+        <p>Age: {{ profile.age }}</p>
+        <p>Gender: {{ profile.gender }}</p>
+        <p>Religion: {{ profile.religion }}</p>
+        <p>Country: {{ profile.country }}</p>
+    </div>
+
+    <!-- GALLERY -->
+    <div class="section">
+        <h3>Gallery</h3>
+        <div class="gallery">
+            {% for img in gallery %}
+                <img src="/{{ img }}">
+            {% endfor %}
+        </div>
+    </div>
+
+</div>
+
+</body>
+</html>
