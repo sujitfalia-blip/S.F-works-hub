@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>S.F Works Hub - Signup</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+
+<style>
+body {
+    margin: 0;
+    font-family: 'Inter', sans-serif;
+    background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.container {
+    background: #fff;
+    padding: 30px;
+    width: 100%;
+    max-width: 380px;
+    border-radius: 15px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    text-align: center;
+}
+
+.logo {
+    font-size: 24px;
+    font-weight: 600;
+    margin-bottom: 10px;
+}
+
+.subtitle {
+    font-size: 14px;
+    color: #777;
+    margin-bottom: 20px;
+}
+
+input {
+    width: 100%;
+    padding: 12px;
+    margin: 8px 0;
+    border-radius: 8px;
+    border: 1px solid #ddd;
+    font-size: 14px;
+}
+
+input:focus {
+    outline: none;
+    border-color: #2c5364;
+}
+
+button {
+    width: 100%;
+    padding: 12px;
+    background: #2c5364;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    cursor: pointer;
+    margin-top: 10px;
+}
+
+button:hover {
+    background: #203a43;
+}
+
+.footer {
+    margin-top: 15px;
+    font-size: 13px;
+}
+
+.footer a {
+    color: #2c5364;
+    text-decoration: none;
+}
+</style>
+
+</head>
+
+<body>
+
+<div class="container">
+    <div class="logo">🚀 S.F Works Hub</div>
+    <div class="subtitle">Create your account</div>
+
+    <form method="POST" action="/signup">
+        <input type="text" name="name" placeholder="👤 Full Name" required>
+        <input type="text" name="phone" placeholder="📱 Phone Number" required>
+        <input type="password" name="password" placeholder="🔒 Password" required>
+
+        <!-- Referral (optional) -->
+        <input type="text" name="ref_id" placeholder="🎯 Referral ID (optional)">
+
+        <button type="submit">Sign Up</button>
+    </form>
+
+    <div class="footer">
+        Already have an account? <a href="/login">Login</a>
+    </div>
+</div>
+
+</body>
+</html>
