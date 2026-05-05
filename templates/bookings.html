@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Booking Control Panel</title>
+
+    <style>
+        body{
+            font-family: Arial;
+            background:#eef2f7;
+            margin:0;
+            padding:20px;
+        }
+
+        h2{
+            text-align:center;
+            margin-bottom:20px;
+        }
+
+        .container{
+            max-width:1000px;
+            margin:auto;
+        }
+
+        .card{
+            background:white;
+            padding:18px;
+            margin-bottom:15px;
+            border-radius:12px;
+            box-shadow:0 5px 18px rgba(0,0,0,0.08);
+            transition:0.2s;
+        }
+
+        .card:hover{
+            transform:translateY(-2px);
+        }
+
+        .top{
+            display:flex;
+            justify-content:space-between;
+            flex-wrap:wrap;
+            border-bottom:1px solid #eee;
+            padding-bottom:10px;
+            margin-bottom:10px;
+        }
+
+        .info{
+            font-size:14px;
+            color:#444;
+            margin:3px 0;
+        }
+
+        .status{
+            padding:6px 14px;
+            border-radius:20px;
+            font-size:12px;
+            font-weight:bold;
+            display:inline-block;
+        }
+
+        .pending{background:#fff3cd;color:#856404;}
+        .approved{background:#d4edda;color:#155724;}
+        .rejected{background:#f8d7da;color:#721c24;}
+        .blocked{background:#ffe0b2;color:#e65100;}
+        .deleted{background:#e0e0e0;color:#333;}
+
+        .btns{
+            margin-top:10px;
+            display:flex;
+            flex-wrap:wrap;
+            gap:6px;
+        }
+
+        form{
+            display:inline;
+        }
+
+        button{
+            padding:7px 10px;
+            border-radius:6px;
+            border:none;
+            cursor:pointer;
+            color:white;
+            font-size:12px;
+            transition:0.2s;
+        }
+
+        button:hover{
+            opacity:0.85;
+        }
+
+        .a{background:#28a745;}
+        .r{background:#dc3545;}
+        .b{background:#ff9800;}
+        .u{background:#17a2b8;}
+        .d{background:#6c757d;}
+
+        .empty{
+            text-align:center;
+            color:gray;
+            padding:40px;
+            background:white;
+            border-radius:12px;
+        }
+    </style>
+</head>
+
+<body>
+
+<h2>📦 Booking Control Dashboard</h2>
+
+<div class="container">
+
+{% if bookings|length == 0 %}
+
+<div class="empty">
+    🚫 No bookings found
+</div>
+
+{% endif %}
+
+{% for b in bookings %}
+
+<div class="card">
+
+    <div class="top">
+
+        <div>
+            <div class="info"><b>👤 User:</b> {{ b.user_id }}</div>
+            <div class="info"><b>💼 Work:</b> {{ b.work_id }}</div>
+            <div class="info">💬 {{ b.message or "No message" }}</div>
+        </div>
+
+        <div>
+            <span class="status {{ b.status }}">
+                {{ b.status.upper() }}
+            </span>
+        </div>
+
+    </div>
+
+    <div class="btns">
+
+        {% if b.status not in ['approved','deleted'] %}
+        <form method="POST" action="/booking/approve/{{ b.id }}">
+            <button class="a" onclick="return confirm('Approve this booking?')">✔ Approve</button>
+        </form>
+        {% endif %}
+
+        {% if b.status not in ['rejected','deleted'] %}
+        <form method="POST" action="/booking/reject/{{ b.id }}">
+            <button class="r" onclick="return confirm('Reject this booking?')">❌ Reject</button>
+        </form>
+        {% endif %}
+
+        {% if b.status != 'blocked' %}
+        <form method="POST" action="/booking/block/{{ b.id }}">
+            <button class="b" onclick="return confirm('Block this booking?')">🚫 Block</button>
+        </form>
+        {% endif %}
+
+        {% if b.status == 'blocked' %}
+        <form method="POST" action="/booking/unblock/{{ b.id }}">
+            <button class="u" onclick="return confirm('Unblock this booking?')">🔄 Unblock</button>
+        </form>
+        {% endif %}
+
+        <form method="POST" action="/booking/delete/{{ b.id }}">
+            <button class="d" onclick="return confirm('Delete this booking permanently?')">🗑 Delete</button>
+        </form>
+
+    </div>
+
+</div>
+
+{% endfor %}
+
+</div>
+
+</body>
+</html>
