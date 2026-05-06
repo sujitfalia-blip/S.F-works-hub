@@ -12,6 +12,7 @@ from routes.owner import owner
 from routes.admin import admin_bp
 from routes.super_admin import super_admin
 from routes.user import user
+from routes.main import main
 
 
 def create_app():
@@ -28,6 +29,7 @@ def create_app():
     app.register_blueprint(admin_bp)
     app.register_blueprint(super_admin)
     app.register_blueprint(user)
+    app.register_blueprint(main)
 
     return app
 
