@@ -4,5 +4,4 @@ main = Blueprint('main', __name__)
 
 @main.route("/")
 def home():
-    return render_template("login.html")
-    
+    return redirect(url_for("auth.login"))
