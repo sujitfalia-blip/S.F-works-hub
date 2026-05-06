@@ -36,13 +36,6 @@ def create_app():
 
 app = create_app()
 
-
-# ================= ROUTE =================
-@app.route("/")
-def home():
-    return "🔥 Server Running"
-
-
 # ================= DB INIT (IMPORTANT FIX) =================
 # ❌ Render এ create_all অনেক সময় crash করে
 # তাই safe guard দিচ্ছি
