@@ -1,11 +1,6 @@
-from flask import Blueprint
 from flask import Blueprint, render_template
 
 main = Blueprint('main', __name__)
-
-@main.route("/")
-def home():
-    return "🔥 Server Running"
 
 @main.route("/")
 def home():
