@@ -1,8 +1,5 @@
-from routes.main import main
+main = Blueprint('main', __name__)
 
-def create_app():
-    app = Flask(__name__)
-
-    app.register_blueprint(main)  # 👈 MUST
-
-    return app
+@main.route("/")
+def home():
+    return "🔥 Server Running"
