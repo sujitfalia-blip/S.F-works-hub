@@ -38,6 +38,8 @@ def signup():
     password_raw = request.form.get('password')
     role = request.form.get('role')
 
+    if role not in ["user", "admin", "super_admin"]:
+    role = "user"
     # VALIDATION
     if not all([name, phone, password_raw, role]):
         return "All fields required"
@@ -72,10 +74,11 @@ def signup():
 
     # CREATE USER
     user = User(
-        phone=phone,
-        password=password,
-        role=role,
-        status=status
+    name=name,
+    phone=phone,
+    password=password,
+    role=role,
+    status="active"
     )
 
     # ASSIGN CONTROL
