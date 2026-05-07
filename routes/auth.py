@@ -3,16 +3,22 @@ from functools import wraps
 
 from models.user import User
 from models.profile import Profile
+
 from extensions import db
+
 from werkzeug.security import generate_password_hash, check_password_hash
 
 from services.referral_service import assign_control
 
+
 auth = Blueprint('auth', __name__)
 
 
-# ================= LOGIN REQUIRED =================
+# =========================================================
+# LOGIN REQUIRED
+# =========================================================
 def login_required(f):
+
     @wraps(f)
     def wrapper(*args, **kwargs):
 
@@ -24,72 +30,76 @@ def login_required(f):
     return wrapper
 
 
-# ================= SIGNUP =================
+# =========================================================
+# SIGNUP
+# =========================================================
 @auth.route('/signup', methods=['GET', 'POST'])
 def signup():
 
-    # SHOW PAGE
+    # ================= SHOW PAGE =================
     if request.method == 'GET':
         return render_template('signup.html')
 
-    # FORM DATA
+    # ================= FORM DATA =================
     name = request.form.get('name')
     phone = request.form.get('phone')
     password_raw = request.form.get('password')
     role = request.form.get('role')
 
+    # ================= ROLE FIX =================
     if role not in ["user", "admin", "super_admin"]:
-    role = "user"
-    # VALIDATION
-    if not all([name, phone, password_raw, role]):
+        role = "user"
+
+    # ================= VALIDATION =================
+    if not all([name, phone, password_raw]):
         return "All fields required"
 
-    # PHONE CHECK
+    # ================= PHONE CHECK =================
     existing = User.query.filter_by(phone=phone).first()
 
     if existing:
         return "Phone already registered"
 
-    # VALID ROLE
-    allowed_roles = ["user", "admin", "super_admin"]
-
-    if role not in allowed_roles:
-        return "Invalid role"
-
-    # PASSWORD HASH
+    # ================= PASSWORD HASH =================
     password = generate_password_hash(password_raw)
 
-    # REFERRAL
+    # ================= REFERRAL =================
     ref_id = request.form.get('ref_id')
-    referrer = User.query.get(ref_id) if ref_id else None
 
-    # STATUS LOGIC
+    referrer = None
+
+    if ref_id:
+        referrer = User.query.get(ref_id)
+
+    # ================= STATUS LOGIC =================
     # user = active
-    # admin/super_admin = pending approval
+    # admin/super_admin = pending
 
     if role == "user":
         status = "active"
     else:
         status = "pending"
 
-    # CREATE USER
+    # ================= CREATE USER =================
     user = User(
-    name=name,
-    phone=phone,
-    password=password,
-    role=role,
-    status="active"
+        name=name,
+        phone=phone,
+        password=password,
+        role=role,
+        status=status
     )
 
-    # ASSIGN CONTROL
+    # ================= ASSIGN CONTROL =================
     assign_control(user, referrer)
 
     try:
 
+        # SAVE USER
         db.session.add(user)
+
         db.session.flush()
 
-        # PROFILE
+        # ================= CREATE PROFILE =================
         profile = Profile(
             user_id=user.id,
             name=name
@@ -97,58 +107,63 @@ def signup():
 
         db.session.add(profile)
 
+        # ================= COMMIT =================
         db.session.commit()
 
     except Exception as e:
 
         db.session.rollback()
+
         return f"Signup error: {e}"
 
-    # MESSAGE
-    if status == "pending":
-        return "Signup successful. Wait for owner approval."
+    # ================= MESSAGE =================
+    if user.status == "pending":
+        return "Signup successful. Wait for approval."
 
     return redirect(url_for('auth.login'))
 
 
-# ================= LOGIN =================
+# =========================================================
+# LOGIN
+# =========================================================
 @auth.route('/login', methods=['GET', 'POST'])
 def login():
 
-    # SHOW PAGE
+    # ================= SHOW PAGE =================
     if request.method == 'GET':
         return render_template('login.html')
 
+    # ================= FORM DATA =================
     phone = request.form.get('phone')
     password = request.form.get('password')
 
-    # VALIDATION
+    # ================= VALIDATION =================
     if not phone or not password:
         return "All fields required"
 
-    # FIND USER
+    # ================= FIND USER =================
     user = User.query.filter_by(phone=phone).first()
 
     if not user:
         return "User not found"
 
-    # BLOCKED
+    # ================= BLOCKED =================
     if user.status == "blocked":
         return "Account blocked"
 
-    # APPROVAL
+    # ================= PENDING =================
     if user.status != "active":
         return "Account not approved yet"
 
-    # PASSWORD CHECK
+    # ================= PASSWORD CHECK =================
     if not check_password_hash(user.password, password):
         return "Wrong password"
 
-    # SESSION
+    # ================= SESSION =================
     session['user_id'] = user.id
     session['role'] = user.role
 
-    # REDIRECT
+    # ================= REDIRECT =================
     if user.role == "owner":
         return redirect('/owner/dashboard')
 
@@ -162,7 +177,9 @@ def login():
         return redirect('/user/dashboard')
 
 
-# ================= LOGOUT =================
+# =========================================================
+# LOGOUT
+# =========================================================
 @auth.route('/logout')
 def logout():
 
