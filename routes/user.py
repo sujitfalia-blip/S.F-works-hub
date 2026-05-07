@@ -1,18 +1,22 @@
-from flask import request, session, redirect
+from flask import Blueprint, request, session, redirect, render_template
+
 from models.work import Work
 from extensions import db
+
 from services.otp_service import generate_otp
+
 from decorators.auth import role_required
-from flask import Blueprint
 
 user = Blueprint("user", __name__, url_prefix="/user")
 
+
+# ================= POST WORK =================
 @user.route('/post_work', methods=['POST'])
 def post_work():
 
     # 🔐 login check
     if 'user_id' not in session:
-        return "Login required"
+        return redirect('/login')
 
     title = request.form.get('title')
     workers = request.form.get('workers')
@@ -28,7 +32,9 @@ def post_work():
     # 📱 OTP generate
     otp = generate_otp(phone)
 
-    # 🧠 temp store (session)
+    print("OTP:", otp)
+
+    # 🧠 temp store
     session['work_data'] = {
         "title": title,
         "workers": workers,
@@ -39,9 +45,10 @@ def post_work():
     }
 
     return "OTP Sent (check console)"
-    
-@user.route('/user/dashboard')
+
+
+# ================= USER DASHBOARD =================
+@user.route('/dashboard')
 @role_required("user")
 def dashboard():
     return render_template("user/dashboard.html")
-    
