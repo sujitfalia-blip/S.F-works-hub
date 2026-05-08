@@ -276,22 +276,21 @@ def owner_analytics():
 # =================================================
 # 🏠 OWNER DASHBOARD
 # =================================================
-
 @owner.route('/owner/dashboard')
 @owner_only
 def owner_dashboard():
 
-    total_users = User.query.count()
-    total_works = Work.query.count()
+    total_users = User.query.filter_by(
+        role="user"
+    ).count()
 
-    return f"""
-    <h1>OWNER DASHBOARD ✅</h1>
+    total_works = Work.query.filter_by(
+        is_deleted=False
+    ).count()
 
-    <p>Total Users: {total_users}</p>
-
-    <p>Total Works: {total_works}</p>
-
-    <a href='/owner/works'>Manage Works</a><br><br>
-
-    <a href='/owner/analytics'>Analytics</a>
-    """
+    return render_template(
+        "owner_dashboard.html",
+        total_users=total_users,
+        total_works=total_works
+    )
+    
