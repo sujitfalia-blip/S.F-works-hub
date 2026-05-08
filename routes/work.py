@@ -3,6 +3,7 @@ from services.create_work_service import create_work
 
 work = Blueprint("work", __name__)
 
+
 @work.route('/create', methods=['POST'])
 def create_work_route():
 
@@ -10,7 +11,7 @@ def create_work_route():
     if 'user_id' not in session:
         return redirect('/login')
 
-    # ================= DATA =================
+    # ================= COLLECT DATA =================
     data = {
         "title": request.form.get("title"),
         "workers": request.form.get("workers"),
@@ -21,11 +22,11 @@ def create_work_route():
         "user_id": session.get("user_id")
     }
 
-    # ================= SERVICE CALL =================
+    # ================= CALL SERVICE =================
     result = create_work(data)
 
     if not result:
-        return "error", 500
+        return {"status": "error", "message": "Invalid data"}, 400
 
-    return "success"
+    return {"status": "success"}
     
