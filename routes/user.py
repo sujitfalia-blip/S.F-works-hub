@@ -51,4 +51,4 @@ def post_work():
 @user.route('/dashboard')
 @role_required("user")
 def dashboard():
-    return render_template("user/dashboard.html")
+    rreturn render_template("user/dashboard.html")
