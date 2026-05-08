@@ -3,12 +3,11 @@ from extensions import db, socketio
 
 
 def create_work(data, user_id):
-
     try:
         work = Work(
             title=data.get("title"),
-            workers_needed=int(data.get("workers")),
-            salary=int(data.get("salary")),
+            workers=int(data.get("workers") or 0),
+            salary=int(data.get("salary") or 0),
             date=data.get("date"),
             time=data.get("time"),
             phone=data.get("phone"),
@@ -18,14 +17,17 @@ def create_work(data, user_id):
         db.session.add(work)
         db.session.commit()
 
-        # 🔥 LIVE UPDATE (IMPORTANT)
+        # 🔥 SAFE SOCKET (Render stable fix)
         socketio.emit(
             "new_work",
             {
                 "id": work.id,
-                "title": work.title
+                "title": work.title,
+                "workers": work.workers,
+                "salary": work.salary
             },
-            broadcast=True
+            broadcast=True,
+            namespace="/"
         )
 
         return work
