@@ -9,6 +9,7 @@ from extensions import db
 from werkzeug.security import generate_password_hash, check_password_hash
 
 from services.referral_service import assign_control
+from utils.control import assign_control
 
 
 auth = Blueprint('auth', __name__)
