@@ -1,16 +1,16 @@
 import random
-import time
+from datetime import datetime, timedelta
 
-OTP_STORE = {}  # temporary memory store
+OTP_STORE = {}
+OTP_EXPIRY_MINUTES = 5
 
-OTP_EXPIRY_SECONDS = 300  # 5 min
 
 def generate_otp(user_id):
     otp = str(random.randint(100000, 999999))
 
     OTP_STORE[user_id] = {
         "otp": otp,
-        "time": time.time()
+        "time": datetime.utcnow()
     }
 
     return otp
@@ -23,13 +23,14 @@ def verify_otp(user_id, otp_input):
         return False
 
     # expiry check
-    if time.time() - data["time"] > OTP_EXPIRY_SECONDS:
-        del OTP_STORE[user_id]
+    if datetime.utcnow() - data["time"] > timedelta(minutes=OTP_EXPIRY_MINUTES):
+        OTP_STORE.pop(user_id, None)
         return False
 
     # match check
     if data["otp"] == otp_input:
-        del OTP_STORE[user_id]
+        OTP_STORE.pop(user_id, None)
         return True
 
     return False
+    
