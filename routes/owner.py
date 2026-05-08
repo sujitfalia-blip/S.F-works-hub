@@ -304,7 +304,7 @@ def owner_dashboard():
     ).count()
 
     return render_template(
-        "owner_dashboard.html",
+        "owner/dashboard.html",
         total_users=total_users,
         total_works=total_works
     )
