@@ -2,14 +2,39 @@ from models.work import Work
 from extensions import db, socketio
 
 
+# ================= VALIDATION =================
+def validate_work_data(data):
+    if not data.get("title"):
+        return "Title required"
+
+    if not data.get("workers"):
+        return "Workers required"
+
+    if not data.get("salary"):
+        return "Salary required"
+
+    return None
+
+
+# ================= CREATE WORK =================
 def create_work(data):
 
     try:
-        # ================= CREATE WORK =================
+        # ================= VALIDATE =================
+        error = validate_work_data(data)
+        if error:
+            print("Validation Error:", error)
+            return None
+
+        # ================= SAFE CONVERT =================
+        workers = int(data.get("workers") or 0)
+        salary = int(data.get("salary") or 0)
+
+        # ================= CREATE OBJECT =================
         work = Work(
             title=data.get("title"),
-            workers_needed=int(data.get("workers") or 0),
-            salary=int(data.get("salary") or 0),
+            workers_needed=workers,
+            salary=salary,
             date=data.get("date"),
             time=data.get("time"),
             phone=data.get("phone"),
@@ -20,14 +45,13 @@ def create_work(data):
         db.session.add(work)
         db.session.commit()
 
-        # ================= LIVE UPDATE =================
+        # ================= SOCKET UPDATE =================
         socketio.emit(
             "new_work",
             {
                 "id": work.id,
                 "title": work.title
-            },
-            to=None
+            }
         )
 
         return work
