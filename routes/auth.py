@@ -176,6 +176,27 @@ def login():
     else:
         return redirect('/user/dashboard')
 
+@auth.route('/create-owner')
+def create_owner():
+
+    existing = User.query.filter_by(role="owner").first()
+
+    if existing:
+        return "Owner already exists"
+
+    owner = User(
+        name="Owner",
+        phone="9999999999",
+        password=generate_password_hash("admin123"),
+        role="owner",
+        status="active"
+    )
+
+    db.session.add(owner)
+    db.session.commit()
+
+    return "Owner created successfully"
+
 
 # =========================================================
 # LOGOUT
