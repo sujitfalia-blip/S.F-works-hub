@@ -1,217 +1,235 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Owner Work Control Panel</title>
+<div class="container-fluid">
 
-    <style>
-        body{
-            font-family: Arial;
-            background: #eef2f7;
-            margin: 0;
-            padding: 0;
-        }
+    <!-- 🔍 SEARCH + FILTER -->
+    <div class="d-flex flex-wrap gap-2 mb-3">
 
-        /* 🔥 TOP BAR */
-        .topbar{
-            background: #111827;
-            color: white;
-            padding: 15px;
-            text-align: center;
-            font-size: 18px;
-            font-weight: bold;
-        }
+        <input
+            type="text"
+            id="workSearch"
+            class="form-control"
+            placeholder="🔍 Search works..."
+            style="max-width:300px;"
+        >
 
-        /* 🔥 FILTER BAR */
-        .filters{
-            text-align: center;
-            margin: 15px 0;
-        }
+        <a class="btn btn-secondary btn-sm" href="javascript:loadWorks()">
+            All
+        </a>
 
-        .filter-btn{
-            padding: 8px 12px;
-            margin: 5px;
-            border-radius: 20px;
-            text-decoration: none;
-            font-size: 13px;
-            color: white;
-            background: #6b7280;
-            display: inline-block;
-        }
+        <a class="btn btn-warning btn-sm" href="javascript:filterWorks('pending')">
+            Pending
+        </a>
 
-        .filter-btn:hover{
-            opacity: 0.8;
-        }
+        <a class="btn btn-success btn-sm" href="javascript:filterWorks('approved')">
+            Approved
+        </a>
 
-        .container{
-            max-width: 1000px;
-            margin: auto;
-            padding: 10px;
-        }
+        <a class="btn btn-danger btn-sm" href="javascript:filterWorks('rejected')">
+            Rejected
+        </a>
 
-        .card{
-            background: white;
-            padding: 18px;
-            margin-bottom: 15px;
-            border-radius: 14px;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.08);
-            transition: 0.2s;
-        }
+        <a class="btn btn-dark btn-sm" href="javascript:filterWorks('deleted')">
+            Deleted
+        </a>
 
-        .card:hover{
-            transform: translateY(-3px);
-        }
-
-        .top{
-            display: flex;
-            justify-content: space-between;
-            flex-wrap: wrap;
-        }
-
-        .title{
-            font-size: 18px;
-            font-weight: bold;
-            color: #111;
-        }
-
-        .info{
-            font-size: 14px;
-            color: #444;
-            margin: 4px 0;
-        }
-
-        .meta{
-            font-size: 12px;
-            color: #777;
-        }
-
-        /* 🔥 STATUS BADGES */
-        .status{
-            padding: 5px 12px;
-            border-radius: 20px;
-            font-size: 12px;
-            font-weight: bold;
-            display: inline-block;
-        }
-
-        .pending{background:#fff3cd; color:#856404;}
-        .approved{background:#d4edda; color:#155724;}
-        .rejected{background:#f8d7da; color:#721c24;}
-        .deleted{background:#e0e0e0; color:#333;}
-
-        /* 🔥 BUTTONS */
-        .btns{
-            margin-top: 12px;
-        }
-
-        .btn{
-            padding: 7px 10px;
-            border-radius: 6px;
-            color: white;
-            text-decoration: none;
-            font-size: 13px;
-            margin-right: 5px;
-            display: inline-block;
-        }
-
-        .approve{background:#22c55e;}
-        .reject{background:#ef4444;}
-        .edit{background:#3b82f6;}
-        .delete{background:#6b7280;}
-
-        /* 🔥 EMPTY STATE */
-        .empty{
-            text-align: center;
-            padding: 40px;
-            color: gray;
-        }
-
-        @media(max-width:600px){
-            .top{
-                flex-direction: column;
-            }
-        }
-    </style>
-</head>
-
-<body>
-
-<div class="topbar">
-    👑 Owner Work Control Dashboard
-</div>
-
-<!-- 🔥 FILTER SECTION -->
-<div class="filters">
-    <a class="filter-btn" href="/owner/works">All</a>
-    <a class="filter-btn" href="/owner/works?status=pending">Pending</a>
-    <a class="filter-btn" href="/owner/works?status=approved">Approved</a>
-    <a class="filter-btn" href="/owner/works?status=rejected">Rejected</a>
-</div>
-
-<div class="container">
-
-{% if works|length == 0 %}
-
-    <div class="empty">
-        😕 No works found
     </div>
 
-{% endif %}
 
-{% for w in works %}
+    {% if works|length == 0 %}
 
-<div class="card">
-
-    <div class="top">
-
-        <div>
-            <div class="title">{{ w.title }}</div>
-
-            <div class="info">👷 Workers: {{ w.workers_needed }}</div>
-            <div class="info">💰 Salary: {{ w.salary }}</div>
-
-            <div class="meta">📅 {{ w.date }} | ⏰ {{ w.time }}</div>
-            <div class="info">📞 {{ w.phone }}</div>
+        <div class="card p-5 text-center">
+            <h4>😕 No works found</h4>
         </div>
 
-        <div>
-            <span class="status
-                {% if w.status=='pending' %}pending{% endif %}
-                {% if w.status=='approved' %}approved{% endif %}
-                {% if w.status=='rejected' %}rejected{% endif %}
-                {% if w.status=='deleted' %}deleted{% endif %}
-            ">
-                {{ w.status|upper }}
-            </span>
+    {% endif %}
 
-            <div class="meta">
-                Active: {{ w.is_active }} <br>
-                Edits: {{ w.edit_count }}
+
+    <!-- 📦 WORK CARDS -->
+    <div class="row" id="worksContainer">
+
+        {% for w in works %}
+
+        <div class="col-lg-6 mb-4 work-card">
+
+            <div class="card p-3 h-100 shadow">
+
+                <!-- TOP -->
+                <div class="d-flex justify-content-between align-items-start flex-wrap">
+
+                    <div>
+
+                        <h5 class="fw-bold">
+                            {{ w.title }}
+                        </h5>
+
+                        <div class="mt-2">
+
+                            <div>
+                                👷 Workers Needed:
+                                <b>{{ w.workers_needed }}</b>
+                            </div>
+
+                            <div>
+                                💰 Salary:
+                                <b>{{ w.salary }}</b>
+                            </div>
+
+                            <div>
+                                📅 {{ w.date }}
+                            </div>
+
+                            <div>
+                                ⏰ {{ w.time }}
+                            </div>
+
+                            <div>
+                                📞 {{ w.phone }}
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                    <!-- STATUS -->
+                    <div class="mt-2">
+
+                        {% if w.status == "pending" %}
+                            <span class="badge bg-warning text-dark">
+                                PENDING
+                            </span>
+                        {% endif %}
+
+                        {% if w.status == "approved" %}
+                            <span class="badge bg-success">
+                                APPROVED
+                            </span>
+                        {% endif %}
+
+                        {% if w.status == "rejected" %}
+                            <span class="badge bg-danger">
+                                REJECTED
+                            </span>
+                        {% endif %}
+
+                        {% if w.status == "deleted" %}
+                            <span class="badge bg-dark">
+                                DELETED
+                            </span>
+                        {% endif %}
+
+                    </div>
+
+                </div>
+
+
+                <!-- META -->
+                <hr>
+
+                <div class="small text-secondary">
+
+                    <div>
+                        🟢 Active:
+                        {{ w.is_active }}
+                    </div>
+
+                    <div>
+                        ✏ Edit Count:
+                        {{ w.edit_count or 0 }}
+                    </div>
+
+                    <div>
+                        🆔 Work ID:
+                        {{ w.id }}
+                    </div>
+
+                </div>
+
+
+                <!-- ACTION BUTTONS -->
+                <div class="mt-3 d-flex flex-wrap gap-2">
+
+                    {% if w.status != 'approved' and w.status != 'deleted' %}
+
+                    <a
+                        href="/owner/work/approve/{{ w.id }}"
+                        class="btn btn-success btn-sm"
+                    >
+                        ✔ Approve
+                    </a>
+
+                    {% endif %}
+
+
+                    {% if w.status != 'rejected' and w.status != 'deleted' %}
+
+                    <a
+                        href="/owner/work/reject/{{ w.id }}"
+                        class="btn btn-danger btn-sm"
+                    >
+                        ❌ Reject
+                    </a>
+
+                    {% endif %}
+
+
+                    <a
+                        href="/owner/work/edit/{{ w.id }}"
+                        class="btn btn-primary btn-sm"
+                    >
+                        ✏ Edit
+                    </a>
+
+
+                    <a
+                        href="/owner/work/delete/{{ w.id }}"
+                        class="btn btn-dark btn-sm"
+                        onclick="return confirm('Delete this work?')"
+                    >
+                        🗑 Delete
+                    </a>
+
+                </div>
+
             </div>
+
         </div>
 
-    </div>
-
-    <div class="btns">
-
-        {% if w.status != 'approved' and w.status != 'deleted' %}
-            <a class="btn approve" href="/owner/work/approve/{{ w.id }}">✔ Approve</a>
-        {% endif %}
-
-        {% if w.status != 'rejected' and w.status != 'deleted' %}
-            <a class="btn reject" href="/owner/work/reject/{{ w.id }}">❌ Reject</a>
-        {% endif %}
-
-        <a class="btn edit" href="/owner/work/edit/{{ w.id }}">✏ Edit</a>
-
-        <a class="btn delete" href="/owner/work/delete/{{ w.id }}">🗑 Delete</a>
+        {% endfor %}
 
     </div>
 
 </div>
 
-{% endfor %}
 
-</div>
+<script>
 
-</body>
-</html>
+// 🔍 SEARCH
+document.getElementById("workSearch").addEventListener("keyup", function () {
+
+    let value = this.value.toLowerCase();
+
+    document.querySelectorAll(".work-card").forEach(card => {
+
+        card.style.display =
+            card.innerText.toLowerCase().includes(value)
+            ? ""
+            : "none";
+
+    });
+
+});
+
+
+// 📂 FILTER
+function filterWorks(status){
+
+    fetch(`/owner/works?status=${status}`)
+    .then(res => res.text())
+    .then(html => {
+
+        document.getElementById("main").innerHTML = html;
+
+    });
+
+}
+
+</script>
