@@ -1,5 +1,5 @@
 from flask import Blueprint, request, session, redirect
-from services.create_work_service import create_work_service
+from services.create_work_service import create_work
 
 work = Blueprint("work", __name__)
 
@@ -18,7 +18,7 @@ def create_work():
         "phone": request.form.get("phone")
     }
 
-    create_work_service(data)
+    create_work(data)
 
     return "success"
     
