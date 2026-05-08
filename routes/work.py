@@ -1,10 +1,11 @@
 from flask import Blueprint, request, session, redirect
-from services.create_work_service import create_work
+from services.create_work_service import create_work as create_work_service
 
 work = Blueprint("work", __name__)
 
+
 @work.route('/create', methods=['POST'])
-def create_work():
+def create_work_route():
 
     if 'user_id' not in session:
         return redirect('/login')
@@ -18,7 +19,7 @@ def create_work():
         "phone": request.form.get("phone")
     }
 
-    create_work(data)
+    create_work_service(data)
 
     return "success"
     
