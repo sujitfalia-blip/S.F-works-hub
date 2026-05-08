@@ -6,25 +6,27 @@ class Work(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
 
-    # 📌 Basic Info (FIXED NAME: workers)
+    # ================= BASIC =================
     title = db.Column(db.String(200), nullable=False)
     workers = db.Column(db.Integer, nullable=False)
-    salary = db.Column(db.Integer, nullable=False)
+    salary = db.Column(db.Float, nullable=False)
 
-    # 📅 Date & Time
-    date = db.Column(db.Date, nullable=False)
-    time = db.Column(db.Time, nullable=False)
-
-    # 📱 Contact
+    date = db.Column(db.String(50), nullable=False)
+    time = db.Column(db.String(50), nullable=False)
     phone = db.Column(db.String(20), nullable=False)
 
-    # 👤 Creator
-    created_by = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    # ================= STATUS =================
+    status = db.Column(db.String(20), default="active")
 
-    # 🔥 STATUS
-    status = db.Column(db.String(20), default="pending", index=True)
-    is_active = db.Column(db.Boolean, default=False)
+    # 🔥 IMPORTANT FIX (your error fix)
+    is_deleted = db.Column(db.Boolean, default=False, index=True)
 
-    # 🕒 TIMESTAMP
+    # ================= AUDIT =================
+    created_by = db.Column(db.Integer, nullable=True)
+    updated_by = db.Column(db.Integer, nullable=True)
+
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    updated_at = db.Column(db.DateTime, onupdate=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    def __repr__(self):
+        return f"<Work {self.id} - {self.title}>"
