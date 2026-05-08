@@ -11,6 +11,7 @@ from flask import Flask
 from config import Config
 
 from extensions import db, socketio
+from sqlalchemy import text
 
 # ✅ ADD THIS
 from flask_migrate import Migrate
@@ -69,7 +70,34 @@ with app.app_context():
 
         db.create_all()
 
+        prwith app.app_context():
+
+    try:
+
+        db.session.execute(text("""
+            ALTER TABLE "user"
+            ALTER COLUMN email DROP NOT NULL;
+        """))
+
+        db.session.commit()
+
+        print("✅ Email column fixed")
+
+    except Exception as e:
+
+        print("DB fix skipped:", e)
+
+    try:
+
+        db.create_all()
+
         print("✅ Database connected")
+
+    except Exception as e:
+
+        print("❌ DB init skipped:", e)
+        
+int("✅ Database connected")
 
     except Exception as e:
 
