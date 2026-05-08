@@ -82,16 +82,31 @@ def transfer_user():
 # ================= WORK CONTROL =================
 
 @owner.route('/owner/works')
+@owner_only
 def all_works():
 
-    if not owner_only():
-        return "Unauthorized"
+    # 🔍 FILTER
+    status = request.args.get("status")
 
-    works = Work.query.filter_by(is_deleted=False)\
-        .order_by(Work.id.desc()).all()
+    # ✅ BASE QUERY
+    query = Work.query.filter_by(
+        is_deleted=False
+    )
 
-    return render_template("owner_works.html", works=works)
+    # ✅ STATUS FILTER
+    if status:
+        query = query.filter_by(status=status)
 
+    # ✅ GET WORKS
+    works = query.order_by(
+        Work.id.desc()
+    ).all()
+
+    # ✅ RETURN PAGE
+    return render_template(
+        "owner_works.html",
+        works=works
+    )
 
 @owner.route('/owner/work/approve/<int:id>')
 def approve_work(id):
