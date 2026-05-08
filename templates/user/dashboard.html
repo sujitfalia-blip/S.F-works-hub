@@ -1,3 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>User Dashboard</title>
+
+<style>
+    body{
+        margin:0;
+        font-family: 'Segoe UI', sans-serif;
+        background: linear-gradient(135deg,#0f172a,#1e293b);
+        color:white;
+    }
+
+    /* GLASS TOPBAR */
+    .topbar{
+        display:flex;
+        justify-content:space-between;
+        align-items:center;
+        padding:15px 25px;
+        position:sticky;
+        top:0;
+
+        background: rgba(255,255,255,0.08);
+        backdrop-filter: blur(15px);
+        border-bottom:1px solid rgba(255,255,255,0.1);
+    }
+
+    .topbar h3{
+        margin:0;
+        font-weight:600;
+    }
+
+    .badge{
+        padding:6px 12px;
+        border-radius:20px;
+        font-size:12px;
+        background: rgba(255,255,255,0.15);
+        backdrop-filter: blur(10px);
+        margin-left:5px;
+    }
+
+    .online{ background:#22c55e; }
+
+    /* MAIN CONTAINER */
+    .container{
+        max-width:1100px;
+        margin:auto;
+        padding:25px;
+    }
+
+    h2{
+        margin-bottom:5px;
+    }
+
+    p{
+        margin-top:0;
+        color:#cbd5e1;
+    }
+
+    /* STATS */
+    .stats{
+        display:grid;
+        grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
+        gap:15px;
+        margin:20px 0;
+    }
+
+    .stat-box{
+        background: rgba(255,255,255,0.08);
+        backdrop-filter: blur(12px);
+        padding:15px;
+        border-radius:15px;
+        text-align:center;
+        border:1px solid rgba(255,255,255,0.1);
+    }
+
+    .stat-box h3{
+        margin:0;
+        color:#60a5fa;
+    }
+
+    /* GRID */
+    .grid{
+        display:grid;
+        grid-template-columns:repeat(auto-fit,minmax(250px,1fr));
+        gap:15px;
+        margin-top:20px;
+    }
+
+    /* GLASS CARD */
+    .card{
+        background: rgba(255,255,255,0.08);
+        backdrop-filter: blur(15px);
+        border:1px solid rgba(255,255,255,0.1);
+        padding:18px;
+        border-radius:15px;
+        transition:0.3s;
+    }
+
+    .card:hover{
+        transform: translateY(-5px);
+        background: rgba(255,255,255,0.12);
+    }
+
+    .title{
+        font-weight:600;
+        font-size:16px;
+        margin-bottom:8px;
+    }
+
+    .text{
+        font-size:13px;
+        color:#cbd5e1;
+    }
+
+    .btn{
+        display:inline-block;
+        margin-top:10px;
+        padding:8px 12px;
+        border-radius:8px;
+        text-decoration:none;
+        font-size:13px;
+        background:#3b82f6;
+        color:white;
+        transition:0.3s;
+    }
+
+    .btn:hover{
+        background:#2563eb;
+    }
+
+    footer{
+        text-align:center;
+        padding:20px;
+        font-size:12px;
+        color:#94a3b8;
+        margin-top:30px;
+    }
+</style>
+</head>
+
+<body>
+
+<!-- TOP BAR -->
+<div class="topbar">
+    <h3>👤 User Dashboard</h3>
+
+    <div>
+        <span class="badge">{{ session.get('role', 'user') }}</span>
+        <span class="badge online">🟢 Online</span>
+    </div>
+</div>
+
+<!-- CONTENT -->
+<div class="container">
+
+    <h2>Welcome Back 👋</h2>
+    <p>Live Jobs & Works Dashboard</p>
+
+    <!-- STATS -->
+    <div class="stats">
+        <div class="stat-box">
+            <h3>12</h3>
+            <small>Bookings</small>
+        </div>
+
+        <div class="stat-box">
+            <h3>5</h3>
+            <small>Messages</small>
+        </div>
+
+        <div class="stat-box">
+            <h3>8</h3>
+            <small>Works</small>
+        </div>
+
+        <div class="stat-box">
+            <h3>1</h3>
+            <small>Active</small>
+        </div>
+    </div>
+
+    <!-- LIVE GRID -->
+    <div class="grid"></div>
+
+</div>
+
+<footer>
+    © 2026 SaaS System | Live Dashboard
+</footer>
+
+<!-- SOCKET.IO -->
 <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
 
 <script>
@@ -18,11 +211,14 @@
 
         div.innerHTML = `
             <div class="title">🆕 ${data.title}</div>
-            <div class="text">👷 Workers: ${data.workers}</div>
-            <div class="text">💰 Salary: ${data.salary}</div>
+            <div class="text">👷 Workers: ${data.workers || 0}</div>
+            <div class="text">💰 Salary: ${data.salary || 0}</div>
             <a href="/work/${data.id}" class="btn">View</a>
         `;
 
         grid.prepend(div);
     });
 </script>
+
+</body>
+</html>
