@@ -3,14 +3,11 @@ from functools import wraps
 
 from models.user import User
 from models.profile import Profile
-
 from extensions import db
 
 from werkzeug.security import generate_password_hash, check_password_hash
 
-from services.referral_service import assign_control
-from utils.control import assign_control
-
+from utils.control import assign_control   # ✅ single import only
 
 auth = Blueprint('auth', __name__)
 
@@ -19,7 +16,6 @@ auth = Blueprint('auth', __name__)
 # LOGIN REQUIRED
 # =========================================================
 def login_required(f):
-
     @wraps(f)
     def wrapper(*args, **kwargs):
 
@@ -47,7 +43,7 @@ def signup():
     password_raw = request.form.get('password')
     role = request.form.get('role')
 
-    # ================= ROLE FIX =================
+    # ================= ROLE VALIDATION =================
     if role not in ["user", "admin", "super_admin"]:
         role = "user"
 
@@ -55,9 +51,8 @@ def signup():
     if not all([name, phone, password_raw]):
         return "All fields required"
 
-    # ================= PHONE CHECK =================
+    # ================= DUPLICATE CHECK =================
     existing = User.query.filter_by(phone=phone).first()
-
     if existing:
         return "Phone already registered"
 
@@ -66,16 +61,11 @@ def signup():
 
     # ================= REFERRAL =================
     ref_id = request.form.get('ref_id')
-
-    referrer = None
-
-    if ref_id:
-        referrer = User.query.get(ref_id)
+    referrer = User.query.get(ref_id) if ref_id else None
 
     # ================= STATUS LOGIC =================
-    # user = active
-    # admin/super_admin = pending
-
+    # user → auto active
+    # admin / super_admin → owner approval
     if role == "user":
         status = "active"
     else:
@@ -90,38 +80,40 @@ def signup():
         status=status
     )
 
-    # ================= ASSIGN CONTROL =================
+    # ================= CONTROL SYSTEM =================
+    # referral hierarchy logic
     assign_control(user, referrer)
 
+    # ================= OWNER DEFAULT CONTROL =================
+    # যদি referral না থাকে → owner control
+    if not referrer:
+        owner = User.query.filter_by(role="owner").first()
+        if owner:
+            user.controller_id = owner.id
+
     try:
-
-        # SAVE USER
+        # ================= SAVE USER =================
         db.session.add(user)
-
         db.session.flush()
 
-        # ================= CREATE PROFILE =================
+        # ================= PROFILE CREATE =================
         profile = Profile(
             user_id=user.id,
             name=name
         )
 
         db.session.add(profile)
-
-        # ================= COMMIT =================
         db.session.commit()
 
     except Exception as e:
-
         db.session.rollback()
-
         return f"Signup error: {e}"
 
-    # ================= MESSAGE =================
-    if user.status == "pending":
-        return "Signup successful. Wait for approval."
+    # ================= RESPONSE =================
+    if role == "user":
+        return redirect(url_for('auth.login'))
 
-    return redirect(url_for('auth.login'))
+    return "Signup submitted. Waiting for owner approval."
 
 
 # =========================================================
@@ -130,41 +122,33 @@ def signup():
 @auth.route('/login', methods=['GET', 'POST'])
 def login():
 
-    # ================= SHOW PAGE =================
     if request.method == 'GET':
         return render_template('login.html')
 
-    # ================= FORM DATA =================
     phone = request.form.get('phone')
     password = request.form.get('password')
 
-    # ================= VALIDATION =================
     if not phone or not password:
         return "All fields required"
 
-    # ================= FIND USER =================
     user = User.query.filter_by(phone=phone).first()
 
     if not user:
         return "User not found"
 
-    # ================= BLOCKED =================
     if user.status == "blocked":
         return "Account blocked"
 
-    # ================= PENDING =================
     if user.status != "active":
         return "Account not approved yet"
 
-    # ================= PASSWORD CHECK =================
     if not check_password_hash(user.password, password):
         return "Wrong password"
 
-    # ================= SESSION =================
     session['user_id'] = user.id
     session['role'] = user.role
 
-    # ================= REDIRECT =================
+    # ================= ROLE REDIRECT =================
     if user.role == "owner":
         return redirect('/owner/dashboard')
 
@@ -178,13 +162,11 @@ def login():
         return redirect('/user/dashboard')
 
 
-
 # =========================================================
 # LOGOUT
 # =========================================================
 @auth.route('/logout')
 def logout():
-
     session.clear()
-
     return redirect(url_for('auth.login'))
+    
