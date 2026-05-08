@@ -129,7 +129,6 @@
 
     <div class="right-info">
 
-        <!-- SAFE ROLE -->
         <span class="badge">
             {{ session.get('role', 'user') }}
         </span>
@@ -184,9 +183,10 @@
 <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
 
 <script>
-    var socket = io({
-    transports: ["websocket", "polling"]
-});
+    // ✅ FIXED CONNECTION (PRODUCTION SAFE)
+    var socket = io(window.location.origin, {
+        transports: ["websocket", "polling"]
+    });
 
     socket.on("connect", function () {
         console.log("Live connected");
@@ -194,18 +194,19 @@
 
     socket.on("new_work", function (data) {
 
-        let grid = document.querySelector(".grid");
+        const grid = document.querySelector(".grid");
+        if (!grid) return;
 
-        let div = document.createElement("div");
-        div.className = "card";
+        const card = document.createElement("div");
+        card.className = "card";
 
-        div.innerHTML = `
+        card.innerHTML = `
             <div class="title">🆕 ${data.title}</div>
             <div class="text">New work just added</div>
             <a href="/work/${data.id}" class="btn">View</a>
         `;
 
-        grid.prepend(div);
+        grid.prepend(card);
     });
 </script>
 
