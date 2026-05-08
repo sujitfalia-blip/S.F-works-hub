@@ -1,248 +1,548 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
+
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Owner Panel</title>
+
+<title>Owner Dashboard</title>
 
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <style>
-body { background:#0f172a; color:#e2e8f0; }
 
-.sidebar {
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+
+body{
+    background:#0f172a;
+    color:#e2e8f0;
+    font-family:Arial, sans-serif;
+}
+
+
+/* SIDEBAR */
+.sidebar{
     width:240px;
     height:100vh;
     position:fixed;
+    top:0;
+    left:0;
     background:#020617;
+    padding-top:20px;
+    overflow-y:auto;
+    z-index:1000;
+    border-right:1px solid #1e293b;
 }
 
-.sidebar a {
+.sidebar h4{
+    text-align:center;
+    margin-bottom:30px;
+    font-weight:bold;
+}
+
+.sidebar a{
     display:block;
-    padding:12px;
-    color:#cbd5f5;
+    padding:14px 20px;
+    color:#cbd5e1;
+    text-decoration:none;
+    transition:0.2s;
     cursor:pointer;
 }
 
-.sidebar a:hover { background:#1e293b; }
+.sidebar a:hover{
+    background:#1e293b;
+    color:white;
+}
 
-.content {
+
+/* CONTENT */
+.content{
     margin-left:240px;
     padding:20px;
 }
 
-.card {
-    background:#1e293b;
-    border-radius:12px;
-}
 
-.table { color:white; }
-
-.topbar {
+/* TOPBAR */
+.topbar{
     background:#020617;
-    padding:10px;
+    border-radius:12px;
+    padding:15px;
     display:flex;
     justify-content:space-between;
+    align-items:center;
+    margin-bottom:20px;
+}
+
+
+/* CARDS */
+.card{
+    background:#1e293b;
+    border:none;
+    border-radius:14px;
+    color:white;
+}
+
+
+/* SEARCH */
+#search{
+    background:#1e293b;
+    border:none;
+    color:white;
+}
+
+#search::placeholder{
+    color:#94a3b8;
+}
+
+
+/* FILTER */
+#daysFilter{
+    background:#1e293b;
+    color:white;
+    border:none;
+}
+
+
+/* MOBILE */
+@media(max-width:768px){
+
+    .sidebar{
+        width:100%;
+        height:auto;
+        position:relative;
+    }
+
+    .content{
+        margin-left:0;
+    }
+
 }
 
 </style>
+
 </head>
 
 <body>
 
 <!-- SIDEBAR -->
 <div class="sidebar">
-    <h4 class="text-center mt-3">👑 Owner</h4>
-    <a onclick="loadDashboard()">📊 Analytics</a>
-    <a onclick="loadWorks()">🛠 Works</a>
-    <a onclick="loadTransfer()">🔁 Transfer</a>
+
+    <h4>👑 OWNER</h4>
+
+    <a onclick="loadDashboard()">
+        📊 Analytics
+    </a>
+
+    <a onclick="loadWorks()">
+        🛠 Works
+    </a>
+
+    <a onclick="loadTransfer()">
+        🔁 Transfer
+    </a>
+
 </div>
+
+
 
 <!-- CONTENT -->
 <div class="content">
 
-<div class="topbar">
-    <span>🚀 Owner Panel</span>
-    <button class="btn btn-danger btn-sm" onclick="logout()">Logout</button>
+    <!-- TOPBAR -->
+    <div class="topbar">
+
+        <h5 class="m-0">
+            🚀 Owner Control Panel
+        </h5>
+
+        <button class="btn btn-danger btn-sm" onclick="logout()">
+            Logout
+        </button>
+
+    </div>
+
+
+    <!-- TITLE -->
+    <h3 id="title" class="mb-3">
+        Dashboard
+    </h3>
+
+
+    <!-- FILTER -->
+    <div class="row mb-3">
+
+        <div class="col-md-3 mb-2">
+
+            <select
+                id="daysFilter"
+                class="form-select"
+                onchange="loadDashboard()"
+            >
+                <option value="7">
+                    Last 7 Days
+                </option>
+
+                <option value="30" selected>
+                    Last 30 Days
+                </option>
+
+                <option value="90">
+                    Last 90 Days
+                </option>
+
+            </select>
+
+        </div>
+
+        <div class="col-md-5 mb-2">
+
+            <input
+                id="search"
+                class="form-control"
+                placeholder="🔍 Search..."
+            >
+
+        </div>
+
+    </div>
+
+
+    <!-- MAIN CONTENT -->
+    <div id="main"></div>
+
 </div>
 
-<h3 id="title" class="mt-3">Dashboard</h3>
 
-<!-- FILTER -->
-<select id="daysFilter" class="form-select mb-3" onchange="loadDashboard()">
-    <option value="7">Last 7 Days</option>
-    <option value="30" selected>Last 30 Days</option>
-    <option value="90">Last 90 Days</option>
-</select>
-
-<input id="search" class="form-control mb-3" placeholder="Search...">
-
-<div id="main"></div>
-
-</div>
 
 <script>
 
 let workChart = null;
 let userChart = null;
 
+
+
 // ================= DASHBOARD =================
-function loadDashboard() {
+function loadDashboard(){
 
-    document.getElementById("title").innerText = "Analytics Dashboard";
+    document.getElementById("title").innerText =
+        "📊 Analytics Dashboard";
 
-    let days = document.getElementById("daysFilter").value;
+    let days =
+        document.getElementById("daysFilter").value;
 
     document.getElementById("main").innerHTML = `
-        <div class="row text-center">
+
+        <div class="row g-3">
 
             <div class="col-md-3">
-                <div class="card p-3">
+
+                <div class="card p-3 text-center">
+
                     <h6>Total Works</h6>
+
                     <h2 id="totalWorks">...</h2>
+
                 </div>
+
             </div>
 
+
             <div class="col-md-3">
-                <div class="card p-3">
+
+                <div class="card p-3 text-center">
+
                     <h6>Approved</h6>
+
                     <h2 id="approvedWorks">...</h2>
+
                 </div>
+
             </div>
 
+
             <div class="col-md-3">
-                <div class="card p-3">
+
+                <div class="card p-3 text-center">
+
                     <h6>Pending</h6>
+
                     <h2 id="pendingWorks">...</h2>
+
                 </div>
+
             </div>
 
+
             <div class="col-md-3">
-                <div class="card p-3">
+
+                <div class="card p-3 text-center">
+
                     <h6>Total Users</h6>
+
                     <h2 id="totalUsers">...</h2>
+
                 </div>
+
             </div>
 
         </div>
+
+
 
         <div class="row mt-4">
 
-            <div class="col-md-6">
+            <div class="col-lg-6 mb-4">
+
                 <div class="card p-3">
-                    <h6>Work Growth</h6>
+
+                    <h5 class="mb-3">
+                        📈 Work Growth
+                    </h5>
+
                     <canvas id="workChart"></canvas>
+
                 </div>
+
             </div>
 
-            <div class="col-md-6">
+
+            <div class="col-lg-6 mb-4">
+
                 <div class="card p-3">
-                    <h6>User Growth</h6>
+
+                    <h5 class="mb-3">
+                        👥 User Growth
+                    </h5>
+
                     <canvas id="userChart"></canvas>
+
                 </div>
+
             </div>
 
         </div>
+
     `;
 
+
     fetch(`/owner/analytics?days=${days}`)
+
     .then(res => res.json())
+
     .then(res => {
 
         let d = res.data;
 
-        // ✅ Cards
-        document.getElementById("totalWorks").innerText = d.works.total;
-        document.getElementById("approvedWorks").innerText = d.works.approved;
-        document.getElementById("pendingWorks").innerText = d.works.pending;
-        document.getElementById("totalUsers").innerText = d.users.total;
 
-        // ❗ destroy old charts (IMPORTANT)
+        // CARDS
+        document.getElementById("totalWorks").innerText =
+            d.works.total;
+
+        document.getElementById("approvedWorks").innerText =
+            d.works.approved;
+
+        document.getElementById("pendingWorks").innerText =
+            d.works.pending;
+
+        document.getElementById("totalUsers").innerText =
+            d.users.total;
+
+
+        // DESTROY OLD CHARTS
         if(workChart) workChart.destroy();
+
         if(userChart) userChart.destroy();
 
-        // 📊 Work Chart
-        workChart = new Chart(document.getElementById("workChart"), {
-            type: 'line',
-            data: {
-                labels: d.growth.works.map(x => x.date),
-                datasets: [{
-                    label: "Works",
-                    data: d.growth.works.map(x => x.count)
-                }]
-            }
-        });
 
-        // 📊 User Chart
-        userChart = new Chart(document.getElementById("userChart"), {
-            type: 'bar',
-            data: {
-                labels: d.growth.users.map(x => x.date),
-                datasets: [{
-                    label: "Users",
-                    data: d.growth.users.map(x => x.count)
-                }]
+        // WORK CHART
+        workChart = new Chart(
+            document.getElementById("workChart"),
+            {
+                type:'line',
+
+                data:{
+
+                    labels:
+                        d.growth.works.map(x => x.date),
+
+                    datasets:[{
+
+                        label:'Works',
+
+                        data:
+                            d.growth.works.map(x => x.count)
+
+                    }]
+                }
             }
-        });
+        );
+
+
+        // USER CHART
+        userChart = new Chart(
+            document.getElementById("userChart"),
+            {
+                type:'bar',
+
+                data:{
+
+                    labels:
+                        d.growth.users.map(x => x.date),
+
+                    datasets:[{
+
+                        label:'Users',
+
+                        data:
+                            d.growth.users.map(x => x.count)
+
+                    }]
+                }
+            }
+        );
 
     });
+
 }
 
 
-// ================= WORK LIST =================
+
+
+// ================= WORKS =================
 function loadWorks(){
 
-    document.getElementById("title").innerText="Works";
+    document.getElementById("title").innerText =
+        "🛠 Work Management";
+
+    document.getElementById("main").innerHTML = `
+        <div class="text-center p-5">
+            Loading works...
+        </div>
+    `;
 
     fetch('/owner/works')
-    .then(res=>res.text())
-    .then(html=>{
-        document.getElementById("main").innerHTML = html;
+
+    .then(res => res.text())
+
+    .then(html => {
+
+        document.getElementById("main").innerHTML =
+            html;
+
     });
+
 }
+
+
 
 
 // ================= TRANSFER =================
 function loadTransfer(){
 
-    document.getElementById("title").innerText="Transfer";
+    document.getElementById("title").innerText =
+        "🔁 Transfer User";
 
-    document.getElementById("main").innerHTML=`
-    <div class="card p-3">
+    document.getElementById("main").innerHTML = `
 
-        <form method="POST" action="/owner/transfer">
-            
-            <input class="form-control mb-2" name="user_id" placeholder="User ID" required>
-            <input class="form-control mb-2" name="new_controller" placeholder="Admin ID" required>
+        <div class="card p-4">
 
-            <button class="btn btn-warning">Transfer</button>
-        </form>
+            <form method="POST" action="/owner/transfer">
 
-    </div>
+                <div class="mb-3">
+
+                    <label class="form-label">
+                        User ID
+                    </label>
+
+                    <input
+                        class="form-control"
+                        name="user_id"
+                        required
+                    >
+
+                </div>
+
+
+                <div class="mb-3">
+
+                    <label class="form-label">
+                        New Admin ID
+                    </label>
+
+                    <input
+                        class="form-control"
+                        name="new_controller"
+                        required
+                    >
+
+                </div>
+
+
+                <button class="btn btn-warning">
+
+                    🔁 Transfer User
+
+                </button>
+
+            </form>
+
+        </div>
+
     `;
+
 }
 
 
+
+
 // ================= SEARCH =================
-document.getElementById("search").addEventListener("keyup", function(){
-    let value = this.value.toLowerCase();
-    document.querySelectorAll("table tr").forEach(row=>{
-        row.style.display = row.innerText.toLowerCase().includes(value) ? "" : "none";
+document.getElementById("search")
+
+.addEventListener("keyup", function(){
+
+    let value =
+        this.value.toLowerCase();
+
+    document.querySelectorAll(".work-card")
+
+    .forEach(card => {
+
+        card.style.display =
+
+            card.innerText.toLowerCase().includes(value)
+
+            ? ""
+
+            : "none";
+
     });
+
 });
+
+
 
 
 // ================= LOGOUT =================
 function logout(){
-    window.location="/logout";
+
+    window.location = "/logout";
+
 }
 
 
-// INIT
+
+
+// ================= INIT =================
 loadDashboard();
 
 </script>
 
 </body>
-</html>
+    </html>
+    
