@@ -1,215 +1,28 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>User Dashboard</title>
-
-    <style>
-        body{
-            font-family: Arial;
-            background:#eef2f7;
-            margin:0;
-            padding:0;
-        }
-
-        .topbar{
-            background: linear-gradient(90deg,#007bff,#0056b3);
-            color:white;
-            padding:15px 20px;
-            display:flex;
-            justify-content:space-between;
-            align-items:center;
-            position:sticky;
-            top:0;
-        }
-
-        .topbar h3{ margin:0; }
-
-        .right-info{
-            display:flex;
-            gap:10px;
-            align-items:center;
-        }
-
-        .badge{
-            background:white;
-            color:#007bff;
-            padding:5px 10px;
-            border-radius:20px;
-            font-size:12px;
-            font-weight:bold;
-        }
-
-        .online{ background:#28a745; color:white; }
-        .notify{ background:#ff4757; color:white; }
-
-        .container{
-            max-width:1100px;
-            margin:auto;
-            padding:20px;
-        }
-
-        h2{ margin-bottom:5px; }
-        p{ color:gray; margin-top:0; }
-
-        .stats{
-            display:grid;
-            grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
-            gap:15px;
-            margin-bottom:20px;
-        }
-
-        .stat-box{
-            background:white;
-            padding:15px;
-            border-radius:10px;
-            box-shadow:0 2px 10px rgba(0,0,0,0.06);
-            text-align:center;
-        }
-
-        .stat-box h3{ margin:0; color:#007bff; }
-        .stat-box small{ color:gray; }
-
-        .grid{
-            display:grid;
-            grid-template-columns:repeat(auto-fit,minmax(250px,1fr));
-            gap:15px;
-        }
-
-        .card{
-            background:white;
-            padding:20px;
-            border-radius:12px;
-            box-shadow:0 3px 12px rgba(0,0,0,0.08);
-            transition:0.3s;
-        }
-
-        .card:hover{
-            transform:translateY(-4px);
-        }
-
-        .title{
-            font-size:16px;
-            font-weight:bold;
-            margin-bottom:8px;
-        }
-
-        .text{
-            font-size:13px;
-            color:gray;
-        }
-
-        .btn{
-            display:inline-block;
-            margin-top:10px;
-            padding:8px 12px;
-            background:#007bff;
-            color:white;
-            border-radius:6px;
-            text-decoration:none;
-            font-size:13px;
-        }
-
-        .btn:hover{ background:#0056b3; }
-
-        .footer{
-            text-align:center;
-            padding:20px;
-            font-size:12px;
-            color:gray;
-            margin-top:30px;
-        }
-    </style>
-</head>
-
-<body>
-
-<!-- TOP BAR -->
-<div class="topbar">
-    <h3>👤 User Dashboard</h3>
-
-    <div class="right-info">
-
-        <span class="badge">
-            {{ session.get('role', 'user') }}
-        </span>
-
-        <span class="badge online">🟢 Online</span>
-
-        <span class="badge notify">🔔 3</span>
-
-    </div>
-</div>
-
-<div class="container">
-
-    <h2>Welcome Back 👋</h2>
-    <p>Manage everything from your personal dashboard</p>
-
-    <!-- STATS -->
-    <div class="stats">
-
-        <div class="stat-box">
-            <h3>12</h3>
-            <small>Bookings</small>
-        </div>
-
-        <div class="stat-box">
-            <h3>5</h3>
-            <small>Messages</small>
-        </div>
-
-        <div class="stat-box">
-            <h3>8</h3>
-            <small>Works Available</small>
-        </div>
-
-        <div class="stat-box">
-            <h3>1</h3>
-            <small>Active Profile</small>
-        </div>
-
-    </div>
-
-    <!-- LIVE GRID -->
-    <div class="grid"></div>
-
-</div>
-
-<div class="footer">
-    © 2026 SaaS System | User Panel
-</div>
-
-<!-- SOCKET.IO -->
 <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
 
 <script>
-    // ✅ FIXED CONNECTION (PRODUCTION SAFE)
     var socket = io({
-    transports: ["websocket", "polling"],
-    upgrade: true
-});
+        transports: ["websocket", "polling"]
+    });
 
     socket.on("connect", function () {
-        console.log("Live connected");
+        console.log("✅ Connected to live server");
     });
 
     socket.on("new_work", function (data) {
 
-        const grid = document.querySelector(".grid");
-        if (!grid) return;
+        let grid = document.querySelector(".grid");
 
-        const card = document.createElement("div");
-        card.className = "card";
+        let div = document.createElement("div");
+        div.className = "card";
 
-        card.innerHTML = `
+        div.innerHTML = `
             <div class="title">🆕 ${data.title}</div>
-            <div class="text">New work just added</div>
+            <div class="text">👷 Workers: ${data.workers}</div>
+            <div class="text">💰 Salary: ${data.salary}</div>
             <a href="/work/${data.id}" class="btn">View</a>
         `;
 
-        grid.prepend(card);
+        grid.prepend(div);
     });
 </script>
-
-</body>
-</html>
