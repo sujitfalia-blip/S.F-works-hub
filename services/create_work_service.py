@@ -8,11 +8,12 @@ def create_work(data):
         # ================= CREATE WORK =================
         work = Work(
             title=data.get("title"),
-            workers=data.get("workers"),
-            salary=data.get("salary"),
+            workers_needed=int(data.get("workers") or 0),
+            salary=int(data.get("salary") or 0),
             date=data.get("date"),
             time=data.get("time"),
-            phone=data.get("phone")
+            phone=data.get("phone"),
+            created_by=data.get("user_id")
         )
 
         # ================= SAVE =================
@@ -20,10 +21,14 @@ def create_work(data):
         db.session.commit()
 
         # ================= LIVE UPDATE =================
-        socketio.emit("new_work", {
-            "id": work.id,
-            "title": work.title
-        })
+        socketio.emit(
+            "new_work",
+            {
+                "id": work.id,
+                "title": work.title
+            },
+            to=None
+        )
 
         return work
 
