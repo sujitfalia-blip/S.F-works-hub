@@ -1,4 +1,4 @@
-from models import User
+from models.user import User
 
 def assign_control(user, referrer=None):
 
