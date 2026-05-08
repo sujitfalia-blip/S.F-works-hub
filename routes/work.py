@@ -19,7 +19,7 @@ def create_work_route():
         "phone": request.form.get("phone")
     }
 
-    create_work_service(data, session['user_id'])
+    create_work_service(data, session["user_id"])
 
-    return "success"
+    return redirect('/user/dashboard')
     
