@@ -1,6 +1,7 @@
 from extensions import db
 from datetime import datetime
 
+
 class Work(db.Model):
     id = db.Column(db.Integer, primary_key=True)
 
@@ -23,7 +24,7 @@ class Work(db.Model):
     status = db.Column(db.String(20), default="pending", index=True)
     is_active = db.Column(db.Boolean, default=False)
 
-    # 👑 ACTION TRACKING
+    # 👑 TRACKING
     approved_by = db.Column(db.Integer, nullable=True)
     rejected_by = db.Column(db.Integer, nullable=True)
     edited_by = db.Column(db.Integer, nullable=True)
@@ -33,10 +34,10 @@ class Work(db.Model):
     # 🗑 SOFT DELETE
     is_deleted = db.Column(db.Boolean, default=False)
 
-    # 📝 VERSION CONTROL
+    # 📝 VERSION
     edit_count = db.Column(db.Integer, default=0)
 
-    # 🕒 TIMESTAMPS (✔ FIXED)
+    # 🕒 TIMESTAMPS
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, onupdate=datetime.utcnow)
     
