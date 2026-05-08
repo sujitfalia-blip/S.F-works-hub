@@ -1,6 +1,6 @@
 from models.work import Work
 from extensions import db
-from app import socketio   # অথবা তোমার socketio যেখানে define আছে
+from extensions import socketio
 
 def create_work(data):
 
