@@ -68,12 +68,6 @@ with app.app_context():
 
     try:
 
-        db.create_all()
-
-        prwith app.app_context():
-
-    try:
-
         db.session.execute(text("""
             ALTER TABLE "user"
             ALTER COLUMN email DROP NOT NULL;
@@ -96,7 +90,6 @@ with app.app_context():
     except Exception as e:
 
         print("❌ DB init skipped:", e)
-        
 
 # ================= RUN LOCAL =================
 
