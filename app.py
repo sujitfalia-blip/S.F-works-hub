@@ -97,12 +97,6 @@ with app.app_context():
 
         print("❌ DB init skipped:", e)
         
-int("✅ Database connected")
-
-    except Exception as e:
-
-        print("❌ DB init skipped:", e)
-
 
 # ================= RUN LOCAL =================
 
