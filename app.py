@@ -23,6 +23,8 @@ from routes.admin import admin_bp
 from routes.super_admin import super_admin
 from routes.user import user
 from routes.main import main
+from routes.work import work as work_bp
+
 
 
 # ================= CREATE APP =================
@@ -55,7 +57,8 @@ def create_app():
     app.register_blueprint(user)
 
     app.register_blueprint(main)
-
+    
+    app.register_blueprint(work_bp)
     return app
 
 
@@ -63,7 +66,7 @@ def create_app():
 app = create_app()
 
 
-# ================= SAFE DB INIT =================
+# ==============app.register_blueprint(work_bp)=== SAFE DB INIT =================
 with app.app_context():
 
     try:
