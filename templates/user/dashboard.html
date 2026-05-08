@@ -11,7 +11,6 @@
             padding:0;
         }
 
-        /* TOP BAR */
         .topbar{
             background: linear-gradient(90deg,#007bff,#0056b3);
             color:white;
@@ -23,9 +22,7 @@
             top:0;
         }
 
-        .topbar h3{
-            margin:0;
-        }
+        .topbar h3{ margin:0; }
 
         .right-info{
             display:flex;
@@ -42,33 +39,18 @@
             font-weight:bold;
         }
 
-        .online{
-            background:#28a745;
-            color:white;
-        }
+        .online{ background:#28a745; color:white; }
+        .notify{ background:#ff4757; color:white; }
 
-        .notify{
-            background:#ff4757;
-            color:white;
-        }
-
-        /* CONTAINER */
         .container{
             max-width:1100px;
             margin:auto;
             padding:20px;
         }
 
-        h2{
-            margin-bottom:5px;
-        }
+        h2{ margin-bottom:5px; }
+        p{ color:gray; margin-top:0; }
 
-        p{
-            color:gray;
-            margin-top:0;
-        }
-
-        /* STATS */
         .stats{
             display:grid;
             grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
@@ -84,16 +66,9 @@
             text-align:center;
         }
 
-        .stat-box h3{
-            margin:0;
-            color:#007bff;
-        }
+        .stat-box h3{ margin:0; color:#007bff; }
+        .stat-box small{ color:gray; }
 
-        .stat-box small{
-            color:gray;
-        }
-
-        /* CARDS */
         .grid{
             display:grid;
             grid-template-columns:repeat(auto-fit,minmax(250px,1fr));
@@ -134,11 +109,8 @@
             font-size:13px;
         }
 
-        .btn:hover{
-            background:#0056b3;
-        }
+        .btn:hover{ background:#0056b3; }
 
-        /* FOOTER */
         .footer{
             text-align:center;
             padding:20px;
@@ -146,7 +118,6 @@
             color:gray;
             margin-top:30px;
         }
-
     </style>
 </head>
 
@@ -158,20 +129,14 @@
 
     <div class="right-info">
 
-        <!-- ROLE -->
+        <!-- SAFE ROLE -->
         <span class="badge">
-            {{ session['role'] }}
+            {{ session.get('role', 'user') }}
         </span>
 
-        <!-- ONLINE STATUS (future socket ready) -->
-        <span class="badge online">
-            🟢 Online
-        </span>
+        <span class="badge online">🟢 Online</span>
 
-        <!-- NOTIFICATION -->
-        <span class="badge notify">
-            🔔 3
-        </span>
+        <span class="badge notify">🔔 3</span>
 
     </div>
 </div>
@@ -206,41 +171,41 @@
 
     </div>
 
-    <!-- DASHBOARD CARDS -->
-    <div class="grid">
-
-        <div class="card">
-            <div class="title">📦 My Bookings</div>
-            <div class="text">Track all your booking history</div>
-            <a href="/bookings" class="btn">Open</a>
-        </div>
-
-        <div class="card">
-            <div class="title">💬 Chat System</div>
-            <div class="text">Chat with admins & workers</div>
-            <a href="/chat" class="btn">Open</a>
-        </div>
-
-        <div class="card">
-            <div class="title">🧰 Jobs / Works</div>
-            <div class="text">Find new opportunities</div>
-            <a href="/works" class="btn">Explore</a>
-        </div>
-
-        <div class="card">
-            <div class="title">⚙️ Profile Settings</div>
-            <div class="text">Update your account details</div>
-            <a href="/profile" class="btn">Edit</a>
-        </div>
-
-    </div>
+    <!-- LIVE GRID -->
+    <div class="grid"></div>
 
 </div>
 
-<!-- FOOTER -->
 <div class="footer">
     © 2026 SaaS System | User Panel
 </div>
+
+<!-- SOCKET.IO -->
+<script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
+
+<script>
+    var socket = io();
+
+    socket.on("connect", function () {
+        console.log("Live connected");
+    });
+
+    socket.on("new_work", function (data) {
+
+        let grid = document.querySelector(".grid");
+
+        let div = document.createElement("div");
+        div.className = "card";
+
+        div.innerHTML = `
+            <div class="title">🆕 ${data.title}</div>
+            <div class="text">New work just added</div>
+            <a href="/work/${data.id}" class="btn">View</a>
+        `;
+
+        grid.prepend(div);
+    });
+</script>
 
 </body>
 </html>
