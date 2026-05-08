@@ -272,3 +272,26 @@ def owner_analytics():
             }
         }
     })
+
+# =================================================
+# 🏠 OWNER DASHBOARD
+# =================================================
+
+@owner.route('/owner/dashboard')
+@owner_only
+def owner_dashboard():
+
+    total_users = User.query.count()
+    total_works = Work.query.count()
+
+    return f"""
+    <h1>OWNER DASHBOARD ✅</h1>
+
+    <p>Total Users: {total_users}</p>
+
+    <p>Total Works: {total_works}</p>
+
+    <a href='/owner/works'>Manage Works</a><br><br>
+
+    <a href='/owner/analytics'>Analytics</a>
+    """
