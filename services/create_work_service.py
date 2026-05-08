@@ -19,20 +19,16 @@ def create_work(data):
         db.session.add(work)
         db.session.commit()
 
-        # ================= LIVE UPDATE (IMPORTANT FIX) =================
-        socketio.emit(
-            "new_work",
-            {
-                "id": work.id,
-                "title": work.title
-            },
-            broadcast=True  # 🔥 সব connected user এ যাবে
-        )
+        # ================= LIVE UPDATE =================
+        socketio.emit("new_work", {
+            "id": work.id,
+            "title": work.title
+        })
 
         return work
 
     except Exception as e:
         db.session.rollback()
-        print("Create Work Error:", e)  # debugging help
+        print("Create Work Error:", e)
         return None
         
