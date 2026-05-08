@@ -292,20 +292,22 @@ def owner_analytics():
 # 🏠 OWNER DASHBOARD
 # =================================================
 @owner.route('/owner/dashboard')
-@owner_only
+@role_required("owner")
 def owner_dashboard():
 
-    total_users = User.query.filter_by(
-        role="user"
-    ).count()
+    # ================= USERS =================
+    total_users = User.query.filter_by(role="user").count()
 
-    total_works = Work.query.filter_by(
-        is_deleted=False
-    ).count()
+    # ================= WORKS (SAFE FIX) =================
+    total_works = Work.query.filter_by(is_deleted=False).count()
+
+    # ================= EXTRA STATS =================
+    active_works = Work.query.filter_by(status="active", is_deleted=False).count()
 
     return render_template(
         "owner/dashboard.html",
         total_users=total_users,
-        total_works=total_works
+        total_works=total_works,
+        active_works=active_works
     )
     
