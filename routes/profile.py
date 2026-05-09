@@ -209,7 +209,11 @@ except:
 
 
     # ================= SAVE =================
+    try:
     db.session.commit()
+except Exception as e:
+    db.session.rollback()
+    print(e)
 
-    return redirect('/profile')
+return redirect('/profile')
     
