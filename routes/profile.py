@@ -97,25 +97,19 @@ def profile_setup():
 
 
     # ================= BASIC INFO =================
+    try:
     profile_data.name = request.form.get('name')
-
     profile_data.address = request.form.get('address')
-
-    age = request.form.get('age')
-profile_data.age = int(age) if age and age.isdigit() else None
-
+    profile_data.age = request.form.get('age')
     profile_data.education = request.form.get('education')
-
     profile_data.area = request.form.get('area')
-
     profile_data.gender = request.form.get('gender')
-
     profile_data.religion = request.form.get('religion')
-
     profile_data.country = request.form.get('country')
-
     profile_data.work_desc = request.form.get('work_desc')
 
+except Exception as e:
+    print("Form error:", e)
 
 
     # ================= UPLOAD FOLDER =================
