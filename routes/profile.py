@@ -24,6 +24,39 @@ profile = Blueprint(
 )
 
 
+# ================= PROFILE PAGE =================
+@profile.route('/profile')
+def profile_page():
+
+    if 'user_id' not in session:
+        return redirect('/login')
+
+    user = User.query.get(session['user_id'])
+
+    profile_data = Profile.query.filter_by(
+        user_id=user.id
+    ).first()
+
+    gallery = []
+
+    if profile_data and profile_data.gallery:
+
+        try:
+            gallery = json.loads(
+                profile_data.gallery
+            )
+
+        except:
+            gallery = []
+
+    return render_template(
+        'profile.html',
+        user=user,
+        profile=profile_data,
+        gallery=gallery
+    )
+
+
 
 # ================= PROFILE SETUP =================
 @profile.route('/profile/setup', methods=['GET', 'POST'])
@@ -32,9 +65,11 @@ def profile_setup():
     if 'user_id' not in session:
         return redirect('/login')
 
-    user = User.query.get(session['user_id'])
+    user = User.query.get(
+        session['user_id']
+    )
 
-    # ================= GET PAGE =================
+    # ================= GET =================
     if request.method == 'GET':
 
         profile_data = Profile.query.filter_by(
@@ -42,7 +77,7 @@ def profile_setup():
         ).first()
 
         return render_template(
-            'user/profile_setup.html',
+            'edit_profile.html',
             user=user,
             profile=profile_data
         )
@@ -85,44 +120,68 @@ def profile_setup():
 
 
 
+    # ================= UPLOAD FOLDER =================
+    upload_folder = current_app.config['UPLOAD_FOLDER']
+
+    os.makedirs(
+        upload_folder,
+        exist_ok=True
+    )
+
+
+
     # ================= PROFILE IMAGE =================
-    profile_img = request.files.get('profile_img')
+    profile_img = request.files.get(
+        'profile_img'
+    )
 
     if profile_img and profile_img.filename != '':
 
-        filename = secure_filename(profile_img.filename)
+        filename = secure_filename(
+            profile_img.filename
+        )
 
         path = os.path.join(
-            current_app.config['UPLOAD_FOLDER'],
+            upload_folder,
             filename
         )
 
         profile_img.save(path)
 
-        profile_data.profile_img = f"uploads/{filename}"
+        profile_data.profile_img = (
+            f"static/uploads/{filename}"
+        )
 
 
 
     # ================= COVER IMAGE =================
-    cover_img = request.files.get('cover_img')
+    cover_img = request.files.get(
+        'cover_img'
+    )
 
     if cover_img and cover_img.filename != '':
 
-        filename = secure_filename(cover_img.filename)
+        filename = secure_filename(
+            cover_img.filename
+        )
 
         path = os.path.join(
-            current_app.config['UPLOAD_FOLDER'],
+            upload_folder,
             filename
         )
 
         cover_img.save(path)
 
-        profile_data.cover_img = f"uploads/{filename}"
+        profile_data.cover_img = (
+            f"static/uploads/{filename}"
+        )
 
 
 
     # ================= GALLERY =================
-    gallery_files = request.files.getlist('gallery')
+    gallery_files = request.files.getlist(
+        'gallery'
+    )
 
     gallery_paths = []
 
@@ -130,17 +189,19 @@ def profile_setup():
 
         if file and file.filename != '':
 
-            filename = secure_filename(file.filename)
+            filename = secure_filename(
+                file.filename
+            )
 
             path = os.path.join(
-                current_app.config['UPLOAD_FOLDER'],
+                upload_folder,
                 filename
             )
 
             file.save(path)
 
             gallery_paths.append(
-                f"uploads/{filename}"
+                f"static/uploads/{filename}"
             )
 
 
@@ -156,4 +217,5 @@ def profile_setup():
     # ================= SAVE =================
     db.session.commit()
 
-    return redirect('/user/dashboard')
+    return redirect('/profile')
+    
