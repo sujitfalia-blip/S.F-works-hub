@@ -148,9 +148,7 @@ except:
 
         profile_img.save(path)
 
-        profile_data.profile_img = (
-            f"static/uploads/{filename}"
-        )
+        profile_data.profile_img = f"uploads/{filename}"
 
 
 
@@ -172,9 +170,7 @@ except:
 
         cover_img.save(path)
 
-        profile_data.cover_img = (
-            f"static/uploads/{filename}"
-        )
+        profile_data.cover_img = f"uploads/{filename}"
 
 
 
