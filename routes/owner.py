@@ -378,28 +378,32 @@ def owner_analytics():
 @owner_only
 def owner_dashboard():
 
-    # 👤 total users
+    # ================= USERS =================
     total_users = User.query.filter_by(
         role="user"
     ).count()
 
-    # 👑 admins
+    # ================= ADMINS =================
     total_admins = User.query.filter(
         User.role.in_(["admin", "super_admin"])
     ).count()
 
-    # 📋 works
+    # ================= PENDING ADMINS =================
+    pending_admins = User.query.filter(
+        User.role.in_(["admin", "super_admin"]),
+        User.status == "pending"
+    ).all()
+
+    # ================= WORKS =================
     total_works = Work.query.filter_by(
         is_deleted=False
     ).count()
 
-    # ✅ approved works
     approved_works = Work.query.filter_by(
         status="approved",
         is_deleted=False
     ).count()
 
-    # ⏳ pending works
     pending_works = Work.query.filter_by(
         status="pending",
         is_deleted=False
@@ -411,6 +415,6 @@ def owner_dashboard():
         total_admins=total_admins,
         total_works=total_works,
         approved_works=approved_works,
-        pending_works=pending_works
+        pending_works=pending_works,
+        pending_admins=pending_admins
     )
-    
