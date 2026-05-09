@@ -20,6 +20,8 @@ class User(db.Model):
         index=True
     )
 
+    user = db.relationship('User', backref='profile', uselist=False)
+
     email = db.Column(
     db.String(120),
     unique=True,
