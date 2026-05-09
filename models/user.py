@@ -72,7 +72,7 @@ referrals = db.relationship(
     foreign_keys=[referred_by],
     backref='referrer',
     lazy=True
-)
+    )
 
 controller_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True)
 
@@ -81,7 +81,7 @@ controller = db.relationship(
     foreign_keys=[controller_id],
     backref='controlled_users',
     lazy=True
-)
+    )
 
 
     # =========================================================
