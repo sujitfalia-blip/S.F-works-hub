@@ -2,6 +2,8 @@ from extensions import db
 
 
 class Profile(db.Model):
+    __tablename__ = "profile"
+    
 
     id = db.Column(
         db.Integer,
