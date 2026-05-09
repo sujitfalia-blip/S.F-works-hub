@@ -29,10 +29,10 @@ def create_app():
     app.config.from_object(Config)
 
     # ================= UPLOAD FOLDER SAFE =================
-    os.makedirs(
-        app.config['UPLOAD_FOLDER'],
-        exist_ok=True
-    )
+    upload_path = app.config['UPLOAD_FOLDER']
+
+if not os.path.exists(upload_path):
+    os.makedirs(upload_path)
 
     # ================= INIT EXTENSIONS =================
     db.init_app(app)
