@@ -65,39 +65,24 @@ class User(db.Model):
     # =========================================================
     # 🔗 REFERRAL SYSTEM
     # =========================================================
-    referred_by = db.Column(
-        db.Integer,
-        db.ForeignKey('user.id'),
-        nullable=True
-    )
+    referred_by = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True)
 
-    referrals = db.relationship(
-        'User',
-        foreign_keys=[referred_by],
-        backref=db.backref(
-            'referrer',
-            remote_side=[id]
-        ),
-        lazy=True
-    )
+referrals = db.relationship(
+    'User',
+    foreign_keys=[referred_by],
+    backref='referrer',
+    lazy=True
+)
 
-    # =========================================================
-    # 🎯 CONTROL SYSTEM
-    # =========================================================
-    controller_id = db.Column(
-        db.Integer,
-        db.ForeignKey('user.id'),
-        nullable=True,
-        index=True
-    )
+controller_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True)
 
-    controller = db.relationship(
-        'User',
-        foreign_keys=[controller_id],
-        remote_side=[id],
-        backref='controlled_users',
-        lazy=True
-    )
+controller = db.relationship(
+    'User',
+    foreign_keys=[controller_id],
+    backref='controlled_users',
+    lazy=True
+)
+
 
     # =========================================================
     # 📍 WORK FILTER
