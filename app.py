@@ -24,7 +24,7 @@ from routes.super_admin import super_admin
 from routes.user import user
 from routes.main import main
 from routes.work import work as work_bp
-
+from routes.profile import profile
 
 
 # ================= CREATE APP =================
@@ -58,6 +58,8 @@ def create_app():
     app.register_blueprint(user)
 
     app.register_blueprint(main)
+
+    app.register_blueprint(profile)
     
     app.register_blueprint(work_bp)
     return app
