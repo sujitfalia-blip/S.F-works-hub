@@ -5,14 +5,8 @@ from datetime import datetime
 class User(db.Model):
     __tablename__ = "user"
 
-    # =========================================================
-    # 🔑 PRIMARY KEY
-    # =========================================================
     id = db.Column(db.Integer, primary_key=True)
 
-    # =========================================================
-    # 🔐 AUTH
-    # =========================================================
     phone = db.Column(
         db.String(20),
         unique=True,
@@ -20,12 +14,10 @@ class User(db.Model):
         index=True
     )
 
-    user = db.relationship('User', backref='profile', uselist=False)
-
     email = db.Column(
-    db.String(120),
-    unique=True,
-    nullable=True
+        db.String(120),
+        unique=True,
+        nullable=True
     )
 
     password = db.Column(
@@ -33,60 +25,51 @@ class User(db.Model):
         nullable=False
     )
 
-    # =========================================================
-    # 👤 BASIC INFO
-    # =========================================================
     name = db.Column(
         db.String(100),
         nullable=False,
         index=True
     )
 
-    # =========================================================
-    # 👑 ROLE SYSTEM
-    # =========================================================
     role = db.Column(
         db.String(20),
         default="user",
         index=True
     )
-    # user / admin / super_admin / owner
 
-    # =========================================================
-    # 🟢 ACCOUNT STATUS
-    # =========================================================
     status = db.Column(
         db.String(20),
         default="active",
         index=True
     )
-    # active / pending / blocked
 
-    # =========================================================
-    # 🔗 REFERRAL SYSTEM
-    # =========================================================
-    referred_by = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True)
-
-referrals = db.relationship(
-    'User',
-    foreign_keys=[referred_by],
-    backref='referrer',
-    lazy=True
+    # Referral system (self reference OK)
+    referred_by = db.Column(
+        db.Integer,
+        db.ForeignKey('user.id'),
+        nullable=True
     )
 
-controller_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True)
-
-controller = db.relationship(
-    'User',
-    foreign_keys=[controller_id],
-    backref='controlled_users',
-    lazy=True
+    referrals = db.relationship(
+        'User',
+        foreign_keys=[referred_by],
+        backref='referrer',
+        lazy=True
     )
 
+    controller_id = db.Column(
+        db.Integer,
+        db.ForeignKey('user.id'),
+        nullable=True
+    )
 
-    # =========================================================
-    # 📍 WORK FILTER
-    # =========================================================
+    controller = db.relationship(
+        'User',
+        foreign_keys=[controller_id],
+        backref='controlled_users',
+        lazy=True
+    )
+
     skill = db.Column(
         db.String(100),
         nullable=True,
@@ -99,31 +82,15 @@ controller = db.relationship(
         index=True
     )
 
-    # =========================================================
-    # 🗑 SOFT DELETE
-    # =========================================================
     is_deleted = db.Column(
         db.Boolean,
         default=False,
         index=True
     )
 
-    # =========================================================
-    # 📜 AUDIT
-    # =========================================================
-    created_by = db.Column(
-        db.Integer,
-        nullable=True
-    )
+    created_by = db.Column(db.Integer, nullable=True)
+    updated_by = db.Column(db.Integer, nullable=True)
 
-    updated_by = db.Column(
-        db.Integer,
-        nullable=True
-    )
-
-    # =========================================================
-    # 🟢 REALTIME SYSTEM
-    # =========================================================
     is_online = db.Column(
         db.Boolean,
         default=False,
@@ -140,9 +107,6 @@ controller = db.relationship(
         nullable=True
     )
 
-    # =========================================================
-    # 🕒 TIMESTAMPS
-    # =========================================================
     created_at = db.Column(
         db.DateTime,
         default=datetime.utcnow
@@ -154,8 +118,5 @@ controller = db.relationship(
         onupdate=datetime.utcnow
     )
 
-    # =========================================================
-    # 🧠 DEBUG
-    # =========================================================
     def __repr__(self):
         return f"<User {self.id} - {self.phone}>"
