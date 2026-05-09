@@ -204,9 +204,7 @@ except:
 
     if gallery_paths:
 
-        profile_data.gallery = json.dumps(
-            gallery_paths
-        )
+        gallery = json.loads(profile_data.gallery or "[]")
 
 
 
