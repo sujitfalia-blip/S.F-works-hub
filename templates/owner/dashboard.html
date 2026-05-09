@@ -2,7 +2,6 @@
 <html lang="en">
 
 <head>
-
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
@@ -12,620 +11,230 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <style>
-
-*{
-    margin:0;
-    padding:0;
-    box-sizing:border-box;
-}
-
 body{
     background:#0f172a;
     color:#e2e8f0;
-    font-family:Arial, sans-serif;
+    font-family:Arial;
 }
 
-
-/* SIDEBAR */
 .sidebar{
     width:240px;
     height:100vh;
     position:fixed;
-    top:0;
     left:0;
+    top:0;
     background:#020617;
-    padding-top:20px;
-    overflow-y:auto;
-    z-index:1000;
-    border-right:1px solid #1e293b;
-}
-
-.sidebar h4{
-    text-align:center;
-    margin-bottom:30px;
-    font-weight:bold;
+    padding:20px;
 }
 
 .sidebar a{
     display:block;
-    padding:14px 20px;
+    padding:12px;
     color:#cbd5e1;
-    text-decoration:none;
-    transition:0.2s;
     cursor:pointer;
+    text-decoration:none;
 }
 
 .sidebar a:hover{
     background:#1e293b;
-    color:white;
 }
 
-
-/* CONTENT */
 .content{
     margin-left:240px;
     padding:20px;
 }
 
-
-/* TOPBAR */
 .topbar{
-    background:#020617;
-    border-radius:12px;
-    padding:15px;
     display:flex;
     justify-content:space-between;
-    align-items:center;
+    padding:15px;
+    background:#020617;
+    border-radius:10px;
     margin-bottom:20px;
 }
 
-
-/* CARDS */
 .card{
     background:#1e293b;
     border:none;
-    border-radius:14px;
     color:white;
+    border-radius:12px;
+    padding:15px;
 }
 
-
-/* SEARCH */
-#search{
-    background:#1e293b;
-    border:none;
-    color:white;
-}
-
-#search::placeholder{
-    color:#94a3b8;
-}
-
-
-/* FILTER */
-#daysFilter{
-    background:#1e293b;
-    color:white;
-    border:none;
-}
-
-
-/* MOBILE */
-@media(max-width:768px){
-
-    .sidebar{
-        width:100%;
-        height:auto;
-        position:relative;
-    }
-
-    .content{
-        margin-left:0;
-    }
-
+input, select{
+    background:#1e293b !important;
+    color:white !important;
+    border:none !important;
 }
 
 </style>
-
 </head>
 
 <body>
 
 <!-- SIDEBAR -->
 <div class="sidebar">
-
     <h4>👑 OWNER</h4>
-
-    <a onclick="loadDashboard()">
-        📊 Analytics
-    </a>
-
-    <a onclick="loadWorks()">
-        🛠 Works
-    </a>
-
-    <a onclick="loadTransfer()">
-        🔁 Transfer
-    </a>
-
+    <a onclick="loadDashboard()">📊 Analytics</a>
+    <a onclick="loadWorks()">🛠 Works</a>
+    <a onclick="loadTransfer()">🔁 Transfer</a>
 </div>
-
-
 
 <!-- CONTENT -->
 <div class="content">
 
-    <!-- TOPBAR -->
     <div class="topbar">
-
-        <h5 class="m-0">
-            🚀 Owner Control Panel
-        </h5>
-
-        <button class="btn btn-danger btn-sm" onclick="logout()">
-            Logout
-        </button>
-
+        <h5>🚀 Owner Panel</h5>
+        <button onclick="logout()" class="btn btn-danger btn-sm">Logout</button>
     </div>
 
+    <h3 id="title">Dashboard</h3>
 
-    <!-- TITLE -->
-    <h3 id="title" class="mb-3">
-        Dashboard
-    </h3>
-
-
-    <!-- FILTER -->
-    <div class="row mb-3">
-
-        <div class="col-md-3 mb-2">
-
-            <select
-                id="daysFilter"
-                class="form-select"
-                onchange="loadDashboard()"
-            >
-                <option value="7">
-                    Last 7 Days
-                </option>
-
-                <option value="30" selected>
-                    Last 30 Days
-                </option>
-
-                <option value="90">
-                    Last 90 Days
-                </option>
-
-            </select>
-
-        </div>
-
-        <div class="col-md-5 mb-2">
-
-            <input
-                id="search"
-                class="form-control"
-                placeholder="🔍 Search..."
-            >
-
-        </div>
-
-    </div>
-
-
-    <!-- PENDING ADMIN APPROVAL -->
-<div class="card p-3 mt-4 mb-4">
-
-    <h4 class="mb-3">
-        ⏳ Pending Admin Approval
-    </h4>
-
-    {% if pending_admins %}
-
-    <div class="table-responsive">
-
-        <table class="table table-dark table-bordered align-middle">
-
-            <thead>
-
-                <tr>
-
-                    <th>Name</th>
-                    <th>Phone</th>
-                    <th>Role</th>
-                    <th width="320">Actions</th>
-
-                </tr>
-
-            </thead>
-
-            <tbody>
-
-                {% for admin in pending_admins %}
-
-                <tr>
-
-                    <td>
-                        {{ admin.name }}
-                    </td>
-
-                    <td>
-                        {{ admin.phone }}
-                    </td>
-
-                    <td>
-                        {{ admin.role }}
-                    </td>
-
-                    <td>
-
-                        <!-- APPROVE -->
-                        <a
-                            href="/owner/approve-user/{{ admin.id }}"
-                            class="btn btn-success btn-sm"
-                            onclick="return confirm('Are you sure you want to APPROVE this admin?')"
-                        >
-                            ✅ Approve
-                        </a>
-
-
-                        <!-- REJECT -->
-                        <a
-                            href="/owner/reject-user/{{ admin.id }}"
-                            class="btn btn-warning btn-sm"
-                            onclick="return confirm('Are you sure you want to REJECT this admin?')"
-                        >
-                            ❌ Reject
-                        </a>
-
-
-                        <!-- DELETE -->
-                        <a
-                            href="/owner/delete-user/{{ admin.id }}"
-                            class="btn btn-danger btn-sm"
-                            onclick="return confirm('⚠️ Are you sure you want to DELETE this admin?')"
-                        >
-                            🗑 Delete
-                        </a>
-
-                    </td>
-
-                </tr>
-
-                {% endfor %}
-
-            </tbody>
-
-        </table>
-
-    </div>
-
-    {% else %}
-
-    <div class="alert alert-secondary mb-0">
-
-        No pending admins found.
-
-    </div>
-
-    {% endif %}
+    <div id="main"></div>
 
 </div>
 
+<script>
 
+let workChart = null;
+let userChart = null;
 
 // ================= DASHBOARD =================
-function loadDashboard(){
+function loadDashboard() {
+    document.getElementById("title").innerText = "📊 Analytics Dashboard";
 
-    document.getElementById("title").innerText =
-        "📊 Analytics Dashboard";
+    const main = document.getElementById("main");
 
-    let days =
-        document.getElementById("daysFilter").value;
-
-    document.getElementById("main").innerHTML = `
-
+    main.innerHTML = `
         <div class="row g-3">
 
-            <div class="col-md-3">
-
-                <div class="card p-3 text-center">
-
-                    <h6>Total Works</h6>
-
-                    <h2 id="totalWorks">...</h2>
-
-                </div>
-
-            </div>
-
-
-            <div class="col-md-3">
-
-                <div class="card p-3 text-center">
-
-                    <h6>Approved</h6>
-
-                    <h2 id="approvedWorks">...</h2>
-
-                </div>
-
-            </div>
-
-
-            <div class="col-md-3">
-
-                <div class="card p-3 text-center">
-
-                    <h6>Pending</h6>
-
-                    <h2 id="pendingWorks">...</h2>
-
-                </div>
-
-            </div>
-
-
-            <div class="col-md-3">
-
-                <div class="card p-3 text-center">
-
-                    <h6>Total Users</h6>
-
-                    <h2 id="totalUsers">...</h2>
-
-                </div>
-
-            </div>
+            <div class="col-md-3"><div class="card">Total Works <h3 id="totalWorks">0</h3></div></div>
+            <div class="col-md-3"><div class="card">Approved <h3 id="approvedWorks">0</h3></div></div>
+            <div class="col-md-3"><div class="card">Pending <h3 id="pendingWorks">0</h3></div></div>
+            <div class="col-md-3"><div class="card">Users <h3 id="totalUsers">0</h3></div></div>
 
         </div>
-
-
 
         <div class="row mt-4">
 
-            <div class="col-lg-6 mb-4">
-
-                <div class="card p-3">
-
-                    <h5 class="mb-3">
-                        📈 Work Growth
-                    </h5>
-
-                    <canvas id="workChart"></canvas>
-
-                </div>
-
-            </div>
-
-
-            <div class="col-lg-6 mb-4">
-
-                <div class="card p-3">
-
-                    <h5 class="mb-3">
-                        👥 User Growth
-                    </h5>
-
-                    <canvas id="userChart"></canvas>
-
-                </div>
-
-            </div>
+            <div class="col-md-6"><canvas id="workChart"></canvas></div>
+            <div class="col-md-6"><canvas id="userChart"></canvas></div>
 
         </div>
-
     `;
 
+    const days = document.getElementById("daysFilter")?.value || 30;
 
     fetch(`/owner/analytics?days=${days}`)
-
     .then(res => res.json())
-
     .then(res => {
 
-        let d = res.data;
+        const d = res.data;
 
+        document.getElementById("totalWorks").innerText = d.works.total;
+        document.getElementById("approvedWorks").innerText = d.works.approved;
+        document.getElementById("pendingWorks").innerText = d.works.pending;
+        document.getElementById("totalUsers").innerText = d.users.total;
 
-        // CARDS
-        document.getElementById("totalWorks").innerText =
-            d.works.total;
+        if (workChart) workChart.destroy();
+        if (userChart) userChart.destroy();
 
-        document.getElementById("approvedWorks").innerText =
-            d.works.approved;
-
-        document.getElementById("pendingWorks").innerText =
-            d.works.pending;
-
-        document.getElementById("totalUsers").innerText =
-            d.users.total;
-
-
-        // DESTROY OLD CHARTS
-        if(workChart) workChart.destroy();
-
-        if(userChart) userChart.destroy();
-
-
-        // WORK CHART
-        workChart = new Chart(
-            document.getElementById("workChart"),
-            {
-                type:'line',
-
-                data:{
-
-                    labels:
-                        d.growth.works.map(x => x.date),
-
-                    datasets:[{
-
-                        label:'Works',
-
-                        data:
-                            d.growth.works.map(x => x.count)
-
-                    }]
-                }
+        workChart = new Chart(document.getElementById("workChart"), {
+            type: "line",
+            data: {
+                labels: d.growth.works.map(x => x.date),
+                datasets: [{
+                    label: "Works",
+                    data: d.growth.works.map(x => x.count)
+                }]
             }
-        );
+        });
 
-
-        // USER CHART
-        userChart = new Chart(
-            document.getElementById("userChart"),
-            {
-                type:'bar',
-
-                data:{
-
-                    labels:
-                        d.growth.users.map(x => x.date),
-
-                    datasets:[{
-
-                        label:'Users',
-
-                        data:
-                            d.growth.users.map(x => x.count)
-
-                    }]
-                }
+        userChart = new Chart(document.getElementById("userChart"), {
+            type: "bar",
+            data: {
+                labels: d.growth.users.map(x => x.date),
+                datasets: [{
+                    label: "Users",
+                    data: d.growth.users.map(x => x.count)
+                }]
             }
-        );
+        });
 
+    })
+    .catch(() => {
+        main.innerHTML = `<div style="color:red">Failed to load analytics</div>`;
     });
-
 }
-
-
 
 
 // ================= WORKS =================
-function loadWorks(){
+function loadWorks() {
+    document.getElementById("title").innerText = "🛠 Works";
 
-    document.getElementById("title").innerText =
-        "🛠 Work Management";
-
-    document.getElementById("main").innerHTML = `
-        <div class="text-center p-5">
-            Loading works...
-        </div>
-    `;
+    document.getElementById("main").innerHTML =
+        `<div class="card">Loading works...</div>`;
 
     fetch('/owner/works')
-
     .then(res => res.text())
-
     .then(html => {
-
+        document.getElementById("main").innerHTML = html;
+    })
+    .catch(() => {
         document.getElementById("main").innerHTML =
-            html;
-
+            `<div style="color:red">Failed to load works</div>`;
     });
-
 }
-
-
 
 
 // ================= TRANSFER =================
-function loadTransfer(){
-
-    document.getElementById("title").innerText =
-        "🔁 Transfer User";
+function loadTransfer() {
+    document.getElementById("title").innerText = "🔁 Transfer";
 
     document.getElementById("main").innerHTML = `
-
-        <div class="card p-4">
-
-            <form method="POST" action="/owner/transfer">
-
-                <div class="mb-3">
-
-                    <label class="form-label">
-                        User ID
-                    </label>
-
-                    <input
-                        class="form-control"
-                        name="user_id"
-                        required
-                    >
-
-                </div>
-
-
-                <div class="mb-3">
-
-                    <label class="form-label">
-                        New Admin ID
-                    </label>
-
-                    <input
-                        class="form-control"
-                        name="new_controller"
-                        required
-                    >
-
-                </div>
-
-
-                <button class="btn btn-warning">
-
-                    🔁 Transfer User
-
-                </button>
-
-            </form>
-
+        <div class="card">
+            <input id="userId" class="form-control mb-2" placeholder="User ID">
+            <input id="newAdminId" class="form-control mb-2" placeholder="New Admin ID">
+            <button class="btn btn-warning" onclick="transferUser()">Transfer</button>
         </div>
-
     `;
+}
 
+function transferUser() {
+    fetch('/owner/transfer', {
+        method: 'POST',
+        headers: {'Content-Type':'application/json'},
+        body: JSON.stringify({
+            userId: document.getElementById("userId").value,
+            newAdminId: document.getElementById("newAdminId").value
+        })
+    })
+    .then(res => res.json())
+    .then(res => alert(res.message || "Done"))
+    .catch(() => alert("Failed"));
 }
 
 
-
-
 // ================= SEARCH =================
-document.getElementById("search")
+document.addEventListener("keyup", function(e){
+    if(e.target.id === "search"){
+        let val = e.target.value.toLowerCase();
 
-.addEventListener("keyup", function(){
-
-    let value =
-        this.value.toLowerCase();
-
-    document.querySelectorAll(".work-card")
-
-    .forEach(card => {
-
-        card.style.display =
-
-            card.innerText.toLowerCase().includes(value)
-
-            ? ""
-
-            : "none";
-
-    });
-
+        document.querySelectorAll(".work-card").forEach(card => {
+            card.style.display =
+                card.innerText.toLowerCase().includes(val) ? "" : "none";
+        });
+    }
 });
-
-
 
 
 // ================= LOGOUT =================
 function logout(){
-
     window.location = "/logout";
-
 }
 
 
-
-
-// ================= INIT =================
+// INIT
 loadDashboard();
 
 </script>
