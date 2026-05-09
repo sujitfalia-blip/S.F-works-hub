@@ -1,209 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Professional Analytics Dashboard</title>
+    <!-- Bootstrap CSS for Styling -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body { background-color: #f8f9fa; }
+        .card { border: none; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        .work-card { transition: transform 0.2s; }
+        .work-card:hover { transform: translateY(-5px); }
+        #main { min-height: 400px; }
+    </style>
+</head>
+<body>
+
+<nav class="navbar navbar-dark bg-dark mb-4">
+    <div class="container-fluid">
+        <span class="navbar-brand mb-0 h1" id="title">Dashboard</span>
+        <div class="d-flex">
+            <input type="text" id="search" class="form-control me-2" placeholder="Search works...">
+            <button class="btn btn-outline-light" onclick="logout()">Logout</button>
+        </div>
+    </div>
+</nav>
+
+<div class="container">
+    <div class="mb-4">
+        <button class="btn btn-primary me-2" onclick="loadDashboard()">📊 Dashboard</button>
+        <button class="btn btn-secondary me-2" onclick="loadWorks()">🛠 Works</button>
+        <button class="btn btn-warning" onclick="loadTransfer()">🔁 Transfer</button>
+    </div>
+
+    <div id="main">
+        <!-- Content will be injected here -->
+    </div>
+</div>
+
+<!-- Chart.js Library (Essential) -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
 <script>
+    let workChart = null;
+    let userChart = null;
 
-let workChart = null;
-let userChart = null;
+    // ================= HELPER: API FETCH =================
+    // রেন্ডারে আপনার ব্যাকএন্ড ইউআরএলটি এখানে দিন (যেমন: https://your-api.onrender.com)
+    const API_BASE = ""; 
 
+    async function fetchData(endpoint) {
+        try {
+            const response = await fetch(`${API_BASE}${endpoint}`);
+            if (!response.ok) throw new Error('Network response was not ok');
+            return await response.json();
+        } catch (error) {
+            console.error("Fetch error:", error);
+            return null;
+        }
+    }
 
-// ================= DASHBOARD =================
-function loadDashboard() {
+    // ================= DASHBOARD =================
+    async function loadDashboard() {
+        document.getElementById("title").innerText = "📊 Analytics Dashboard";
+        const main = document.getElementById("main");
+        
+        main.innerHTML = `<div class="text-center mt-5"><div class="spinner-border" role="status"></div><p>Loading Analytics...</p></div>`;
 
-    document.getElementById("title").innerText = "📊 Analytics Dashboard";
-
-    const main = document.getElementById("main");
-
-    main.innerHTML = `
-        <div class="row g-3">
-
-            <div class="col-md-3">
-                <div class="card text-center p-3">
-                    <h6>Total Works</h6>
-                    <h3 id="totalWorks">0</h3>
-                </div>
-            </div>
-
-            <div class="col-md-3">
-                <div class="card text-center p-3">
-                    <h6>Approved</h6>
-                    <h3 id="approvedWorks">0</h3>
-                </div>
-            </div>
-
-            <div class="col-md-3">
-                <div class="card text-center p-3">
-                    <h6>Pending</h6>
-                    <h3 id="pendingWorks">0</h3>
-                </div>
-            </div>
-
-            <div class="col-md-3">
-                <div class="card text-center p-3">
-                    <h6>Users</h6>
-                    <h3 id="totalUsers">0</h3>
-                </div>
-            </div>
-
-        </div>
-
-        <div class="row mt-4">
-
-            <div class="col-md-6">
-                <div class="card p-3">
-                    <canvas id="workChart"></canvas>
-                </div>
-            </div>
-
-            <div class="col-md-6">
-                <div class="card p-3">
-                    <canvas id="userChart"></canvas>
-                </div>
-            </div>
-
-        </div>
-    `;
-
-    fetch('/owner/analytics?days=30')
-    .then(res => res.json())
-    .then(res => {
+        const res = await fetchData('/owner/analytics?days=30');
 
         if (!res || !res.data) {
-            main.innerHTML = `<div style="color:red">Invalid analytics data</div>`;
+            main.innerHTML = `<div class="alert alert-danger">Failed to load analytics. Please check backend connection.</div>`;
             return;
         }
 
         const d = res.data;
 
-        document.getElementById("totalWorks").innerText = d.works.total;
-        document.getElementById("approvedWorks").innerText = d.works.approved;
-        document.getElementById("pendingWorks").innerText = d.works.pending;
-        document.getElementById("totalUsers").innerText = d.users.total;
+        main.innerHTML = `
+            <div class="row g-3">
+                <div class="col-md-3"><div class="card text-center p-3"><h6>Total Works</h6><h3 class="text-primary">${d.works.total}</h3></div></div>
+                <div class="col-md-3"><div class="card text-center p-3"><h6>Approved</h6><h3 class="text-success">${d.works.approved}</h3></div></div>
+                <div class="col-md-3"><div class="card text-center p-3"><h6>Pending</h6><h3 class="text-warning">${d.works.pending}</h3></div></div>
+                <div class="col-md-3"><div class="card text-center p-3"><h6>Users</h6><h3 class="text-info">${d.users.total}</h3></div></div>
+            </div>
+            <div class="row mt-4">
+                <div class="col-md-6"><div class="card p-3"><canvas id="workChart"></canvas></div></div>
+                <div class="col-md-6"><div class="card p-3"><canvas id="userChart"></canvas></div></div>
+            </div>
+        `;
 
-        // destroy old charts safely
+        renderCharts(d.growth);
+    }
+
+    function renderCharts(growth) {
         if (workChart) workChart.destroy();
         if (userChart) userChart.destroy();
 
-        // WORK CHART
         const workCanvas = document.getElementById("workChart");
-
-        if (workCanvas && d.growth?.works) {
+        if (workCanvas && growth?.works) {
             workChart = new Chart(workCanvas, {
                 type: "line",
                 data: {
-                    labels: d.growth.works.map(x => x.date),
-                    datasets: [{
-                        label: "Works",
-                        data: d.growth.works.map(x => x.count),
-                        borderWidth: 2
-                    }]
+                    labels: growth.works.map(x => x.date),
+                    datasets: [{ label: "Works Growth", data: growth.works.map(x => x.count), borderColor: "#0d6efd", fill: false }]
                 }
             });
         }
 
-        // USER CHART
         const userCanvas = document.getElementById("userChart");
-
-        if (userCanvas && d.growth?.users) {
+        if (userCanvas && growth?.users) {
             userChart = new Chart(userCanvas, {
                 type: "bar",
                 data: {
-                    labels: d.growth.users.map(x => x.date),
-                    datasets: [{
-                        label: "Users",
-                        data: d.growth.users.map(x => x.count)
-                    }]
+                    labels: growth.users.map(x => x.date),
+                    datasets: [{ label: "New Users", data: growth.users.map(x => x.count), backgroundColor: "#198754" }]
                 }
             });
         }
-
-    })
-    .catch(err => {
-        console.error(err);
-        main.innerHTML = `<div style="color:red">Analytics load failed</div>`;
-    });
-}
-
-
-// ================= WORKS =================
-function loadWorks() {
-
-    document.getElementById("title").innerText = "🛠 Works";
-
-    document.getElementById("main").innerHTML =
-        `<div class="card p-3">Loading works...</div>`;
-
-    fetch('/owner/works')
-    .then(res => res.text())
-    .then(html => {
-        document.getElementById("main").innerHTML = html;
-    })
-    .catch(() => {
-        document.getElementById("main").innerHTML =
-            `<div style="color:red">Failed to load works</div>`;
-    });
-}
-
-
-// ================= TRANSFER =================
-function loadTransfer() {
-
-    document.getElementById("title").innerText = "🔁 Transfer User";
-
-    document.getElementById("main").innerHTML = `
-        <div class="card p-3">
-
-            <input id="userId" class="form-control mb-2" placeholder="User ID">
-
-            <input id="newAdminId" class="form-control mb-2" placeholder="New Admin ID">
-
-            <button class="btn btn-warning w-100" onclick="transferUser()">
-                Transfer
-            </button>
-
-        </div>
-    `;
-}
-
-function transferUser() {
-
-    const userId = document.getElementById("userId").value;
-    const newAdminId = document.getElementById("newAdminId").value;
-
-    fetch('/owner/transfer', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ userId, newAdminId })
-    })
-    .then(res => res.json())
-    .then(res => {
-        alert(res.message || "Transfer successful");
-    })
-    .catch(() => alert("Transfer failed"));
-}
-
-
-// ================= SEARCH =================
-document.addEventListener("keyup", function(e){
-    if(e.target && e.target.id === "search"){
-        const val = e.target.value.toLowerCase();
-
-        document.querySelectorAll(".work-card").forEach(card => {
-            card.style.display =
-                card.innerText.toLowerCase().includes(val)
-                ? ""
-                : "none";
-        });
     }
-});
 
+    // ================= WORKS =================
+    async function loadWorks() {
+        document.getElementById("title").innerText = "🛠 Works Management";
+        const main = document.getElementById("main");
+        main.innerHTML = `<div class="card p-3">Loading works list...</div>`;
 
-// ================= LOGOUT =================
-function logout(){
-    window.location.href = "/logout";
-}
+        try {
+            const response = await fetch(`${API_BASE}/owner/works`);
+            const html = await response.text();
+            main.innerHTML = html;
+        } catch (err) {
+            main.innerHTML = `<div class="alert alert-danger">Failed to load works.</div>`;
+        }
+    }
 
+    // ================= TRANSFER =================
+    function loadTransfer() {
+        document.getElementById("title").innerText = "🔁 Transfer User";
+        document.getElementById("main").innerHTML = `
+            <div class="card p-4 mx-auto" style="max-width: 400px;">
+                <label class="form-label">User ID</label>
+                <input id="userId" class="form-control mb-3" placeholder="Enter User ID">
+                <label class="form-label">New Admin ID</label>
+                <input id="newAdminId" class="form-control mb-3" placeholder="Enter New Admin ID">
+                <button class="btn btn-warning w-100" onclick="transferUser()">Confirm Transfer</button>
+            </div>
+        `;
+    }
 
-// ================= INIT =================
-loadDashboard();
+    async function transferUser() {
+        const userId = document.getElementById("userId").value;
+        const newAdminId = document.getElementById("newAdminId").value;
 
-                    </script>
+        if(!userId || !newAdminId) return alert("Please fill all fields");
+
+        try {
+            const res = await fetch(`${API_BASE}/owner/transfer`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ userId, newAdminId })
+            });
+            const data = await res.json();
+            alert(data.message || "Transfer successful");
+        } catch (err) {
+            alert("Transfer failed. Check console.");
+        }
+    }
+
+    // ================= SEARCH =================
+    document.getElementById("search").addEventListener("keyup", function(e){
+        const val = e.target.value.toLowerCase();
+        document.querySelectorAll(".work-card").forEach(card => {
+            card.style.display = card.innerText.toLowerCase().includes(val) ? "" : "none";
+        });
+    });
+
+    function logout(){
+        window.location.href = "/logout";
+    }
+
+    // Initialize
+    loadDashboard();
+</script>
+
+</body>
+</html>
+
