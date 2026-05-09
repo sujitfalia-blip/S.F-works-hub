@@ -1,113 +1,128 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Edit Profile</title>
 
-    <style>
-        body{
-            font-family: Arial;
-            background:#f4f6f9;
-            margin:0;
-            padding:20px;
-        }
+    <title>Profile</title>
 
-        .card{
-            max-width:600px;
-            margin:auto;
-            background:white;
-            padding:20px;
-            border-radius:12px;
-            box-shadow:0 5px 20px rgba(0,0,0,0.1);
-        }
+    <meta name="viewport" content="width=device-width, initial-scale=1">
 
-        h2{
-            text-align:center;
-        }
-
-        input, textarea{
-            width:100%;
-            padding:10px;
-            margin:8px 0;
-            border:1px solid #ddd;
-            border-radius:8px;
-            outline:none;
-        }
-
-        textarea{
-            height:100px;
-            resize:none;
-        }
-
-        label{
-            font-weight:bold;
-            margin-top:10px;
-            display:block;
-        }
-
-        .btn{
-            width:100%;
-            padding:12px;
-            background:#28a745;
-            color:white;
-            border:none;
-            border-radius:8px;
-            font-size:16px;
-            cursor:pointer;
-            margin-top:10px;
-        }
-
-        .btn:hover{
-            background:#218838;
-        }
-
-        .section-title{
-            margin-top:15px;
-            font-size:14px;
-            color:#555;
-        }
-    </style>
 </head>
 
 <body>
 
-<div class="card">
+{% if profile %}
 
-    <h2>Edit Profile</h2>
+<div
+    style="
+    height:250px;
+    background-size:cover;
+    background-position:center;
+    background-image:url('/{{ profile.cover_img if profile.cover_img else 'static/default_cover.jpg' }}');
+    "
+></div>
 
-    <form method="POST" enctype="multipart/form-data">
+<div
+    style="
+    max-width:700px;
+    margin:auto;
+    background:white;
+    padding:20px;
+    border-radius:12px;
+    margin-top:-50px;
+    "
+>
 
-        <label>Name</label>
-        <input name="name" value="{{ profile.name }}">
+    <center>
 
-        <label>Address</label>
-        <input name="address" value="{{ profile.address }}">
+        <img
+            src="/{{ profile.profile_img if profile.profile_img else 'static/default.png' }}"
+            width="140"
+            height="140"
+            style="
+            border-radius:50%;
+            object-fit:cover;
+            border:5px solid white;
+            "
+        >
 
-        <label>Age</label>
-        <input name="age" value="{{ profile.age }}">
+        <h2>
+            {{ profile.name }}
+        </h2>
 
-        <label>Education</label>
-        <input name="education" value="{{ profile.education }}">
+        <p>
+            {{ profile.work_desc }}
+        </p>
 
-        <label>Area</label>
-        <input name="area" value="{{ profile.area }}">
+        <p>
+            📍 {{ profile.area }}
+        </p>
 
-        <label>Work Description</label>
-        <textarea name="work_desc">{{ profile.work_desc }}</textarea>
+        <p>
+            📞 {{ user.phone }}
+        </p>
 
-        <div class="section-title">Profile Image</div>
-        <input type="file" name="profile_img">
+        <a href="/profile/setup">
+            Edit Profile
+        </a>
 
-        <div class="section-title">Cover Image</div>
-        <input type="file" name="cover_img">
+    </center>
 
-        <div class="section-title">Gallery (Multiple Images)</div>
-        <input type="file" name="gallery" multiple>
+    <hr>
 
-        <button class="btn">Save Changes</button>
+    <h3>About</h3>
 
-    </form>
+    <p><b>Age:</b> {{ profile.age }}</p>
+
+    <p><b>Gender:</b> {{ profile.gender }}</p>
+
+    <p><b>Religion:</b> {{ profile.religion }}</p>
+
+    <p><b>Country:</b> {{ profile.country }}</p>
+
+    <p><b>Address:</b> {{ profile.address }}</p>
+
+    <hr>
+
+    <h3>Gallery</h3>
+
+    {% if gallery %}
+
+        {% for img in gallery %}
+
+            <img
+                src="/{{ img }}"
+                width="120"
+                height="120"
+                style="
+                object-fit:cover;
+                border-radius:10px;
+                margin:5px;
+                "
+            >
+
+        {% endfor %}
+
+    {% else %}
+
+        <p>No gallery uploaded</p>
+
+    {% endif %}
 
 </div>
+
+{% else %}
+
+<center style="margin-top:50px;">
+
+    <h2>No Profile Found</h2>
+
+    <a href="/profile/setup">
+        Create Profile
+    </a>
+
+</center>
+
+{% endif %}
 
 </body>
 </html>
