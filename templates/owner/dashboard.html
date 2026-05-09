@@ -213,6 +213,44 @@ body{
     </div>
 
 
+    <!-- PENDING ADMIN APPROVAL -->
+    <div class="card p-3 mt-4 mb-4">
+
+        <h4>⏳ Pending Admin Approval</h4>
+
+        {% if pending_admins %}
+
+            {% for admin in pending_admins %}
+
+            <div class="border p-3 rounded mb-3">
+
+                <p>
+                    <b>{{ admin.name }}</b>
+                    ({{ admin.role }})
+                </p>
+
+                <p>{{ admin.phone }}</p>
+
+                <a
+                    href="/owner/approve/{{ admin.id }}"
+                    class="btn btn-success btn-sm"
+                >
+                    ✅ Approve
+                </a>
+
+            </div>
+
+            {% endfor %}
+
+        {% else %}
+
+            <p>No pending admins</p>
+
+        {% endif %}
+
+    </div>
+
+
     <!-- MAIN CONTENT -->
     <div id="main"></div>
 
@@ -544,5 +582,4 @@ loadDashboard();
 </script>
 
 </body>
-    </html>
-    
+</html>
