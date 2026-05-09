@@ -17,6 +17,8 @@ from routes.user import user
 from routes.main import main
 from routes.work import work as work_bp
 from routes.profile import profile_bp
+from routes.admin_tools import admin_tools
+
 
 
 # ================= APP =================
@@ -49,6 +51,7 @@ def create_app():
     app.register_blueprint(user)
     app.register_blueprint(main)
     app.register_blueprint(profile_bp)
+    app.register_blueprint(admin_tools)
     app.register_blueprint(work_bp)
 
     return app
