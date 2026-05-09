@@ -1,223 +1,262 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
 <meta charset="UTF-8">
 <title>User Dashboard</title>
 
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
+
 <style>
-    body{
-        margin:0;
-        font-family: 'Segoe UI', sans-serif;
-        background: linear-gradient(135deg,#0f172a,#1e293b);
-        color:white;
-    }
+body{
+    margin:0;
+    font-family:Segoe UI;
+    background:linear-gradient(135deg,#0f172a,#1e293b);
+    color:white;
+}
 
-    /* GLASS TOPBAR */
-    .topbar{
-        display:flex;
-        justify-content:space-between;
-        align-items:center;
-        padding:15px 25px;
-        position:sticky;
-        top:0;
+/* TOPBAR */
+.topbar{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    padding:15px;
+    background:rgba(255,255,255,0.08);
+    backdrop-filter:blur(15px);
+    position:sticky;
+    top:0;
+    z-index:10;
+}
 
-        background: rgba(255,255,255,0.08);
-        backdrop-filter: blur(15px);
-        border-bottom:1px solid rgba(255,255,255,0.1);
-    }
+.badge{
+    background:rgba(255,255,255,0.15);
+    padding:5px 10px;
+    border-radius:20px;
+    font-size:12px;
+}
 
-    .topbar h3{
-        margin:0;
-        font-weight:600;
-    }
+/* CONTAINER */
+.container{
+    max-width:1100px;
+    margin:auto;
+    padding:20px;
+}
 
-    .badge{
-        padding:6px 12px;
-        border-radius:20px;
-        font-size:12px;
-        background: rgba(255,255,255,0.15);
-        backdrop-filter: blur(10px);
-        margin-left:5px;
-    }
+/* GRID */
+.grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(250px,1fr));
+    gap:15px;
+}
 
-    .online{ background:#22c55e; }
+/* CARD */
+.card{
+    background:rgba(255,255,255,0.08);
+    backdrop-filter:blur(12px);
+    padding:15px;
+    border-radius:15px;
+    border:1px solid rgba(255,255,255,0.1);
+}
 
-    /* MAIN CONTAINER */
-    .container{
-        max-width:1100px;
-        margin:auto;
-        padding:25px;
-    }
+/* BUTTON */
+.btn{
+    display:inline-block;
+    padding:8px 12px;
+    margin-top:10px;
+    border-radius:8px;
+    background:#3b82f6;
+    color:white;
+    text-decoration:none;
+    font-size:13px;
+}
 
-    h2{
-        margin-bottom:5px;
-    }
+/* SECTIONS */
+.section-title{
+    margin:20px 0 10px;
+    font-size:18px;
+}
 
-    p{
-        margin-top:0;
-        color:#cbd5e1;
-    }
+/* SEARCH */
+input{
+    padding:10px;
+    width:100%;
+    border-radius:10px;
+    border:none;
+    outline:none;
+    margin-bottom:10px;
+}
 
-    /* STATS */
-    .stats{
-        display:grid;
-        grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
-        gap:15px;
-        margin:20px 0;
-    }
+/* ACTION GRID */
+.action-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
+    gap:10px;
+}
 
-    .stat-box{
-        background: rgba(255,255,255,0.08);
-        backdrop-filter: blur(12px);
-        padding:15px;
-        border-radius:15px;
-        text-align:center;
-        border:1px solid rgba(255,255,255,0.1);
-    }
+.action{
+    padding:12px;
+    border-radius:12px;
+    background:rgba(255,255,255,0.08);
+    cursor:pointer;
+    text-align:center;
+}
 
-    .stat-box h3{
-        margin:0;
-        color:#60a5fa;
-    }
+.action:hover{
+    background:rgba(255,255,255,0.15);
+}
 
-    /* GRID */
-    .grid{
-        display:grid;
-        grid-template-columns:repeat(auto-fit,minmax(250px,1fr));
-        gap:15px;
-        margin-top:20px;
-    }
-
-    /* GLASS CARD */
-    .card{
-        background: rgba(255,255,255,0.08);
-        backdrop-filter: blur(15px);
-        border:1px solid rgba(255,255,255,0.1);
-        padding:18px;
-        border-radius:15px;
-        transition:0.3s;
-    }
-
-    .card:hover{
-        transform: translateY(-5px);
-        background: rgba(255,255,255,0.12);
-    }
-
-    .title{
-        font-weight:600;
-        font-size:16px;
-        margin-bottom:8px;
-    }
-
-    .text{
-        font-size:13px;
-        color:#cbd5e1;
-    }
-
-    .btn{
-        display:inline-block;
-        margin-top:10px;
-        padding:8px 12px;
-        border-radius:8px;
-        text-decoration:none;
-        font-size:13px;
-        background:#3b82f6;
-        color:white;
-        transition:0.3s;
-    }
-
-    .btn:hover{
-        background:#2563eb;
-    }
-
-    footer{
-        text-align:center;
-        padding:20px;
-        font-size:12px;
-        color:#94a3b8;
-        margin-top:30px;
-    }
 </style>
 </head>
 
 <body>
 
-<!-- TOP BAR -->
+<!-- TOPBAR -->
 <div class="topbar">
-    <h3>👤 User Dashboard</h3>
+    <div>👤 User Dashboard</div>
 
     <div>
-        <span class="badge">{{ session.get('role', 'user') }}</span>
-        <span class="badge online">🟢 Online</span>
+        <span class="badge">User</span>
+        <span class="badge">🟢 Online</span>
     </div>
 </div>
 
-<!-- CONTENT -->
+<!-- MAIN -->
 <div class="container">
 
     <h2>Welcome Back 👋</h2>
-    <p>Live Jobs & Works Dashboard</p>
 
-    <!-- STATS -->
-    <div class="stats">
-        <div class="stat-box">
-            <h3>12</h3>
-            <small>Bookings</small>
-        </div>
+    <!-- SEARCH -->
+    <input id="search" placeholder="🔍 Search works, skills, jobs...">
 
-        <div class="stat-box">
-            <h3>5</h3>
-            <small>Messages</small>
-        </div>
+    <!-- ACTIONS -->
+    <div class="section-title">⚡ Quick Actions</div>
 
-        <div class="stat-box">
-            <h3>8</h3>
-            <small>Works</small>
-        </div>
+    <div class="action-grid">
 
-        <div class="stat-box">
-            <h3>1</h3>
-            <small>Active</small>
-        </div>
+        <div class="action" onclick="loadProfile()">👤 Profile</div>
+        <div class="action" onclick="loadHire()">🧑‍💼 Hire Worker</div>
+        <div class="action" onclick="loadChat()">💬 Chat</div>
+        <div class="action" onclick="loadBooking()">📅 Booking</div>
+        <div class="action" onclick="loadNotifications()">🔔 Notifications</div>
+
     </div>
 
-    <!-- LIVE GRID -->
-    <div class="grid"></div>
+    <!-- SKILLS -->
+    <div class="section-title">🧠 Skills</div>
+
+    <div class="card">
+        <p>✔ Web Development</p>
+        <p>✔ App Development</p>
+        <p>✔ Marketing</p>
+        <p>✔ Data Entry</p>
+    </div>
+
+    <!-- LIVE WORKS -->
+    <div class="section-title">🆕 Live Works</div>
+
+    <div class="grid" id="grid"></div>
 
 </div>
 
-<footer>
-    © 2026 SaaS System | Live Dashboard
-</footer>
-
-<!-- SOCKET.IO -->
-<script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
-
 <script>
-    var socket = io({
-        transports: ["websocket", "polling"]
+
+let socket = io({
+    transports:["websocket","polling"]
+});
+
+// ================= LIVE WORK =================
+socket.on("new_work", function(data){
+
+    let grid = document.getElementById("grid");
+
+    let div = document.createElement("div");
+    div.className = "card";
+
+    div.innerHTML = `
+        <b>🆕 ${data.title}</b>
+        <p>💰 ${data.salary}</p>
+        <a class="btn" href="/work/${data.id}">View</a>
+    `;
+
+    grid.prepend(div);
+});
+
+
+// ================= PROFILE =================
+function loadProfile(){
+    document.getElementById("grid").innerHTML = `
+        <div class="card">
+            <h3>👤 Profile</h3>
+            <p>Name: User</p>
+            <p>Email: user@mail.com</p>
+            <button class="btn">Edit Profile</button>
+        </div>
+    `;
+}
+
+
+// ================= HIRE =================
+function loadHire(){
+    document.getElementById("grid").innerHTML = `
+        <div class="card">
+            <h3>🧑‍💼 Hire Worker</h3>
+            <input placeholder="Skill required">
+            <input placeholder="Budget">
+            <button class="btn">Post Job</button>
+        </div>
+    `;
+}
+
+
+// ================= CHAT =================
+function loadChat(){
+    document.getElementById("grid").innerHTML = `
+        <div class="card">
+            <h3>💬 Chat</h3>
+            <p>Live chat system coming...</p>
+        </div>
+    `;
+}
+
+
+// ================= BOOKING =================
+function loadBooking(){
+    document.getElementById("grid").innerHTML = `
+        <div class="card">
+            <h3>📅 Booking</h3>
+            <p>No bookings yet</p>
+        </div>
+    `;
+}
+
+
+// ================= NOTIFICATION =================
+function loadNotifications(){
+    document.getElementById("grid").innerHTML = `
+        <div class="card">
+            <h3>🔔 Notifications</h3>
+            <p>No new notifications</p>
+        </div>
+    `;
+}
+
+
+// ================= SEARCH =================
+document.getElementById("search").addEventListener("keyup", function(){
+
+    let val = this.value.toLowerCase();
+
+    document.querySelectorAll(".card").forEach(card => {
+        card.style.display =
+            card.innerText.toLowerCase().includes(val)
+            ? ""
+            : "none";
     });
 
-    socket.on("connect", function () {
-        console.log("✅ Connected to live server");
-    });
+});
 
-    socket.on("new_work", function (data) {
-
-        let grid = document.querySelector(".grid");
-
-        let div = document.createElement("div");
-        div.className = "card";
-
-        div.innerHTML = `
-            <div class="title">🆕 ${data.title}</div>
-            <div class="text">👷 Workers: ${data.workers || 0}</div>
-            <div class="text">💰 Salary: ${data.salary || 0}</div>
-            <a href="/work/${data.id}" class="btn">View</a>
-        `;
-
-        grid.prepend(div);
-    });
 </script>
 
 </body>
