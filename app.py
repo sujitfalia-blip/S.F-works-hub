@@ -37,6 +37,7 @@ def create_app():
     os.makedirs(
     app.config['UPLOAD_FOLDER'],
     exist_ok=True
+    )
 
     # ================= INIT EXTENSIONS =================
     db.init_app(app)
