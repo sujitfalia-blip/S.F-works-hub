@@ -1,243 +1,242 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Owner Dashboard - Premium</title>
+    <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
+    <style>
+        :root {
+            --bg-dark: #0f172a;
+            --card-bg: rgba(255, 255, 255, 0.08);
+            --accent-blue: #3b82f6;
+            --accent-red: #ef4444;
+            --text-white: #f8fafc;
+        }
 
-<title>Owner Dashboard</title>
+        body {
+            margin: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0f172a, #1e293b);
+            color: var(--text-white);
+            display: flex;
+            min-height: 100vh;
+        }
 
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+        /* SIDEBAR */
+        .sidebar {
+            width: 240px;
+            background: rgba(15, 23, 42, 0.95);
+            border-right: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            transition: 0.3s;
+        }
 
-<style>
-body{
-    background:#0f172a;
-    color:#e2e8f0;
-    font-family:Arial;
-}
+        .sidebar h2 {
+            font-size: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
 
-.sidebar{
-    width:240px;
-    height:100vh;
-    position:fixed;
-    left:0;
-    top:0;
-    background:#020617;
-    padding:20px;
-}
+        .nav-item {
+            padding: 12px 15px;
+            border-radius: 10px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            transition: 0.2s;
+            text-decoration: none;
+            color: white;
+        }
 
-.sidebar a{
-    display:block;
-    padding:12px;
-    color:#cbd5e1;
-    cursor:pointer;
-    text-decoration:none;
-}
+        .nav-item:hover, .nav-item.active {
+            background: var(--accent-blue);
+        }
 
-.sidebar a:hover{
-    background:#1e293b;
-}
+        /* MAIN CONTENT */
+        .main-content {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+        }
 
-.content{
-    margin-left:240px;
-    padding:20px;
-}
+        /* HEADER */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+        }
 
-.topbar{
-    display:flex;
-    justify-content:space-between;
-    padding:15px;
-    background:#020617;
-    border-radius:10px;
-    margin-bottom:20px;
-}
+        .logout-btn {
+            background: var(--accent-red);
+            padding: 8px 18px;
+            border-radius: 8px;
+            text-decoration: none;
+            color: white;
+            font-weight: bold;
+            font-size: 14px;
+        }
 
-.card{
-    background:#1e293b;
-    border:none;
-    color:white;
-    border-radius:12px;
-    padding:15px;
-}
+        /* STATUS FILTER */
+        .filter-bar {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
 
-input, select{
-    background:#1e293b !important;
-    color:white !important;
-    border:none !important;
-}
+        .filter-btn {
+            padding: 8px 15px;
+            border-radius: 8px;
+            border: none;
+            background: var(--card-bg);
+            color: white;
+            cursor: pointer;
+            font-size: 13px;
+        }
 
-</style>
+        .filter-btn.pending { background: #f59e0b; }
+        .filter-btn.approved { background: #10b981; }
+        .filter-btn.rejected { background: #ef4444; }
+
+        /* SEARCH */
+        .search-box {
+            width: 100%;
+            padding: 12px;
+            border-radius: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            background: var(--card-bg);
+            color: white;
+            outline: none;
+            margin-bottom: 20px;
+        }
+
+        /* CARD GRID */
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 15px;
+        }
+
+        .card {
+            background: var(--card-bg);
+            backdrop-filter: blur(10px);
+            padding: 18px;
+            border-radius: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: 0.3s;
+        }
+
+        .card:hover { transform: translateY(-5px); }
+
+        .empty-state {
+            text-align: center;
+            padding: 50px;
+            opacity: 0.6;
+        }
+
+        /* RESPONSIVE */
+        @media (max-width: 768px) {
+            body { flex-direction: column; }
+            .sidebar {
+                width: 100%;
+                flex-direction: row;
+                overflow-x: auto;
+                padding: 10px;
+                border-right: none;
+                border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            }
+            .sidebar h2 { display: none; }
+            .nav-item { white-space: nowrap; padding: 8px 12px; }
+        }
+    </style>
 </head>
-
 <body>
 
-<!-- SIDEBAR -->
-<div class="sidebar">
-    <h4>👑 OWNER</h4>
-    <a onclick="loadDashboard()">📊 Analytics</a>
-    <a onclick="loadWorks()">🛠 Works</a>
-    <a onclick="loadTransfer()">🔁 Transfer</a>
-</div>
-
-<!-- CONTENT -->
-<div class="content">
-
-    <div class="topbar">
-        <h5>🚀 Owner Panel</h5>
-        <button onclick="logout()" class="btn btn-danger btn-sm">Logout</button>
+    <!-- SIDEBAR -->
+    <div class="sidebar">
+        <h2>👑 OWNER</h2>
+        <div class="nav-item active" onclick="showSection('analytics')">📊 Analytics</div>
+        <div class="nav-item" onclick="showSection('works')">🛠 Works</div>
+        <div class="nav-item" onclick="showSection('transfer')">🔁 Transfer</div>
     </div>
 
-    <h3 id="title">Dashboard</h3>
-
-    <div id="main"></div>
-
-</div>
-
-<script>
-
-let workChart = null;
-let userChart = null;
-
-// ================= DASHBOARD =================
-function loadDashboard() {
-    document.getElementById("title").innerText = "📊 Analytics Dashboard";
-
-    const main = document.getElementById("main");
-
-    main.innerHTML = `
-        <div class="row g-3">
-
-            <div class="col-md-3"><div class="card">Total Works <h3 id="totalWorks">0</h3></div></div>
-            <div class="col-md-3"><div class="card">Approved <h3 id="approvedWorks">0</h3></div></div>
-            <div class="col-md-3"><div class="card">Pending <h3 id="pendingWorks">0</h3></div></div>
-            <div class="col-md-3"><div class="card">Users <h3 id="totalUsers">0</h3></div></div>
-
+    <!-- MAIN -->
+    <div class="main-content">
+        
+        <div class="header">
+            <h3>Owner Panel 🚀</h3>
+            <a href="/logout" class="logout-btn">Logout</a>
         </div>
 
-        <div class="row mt-4">
+        <input type="text" id="searchInput" class="search-box" placeholder="🔍 Search works or users...">
 
-            <div class="col-md-6"><canvas id="workChart"></canvas></div>
-            <div class="col-md-6"><canvas id="userChart"></canvas></div>
-
+        <div class="filter-bar">
+            <button class="filter-btn">All</button>
+            <button class="filter-btn pending">Pending</button>
+            <button class="filter-btn approved">Approved</button>
+            <button class="filter-btn rejected">Rejected</button>
         </div>
-    `;
 
-    const days = document.getElementById("daysFilter")?.value || 30;
-
-    fetch(`/owner/analytics?days=${days}`)
-    .then(res => res.json())
-    .then(res => {
-
-        const d = res.data;
-
-        document.getElementById("totalWorks").innerText = d.works.total;
-        document.getElementById("approvedWorks").innerText = d.works.approved;
-        document.getElementById("pendingWorks").innerText = d.works.pending;
-        document.getElementById("totalUsers").innerText = d.users.total;
-
-        if (workChart) workChart.destroy();
-        if (userChart) userChart.destroy();
-
-        workChart = new Chart(document.getElementById("workChart"), {
-            type: "line",
-            data: {
-                labels: d.growth.works.map(x => x.date),
-                datasets: [{
-                    label: "Works",
-                    data: d.growth.works.map(x => x.count)
-                }]
-            }
-        });
-
-        userChart = new Chart(document.getElementById("userChart"), {
-            type: "bar",
-            data: {
-                labels: d.growth.users.map(x => x.date),
-                datasets: [{
-                    label: "Users",
-                    data: d.growth.users.map(x => x.count)
-                }]
-            }
-        });
-
-    })
-    .catch(() => {
-        main.innerHTML = `<div style="color:red">Failed to load analytics</div>`;
-    });
-}
-
-
-// ================= WORKS =================
-function loadWorks() {
-    document.getElementById("title").innerText = "🛠 Works";
-
-    document.getElementById("main").innerHTML =
-        `<div class="card">Loading works...</div>`;
-
-    fetch('/owner/works')
-    .then(res => res.text())
-    .then(html => {
-        document.getElementById("main").innerHTML = html;
-    })
-    .catch(() => {
-        document.getElementById("main").innerHTML =
-            `<div style="color:red">Failed to load works</div>`;
-    });
-}
-
-
-// ================= TRANSFER =================
-function loadTransfer() {
-    document.getElementById("title").innerText = "🔁 Transfer";
-
-    document.getElementById("main").innerHTML = `
-        <div class="card">
-            <input id="userId" class="form-control mb-2" placeholder="User ID">
-            <input id="newAdminId" class="form-control mb-2" placeholder="New Admin ID">
-            <button class="btn btn-warning" onclick="transferUser()">Transfer</button>
+        <!-- CONTENT AREA -->
+        <div id="content-area">
+            <div class="grid" id="work-grid">
+                <!-- Data will come here via JS -->
+                <div class="empty-state">
+                    <p style="font-size: 40px;">😕</p>
+                    <p>No works found</p>
+                </div>
+            </div>
         </div>
-    `;
-}
 
-function transferUser() {
-    fetch('/owner/transfer', {
-        method: 'POST',
-        headers: {'Content-Type':'application/json'},
-        body: JSON.stringify({
-            userId: document.getElementById("userId").value,
-            newAdminId: document.getElementById("newAdminId").value
-        })
-    })
-    .then(res => res.json())
-    .then(res => alert(res.message || "Done"))
-    .catch(() => alert("Failed"));
-}
+    </div>
 
+    <script>
+        let socket = io();
 
-// ================= SEARCH =================
-document.addEventListener("keyup", function(e){
-    if(e.target.id === "search"){
-        let val = e.target.value.toLowerCase();
-
-        document.querySelectorAll(".work-card").forEach(card => {
-            card.style.display =
-                card.innerText.toLowerCase().includes(val) ? "" : "none";
+        // সহজ ফিল্টার ফাংশন
+        document.getElementById("searchInput").addEventListener("keyup", function() {
+            let value = this.value.toLowerCase();
+            let cards = document.querySelectorAll(".card");
+            
+            cards.forEach(card => {
+                card.style.display = card.innerText.toLowerCase().includes(value) ? "block" : "none";
+            });
         });
-    }
-});
 
+        function showSection(section) {
+            console.log("Loading section: " + section);
+            // এখানে আপনি AJAX দিয়ে ডাটা লোড করার লজিক দিতে পারেন
+        }
 
-// ================= LOGOUT =================
-function logout(){
-    window.location = "/logout";
-}
+        // Socket.io দিয়ে লাইভ আপডেট
+        socket.on("new_work", function(data) {
+            let grid = document.getElementById("work-grid");
+            // প্রথমবার ডাটা আসলে empty-state সরিয়ে ফেলা
+            if(grid.querySelector('.empty-state')) grid.innerHTML = '';
 
-
-// INIT
-loadDashboard();
-
-</script>
-
+            let div = document.createElement("div");
+            div.className = "card";
+            div.innerHTML = `
+                <div style="display:flex; justify-content:space-between;">
+                    <b>🆕 ${data.title}</b>
+                    <span style="color:#10b981">● Live</span>
+                </div>
+                <p style="font-size:14px; color:#cbd5e1;">Salary: ${data.salary}</p>
+                <div style="display:flex; gap:10px; margin-top:10px;">
+                    <button class="filter-btn approved" style="flex:1">Approve</button>
+                    <button class="filter-btn rejected" style="flex:1">Reject</button>
+                </div>
+            `;
+            grid.prepend(div);
+        });
+    </script>
 </body>
 </html>
