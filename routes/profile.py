@@ -101,10 +101,8 @@ def profile_setup():
 
     profile_data.address = request.form.get('address')
 
-    try:
-    profile_data.age = int(age)
-except:
-    profile_data.age = None
+    age = request.form.get('age')
+profile_data.age = int(age) if age and age.isdigit() else None
 
     profile_data.education = request.form.get('education')
 
