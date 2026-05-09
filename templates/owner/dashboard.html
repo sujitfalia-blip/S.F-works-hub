@@ -3,6 +3,7 @@
 let workChart = null;
 let userChart = null;
 
+
 // ================= DASHBOARD =================
 function loadDashboard() {
 
@@ -14,28 +15,28 @@ function loadDashboard() {
         <div class="row g-3">
 
             <div class="col-md-3">
-                <div class="card p-3 text-center">
+                <div class="card text-center p-3">
                     <h6>Total Works</h6>
                     <h3 id="totalWorks">0</h3>
                 </div>
             </div>
 
             <div class="col-md-3">
-                <div class="card p-3 text-center">
+                <div class="card text-center p-3">
                     <h6>Approved</h6>
                     <h3 id="approvedWorks">0</h3>
                 </div>
             </div>
 
             <div class="col-md-3">
-                <div class="card p-3 text-center">
+                <div class="card text-center p-3">
                     <h6>Pending</h6>
                     <h3 id="pendingWorks">0</h3>
                 </div>
             </div>
 
             <div class="col-md-3">
-                <div class="card p-3 text-center">
+                <div class="card text-center p-3">
                     <h6>Users</h6>
                     <h3 id="totalUsers">0</h3>
                 </div>
@@ -60,11 +61,14 @@ function loadDashboard() {
         </div>
     `;
 
-    fetch(`/owner/analytics?days=30`)
+    fetch('/owner/analytics?days=30')
     .then(res => res.json())
     .then(res => {
 
-        if (!res || !res.data) return;
+        if (!res || !res.data) {
+            main.innerHTML = `<div style="color:red">Invalid analytics data</div>`;
+            return;
+        }
 
         const d = res.data;
 
@@ -73,14 +77,14 @@ function loadDashboard() {
         document.getElementById("pendingWorks").innerText = d.works.pending;
         document.getElementById("totalUsers").innerText = d.users.total;
 
-        // destroy old charts
+        // destroy old charts safely
         if (workChart) workChart.destroy();
         if (userChart) userChart.destroy();
 
         // WORK CHART
         const workCanvas = document.getElementById("workChart");
 
-        if (workCanvas) {
+        if (workCanvas && d.growth?.works) {
             workChart = new Chart(workCanvas, {
                 type: "line",
                 data: {
@@ -97,7 +101,7 @@ function loadDashboard() {
         // USER CHART
         const userCanvas = document.getElementById("userChart");
 
-        if (userCanvas) {
+        if (userCanvas && d.growth?.users) {
             userChart = new Chart(userCanvas, {
                 type: "bar",
                 data: {
@@ -112,8 +116,8 @@ function loadDashboard() {
 
     })
     .catch(err => {
+        console.error(err);
         main.innerHTML = `<div style="color:red">Analytics load failed</div>`;
-        console.log(err);
     });
 }
 
@@ -130,6 +134,10 @@ function loadWorks() {
     .then(res => res.text())
     .then(html => {
         document.getElementById("main").innerHTML = html;
+    })
+    .catch(() => {
+        document.getElementById("main").innerHTML =
+            `<div style="color:red">Failed to load works</div>`;
     });
 }
 
@@ -137,12 +145,13 @@ function loadWorks() {
 // ================= TRANSFER =================
 function loadTransfer() {
 
-    document.getElementById("title").innerText = "🔁 Transfer";
+    document.getElementById("title").innerText = "🔁 Transfer User";
 
     document.getElementById("main").innerHTML = `
         <div class="card p-3">
 
             <input id="userId" class="form-control mb-2" placeholder="User ID">
+
             <input id="newAdminId" class="form-control mb-2" placeholder="New Admin ID">
 
             <button class="btn btn-warning w-100" onclick="transferUser()">
@@ -155,24 +164,28 @@ function loadTransfer() {
 
 function transferUser() {
 
+    const userId = document.getElementById("userId").value;
+    const newAdminId = document.getElementById("newAdminId").value;
+
     fetch('/owner/transfer', {
         method: 'POST',
-        headers: {'Content-Type':'application/json'},
-        body: JSON.stringify({
-            userId: document.getElementById("userId").value,
-            newAdminId: document.getElementById("newAdminId").value
-        })
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ userId, newAdminId })
     })
     .then(res => res.json())
-    .then(res => alert(res.message || "Success"))
-    .catch(() => alert("Failed"));
+    .then(res => {
+        alert(res.message || "Transfer successful");
+    })
+    .catch(() => alert("Transfer failed"));
 }
 
 
 // ================= SEARCH =================
 document.addEventListener("keyup", function(e){
-    if(e.target.id === "search"){
-        let val = e.target.value.toLowerCase();
+    if(e.target && e.target.id === "search"){
+        const val = e.target.value.toLowerCase();
 
         document.querySelectorAll(".work-card").forEach(card => {
             card.style.display =
@@ -186,12 +199,11 @@ document.addEventListener("keyup", function(e){
 
 // ================= LOGOUT =================
 function logout(){
-    window.location = "/logout";
+    window.location.href = "/logout";
 }
 
 
-// INIT
+// ================= INIT =================
 loadDashboard();
 
-          </script>
-          
+                    </script>
