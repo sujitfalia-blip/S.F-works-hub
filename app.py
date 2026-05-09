@@ -31,8 +31,8 @@ def create_app():
     # ================= UPLOAD FOLDER SAFE =================
     upload_path = app.config['UPLOAD_FOLDER']
 
-if not os.path.exists(upload_path):
-    os.makedirs(upload_path)
+    if not os.path.exists(upload_path):
+        os.makedirs(upload_path)
 
     # ================= INIT EXTENSIONS =================
     db.init_app(app)
@@ -62,7 +62,7 @@ if not os.path.exists(upload_path):
 app = create_app()
 
 
-# ================= SAFE DB PATCH (ONLY OPTIONAL FIX) =================
+# ================= SAFE DB PATCH =================
 with app.app_context():
 
     try:
