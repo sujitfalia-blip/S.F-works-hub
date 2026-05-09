@@ -214,54 +214,103 @@ body{
 
 
     <!-- PENDING ADMIN APPROVAL -->
-    <div class="card p-3 mt-4 mb-4">
+<div class="card p-3 mt-4 mb-4">
 
-        <h4>⏳ Pending Admin Approval</h4>
+    <h4 class="mb-3">
+        ⏳ Pending Admin Approval
+    </h4>
 
-        {% if pending_admins %}
+    {% if pending_admins %}
 
-            {% for admin in pending_admins %}
+    <div class="table-responsive">
 
-            <div class="border p-3 rounded mb-3">
+        <table class="table table-dark table-bordered align-middle">
 
-                <p>
-                    <b>{{ admin.name }}</b>
-                    ({{ admin.role }})
-                </p>
+            <thead>
 
-                <p>{{ admin.phone }}</p>
+                <tr>
 
-                <a
-                    href="/owner/approve/{{ admin.id }}"
-                    class="btn btn-success btn-sm"
-                >
-                    ✅ Approve
-                </a>
+                    <th>Name</th>
+                    <th>Phone</th>
+                    <th>Role</th>
+                    <th width="320">Actions</th>
 
-            </div>
+                </tr>
 
-            {% endfor %}
+            </thead>
 
-        {% else %}
+            <tbody>
 
-            <p>No pending admins</p>
+                {% for admin in pending_admins %}
 
-        {% endif %}
+                <tr>
+
+                    <td>
+                        {{ admin.name }}
+                    </td>
+
+                    <td>
+                        {{ admin.phone }}
+                    </td>
+
+                    <td>
+                        {{ admin.role }}
+                    </td>
+
+                    <td>
+
+                        <!-- APPROVE -->
+                        <a
+                            href="/owner/approve-user/{{ admin.id }}"
+                            class="btn btn-success btn-sm"
+                            onclick="return confirm('Are you sure you want to APPROVE this admin?')"
+                        >
+                            ✅ Approve
+                        </a>
+
+
+                        <!-- REJECT -->
+                        <a
+                            href="/owner/reject-user/{{ admin.id }}"
+                            class="btn btn-warning btn-sm"
+                            onclick="return confirm('Are you sure you want to REJECT this admin?')"
+                        >
+                            ❌ Reject
+                        </a>
+
+
+                        <!-- DELETE -->
+                        <a
+                            href="/owner/delete-user/{{ admin.id }}"
+                            class="btn btn-danger btn-sm"
+                            onclick="return confirm('⚠️ Are you sure you want to DELETE this admin?')"
+                        >
+                            🗑 Delete
+                        </a>
+
+                    </td>
+
+                </tr>
+
+                {% endfor %}
+
+            </tbody>
+
+        </table>
 
     </div>
 
+    {% else %}
 
-    <!-- MAIN CONTENT -->
-    <div id="main"></div>
+    <div class="alert alert-secondary mb-0">
+
+        No pending admins found.
+
+    </div>
+
+    {% endif %}
 
 </div>
-
-
-
-<script>
-
-let workChart = null;
-let userChart = null;
 
 
 
