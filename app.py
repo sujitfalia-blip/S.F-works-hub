@@ -96,7 +96,12 @@ with app.app_context():
         print("❌ DB init skipped:", e)
 
 # ================= RUN LOCAL =================
+with app.app_context():
+    db.drop_all()
+    db.create_all()
 
+    print("✅ Database Reset Complete")
+    
 if __name__ == "__main__":
 
     port = int(os.environ.get("PORT", 5000))
