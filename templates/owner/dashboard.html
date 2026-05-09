@@ -4,16 +4,25 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Professional Analytics Dashboard</title>
-    <!-- Bootstrap CSS for Styling -->
+
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
     <style>
         body { background-color: #f8f9fa; }
         .card { border: none; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
         .work-card { transition: transform 0.2s; }
         .work-card:hover { transform: translateY(-5px); }
         #main { min-height: 400px; }
+        .danger-zone {
+            margin-top: 40px;
+            padding: 20px;
+            border: 2px solid red;
+            border-radius: 10px;
+            background: #fff;
+        }
     </style>
 </head>
+
 <body>
 
 <nav class="navbar navbar-dark bg-dark mb-4">
@@ -27,50 +36,66 @@
 </nav>
 
 <div class="container">
+
     <div class="mb-4">
         <button class="btn btn-primary me-2" onclick="loadDashboard()">📊 Dashboard</button>
         <button class="btn btn-secondary me-2" onclick="loadWorks()">🛠 Works</button>
         <button class="btn btn-warning" onclick="loadTransfer()">🔁 Transfer</button>
     </div>
 
-    <div id="main">
-        <!-- Content will be injected here -->
+    <div id="main"></div>
+
+    <!-- ================= DANGER ZONE ================= -->
+    <div class="danger-zone">
+        <h3 style="color:red;">⚠️ Danger Zone (Owner Only)</h3>
+
+        <form method="POST" action="/admin/db-reset"
+              onsubmit="return confirm('⚠️ OWNER ONLY: This will DELETE EVERYTHING!')">
+
+            <button style="
+                background:red;
+                color:white;
+                padding:12px 18px;
+                border:none;
+                border-radius:8px;
+                cursor:pointer;
+            ">
+                🧨 RESET FULL DATABASE
+            </button>
+
+        </form>
     </div>
+
 </div>
 
-<!-- Chart.js Library (Essential) -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <script>
     let workChart = null;
     let userChart = null;
 
-    // ================= HELPER: API FETCH =================
-    // রেন্ডারে আপনার ব্যাকএন্ড ইউআরএলটি এখানে দিন (যেমন: https://your-api.onrender.com)
-    const API_BASE = ""; 
+    const API_BASE = "";
 
     async function fetchData(endpoint) {
         try {
             const response = await fetch(`${API_BASE}${endpoint}`);
-            if (!response.ok) throw new Error('Network response was not ok');
+            if (!response.ok) throw new Error();
             return await response.json();
-        } catch (error) {
-            console.error("Fetch error:", error);
+        } catch (e) {
             return null;
         }
     }
 
-    // ================= DASHBOARD =================
     async function loadDashboard() {
         document.getElementById("title").innerText = "📊 Analytics Dashboard";
+
         const main = document.getElementById("main");
-        
-        main.innerHTML = `<div class="text-center mt-5"><div class="spinner-border" role="status"></div><p>Loading Analytics...</p></div>`;
+        main.innerHTML = `<div class="text-center mt-5">Loading...</div>`;
 
         const res = await fetchData('/owner/analytics?days=30');
 
         if (!res || !res.data) {
-            main.innerHTML = `<div class="alert alert-danger">Failed to load analytics. Please check backend connection.</div>`;
+            main.innerHTML = `<div class="alert alert-danger">Failed to load analytics</div>`;
             return;
         }
 
@@ -78,111 +103,44 @@
 
         main.innerHTML = `
             <div class="row g-3">
-                <div class="col-md-3"><div class="card text-center p-3"><h6>Total Works</h6><h3 class="text-primary">${d.works.total}</h3></div></div>
-                <div class="col-md-3"><div class="card text-center p-3"><h6>Approved</h6><h3 class="text-success">${d.works.approved}</h3></div></div>
-                <div class="col-md-3"><div class="card text-center p-3"><h6>Pending</h6><h3 class="text-warning">${d.works.pending}</h3></div></div>
-                <div class="col-md-3"><div class="card text-center p-3"><h6>Users</h6><h3 class="text-info">${d.users.total}</h3></div></div>
-            </div>
-            <div class="row mt-4">
-                <div class="col-md-6"><div class="card p-3"><canvas id="workChart"></canvas></div></div>
-                <div class="col-md-6"><div class="card p-3"><canvas id="userChart"></canvas></div></div>
+                <div class="col-md-3"><div class="card p-3 text-center"><h6>Total Works</h6><h3>${d.works.total}</h3></div></div>
+                <div class="col-md-3"><div class="card p-3 text-center"><h6>Approved</h6><h3>${d.works.approved}</h3></div></div>
+                <div class="col-md-3"><div class="card p-3 text-center"><h6>Pending</h6><h3>${d.works.pending}</h3></div></div>
+                <div class="col-md-3"><div class="card p-3 text-center"><h6>Users</h6><h3>${d.users.total}</h3></div></div>
             </div>
         `;
-
-        renderCharts(d.growth);
     }
 
-    function renderCharts(growth) {
-        if (workChart) workChart.destroy();
-        if (userChart) userChart.destroy();
-
-        const workCanvas = document.getElementById("workChart");
-        if (workCanvas && growth?.works) {
-            workChart = new Chart(workCanvas, {
-                type: "line",
-                data: {
-                    labels: growth.works.map(x => x.date),
-                    datasets: [{ label: "Works Growth", data: growth.works.map(x => x.count), borderColor: "#0d6efd", fill: false }]
-                }
-            });
-        }
-
-        const userCanvas = document.getElementById("userChart");
-        if (userCanvas && growth?.users) {
-            userChart = new Chart(userCanvas, {
-                type: "bar",
-                data: {
-                    labels: growth.users.map(x => x.date),
-                    datasets: [{ label: "New Users", data: growth.users.map(x => x.count), backgroundColor: "#198754" }]
-                }
-            });
-        }
-    }
-
-    // ================= WORKS =================
     async function loadWorks() {
-        document.getElementById("title").innerText = "🛠 Works Management";
-        const main = document.getElementById("main");
-        main.innerHTML = `<div class="card p-3">Loading works list...</div>`;
-
-        try {
-            const response = await fetch(`${API_BASE}/owner/works`);
-            const html = await response.text();
-            main.innerHTML = html;
-        } catch (err) {
-            main.innerHTML = `<div class="alert alert-danger">Failed to load works.</div>`;
-        }
+        document.getElementById("title").innerText = "🛠 Works";
+        document.getElementById("main").innerHTML = "Loading...";
     }
 
-    // ================= TRANSFER =================
     function loadTransfer() {
-        document.getElementById("title").innerText = "🔁 Transfer User";
+        document.getElementById("title").innerText = "🔁 Transfer";
+
         document.getElementById("main").innerHTML = `
-            <div class="card p-4 mx-auto" style="max-width: 400px;">
-                <label class="form-label">User ID</label>
-                <input id="userId" class="form-control mb-3" placeholder="Enter User ID">
-                <label class="form-label">New Admin ID</label>
-                <input id="newAdminId" class="form-control mb-3" placeholder="Enter New Admin ID">
-                <button class="btn btn-warning w-100" onclick="transferUser()">Confirm Transfer</button>
+            <div class="card p-4" style="max-width:400px;margin:auto;">
+                <input class="form-control mb-2" placeholder="User ID">
+                <input class="form-control mb-2" placeholder="New Admin ID">
+                <button class="btn btn-warning w-100">Transfer</button>
             </div>
         `;
     }
 
-    async function transferUser() {
-        const userId = document.getElementById("userId").value;
-        const newAdminId = document.getElementById("newAdminId").value;
-
-        if(!userId || !newAdminId) return alert("Please fill all fields");
-
-        try {
-            const res = await fetch(`${API_BASE}/owner/transfer`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ userId, newAdminId })
-            });
-            const data = await res.json();
-            alert(data.message || "Transfer successful");
-        } catch (err) {
-            alert("Transfer failed. Check console.");
-        }
-    }
-
-    // ================= SEARCH =================
     document.getElementById("search").addEventListener("keyup", function(e){
-        const val = e.target.value.toLowerCase();
-        document.querySelectorAll(".work-card").forEach(card => {
-            card.style.display = card.innerText.toLowerCase().includes(val) ? "" : "none";
+        let val = e.target.value.toLowerCase();
+        document.querySelectorAll(".work-card").forEach(c=>{
+            c.style.display = c.innerText.toLowerCase().includes(val) ? "" : "none";
         });
     });
 
     function logout(){
-        window.location.href = "/logout";
+        window.location.href="/logout";
     }
 
-    // Initialize
     loadDashboard();
 </script>
 
 </body>
 </html>
-
