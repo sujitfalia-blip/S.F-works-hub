@@ -2,16 +2,13 @@ from dotenv import load_dotenv
 load_dotenv()
 
 import os
-
 from flask import Flask
 from config import Config
-
 from extensions import db, socketio
-
 from flask_migrate import Migrate
 from sqlalchemy import text
 
-# ================= ROUTES =================
+# Routes
 from routes.auth import auth
 from routes.owner import owner
 from routes.admin import admin_bp
@@ -22,19 +19,18 @@ from routes.work import work as work_bp
 from routes.profile import profile
 
 
-# ================= APP FACTORY =================
+# ================= APP =================
 def create_app():
-
     app = Flask(__name__)
     app.config.from_object(Config)
 
-    # ================= UPLOAD FOLDER SAFE =================
-    upload_path = app.config['UPLOAD_FOLDER']
+    # ================= SAFE UPLOAD FOLDER =================
+    upload_path = app.config.get('UPLOAD_FOLDER')
 
-    if not os.path.exists(upload_path):
+    if upload_path and not os.path.exists(upload_path):
         os.makedirs(upload_path)
 
-    # ================= INIT EXTENSIONS =================
+    # ================= EXTENSIONS =================
     db.init_app(app)
 
     socketio.init_app(
@@ -58,28 +54,24 @@ def create_app():
     return app
 
 
-# ================= CREATE APP =================
 app = create_app()
 
 
-# ================= SAFE DB PATCH =================
+# ================= DB PATCH =================
 with app.app_context():
-
     try:
         db.session.execute(text("""
             ALTER TABLE "user"
             ALTER COLUMN email DROP NOT NULL;
         """))
         db.session.commit()
-        print("✅ DB patch applied")
-
+        print("DB patch applied")
     except Exception as e:
         print("DB patch skipped:", e)
 
 
-# ================= RUN LOCAL =================
+# ================= RUN =================
 if __name__ == "__main__":
-
     socketio.run(
         app,
         host="0.0.0.0",
