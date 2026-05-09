@@ -1,242 +1,197 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Owner Dashboard - Premium</title>
-    <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
-    <style>
-        :root {
-            --bg-dark: #0f172a;
-            --card-bg: rgba(255, 255, 255, 0.08);
-            --accent-blue: #3b82f6;
-            --accent-red: #ef4444;
-            --text-white: #f8fafc;
-        }
+<script>
 
-        body {
-            margin: 0;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #0f172a, #1e293b);
-            color: var(--text-white);
-            display: flex;
-            min-height: 100vh;
-        }
+let workChart = null;
+let userChart = null;
 
-        /* SIDEBAR */
-        .sidebar {
-            width: 240px;
-            background: rgba(15, 23, 42, 0.95);
-            border-right: 1px solid rgba(255, 255, 255, 0.1);
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-            transition: 0.3s;
-        }
+// ================= DASHBOARD =================
+function loadDashboard() {
 
-        .sidebar h2 {
-            font-size: 20px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            margin-bottom: 20px;
-        }
+    document.getElementById("title").innerText = "📊 Analytics Dashboard";
 
-        .nav-item {
-            padding: 12px 15px;
-            border-radius: 10px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            transition: 0.2s;
-            text-decoration: none;
-            color: white;
-        }
+    const main = document.getElementById("main");
 
-        .nav-item:hover, .nav-item.active {
-            background: var(--accent-blue);
-        }
+    main.innerHTML = `
+        <div class="row g-3">
 
-        /* MAIN CONTENT */
-        .main-content {
-            flex: 1;
-            padding: 20px;
-            overflow-y: auto;
-        }
-
-        /* HEADER */
-        .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 25px;
-        }
-
-        .logout-btn {
-            background: var(--accent-red);
-            padding: 8px 18px;
-            border-radius: 8px;
-            text-decoration: none;
-            color: white;
-            font-weight: bold;
-            font-size: 14px;
-        }
-
-        /* STATUS FILTER */
-        .filter-bar {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-            margin-bottom: 20px;
-        }
-
-        .filter-btn {
-            padding: 8px 15px;
-            border-radius: 8px;
-            border: none;
-            background: var(--card-bg);
-            color: white;
-            cursor: pointer;
-            font-size: 13px;
-        }
-
-        .filter-btn.pending { background: #f59e0b; }
-        .filter-btn.approved { background: #10b981; }
-        .filter-btn.rejected { background: #ef4444; }
-
-        /* SEARCH */
-        .search-box {
-            width: 100%;
-            padding: 12px;
-            border-radius: 10px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            background: var(--card-bg);
-            color: white;
-            outline: none;
-            margin-bottom: 20px;
-        }
-
-        /* CARD GRID */
-        .grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-            gap: 15px;
-        }
-
-        .card {
-            background: var(--card-bg);
-            backdrop-filter: blur(10px);
-            padding: 18px;
-            border-radius: 15px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            transition: 0.3s;
-        }
-
-        .card:hover { transform: translateY(-5px); }
-
-        .empty-state {
-            text-align: center;
-            padding: 50px;
-            opacity: 0.6;
-        }
-
-        /* RESPONSIVE */
-        @media (max-width: 768px) {
-            body { flex-direction: column; }
-            .sidebar {
-                width: 100%;
-                flex-direction: row;
-                overflow-x: auto;
-                padding: 10px;
-                border-right: none;
-                border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-            }
-            .sidebar h2 { display: none; }
-            .nav-item { white-space: nowrap; padding: 8px 12px; }
-        }
-    </style>
-</head>
-<body>
-
-    <!-- SIDEBAR -->
-    <div class="sidebar">
-        <h2>👑 OWNER</h2>
-        <div class="nav-item active" onclick="showSection('analytics')">📊 Analytics</div>
-        <div class="nav-item" onclick="showSection('works')">🛠 Works</div>
-        <div class="nav-item" onclick="showSection('transfer')">🔁 Transfer</div>
-    </div>
-
-    <!-- MAIN -->
-    <div class="main-content">
-        
-        <div class="header">
-            <h3>Owner Panel 🚀</h3>
-            <a href="/logout" class="logout-btn">Logout</a>
-        </div>
-
-        <input type="text" id="searchInput" class="search-box" placeholder="🔍 Search works or users...">
-
-        <div class="filter-bar">
-            <button class="filter-btn">All</button>
-            <button class="filter-btn pending">Pending</button>
-            <button class="filter-btn approved">Approved</button>
-            <button class="filter-btn rejected">Rejected</button>
-        </div>
-
-        <!-- CONTENT AREA -->
-        <div id="content-area">
-            <div class="grid" id="work-grid">
-                <!-- Data will come here via JS -->
-                <div class="empty-state">
-                    <p style="font-size: 40px;">😕</p>
-                    <p>No works found</p>
+            <div class="col-md-3">
+                <div class="card p-3 text-center">
+                    <h6>Total Works</h6>
+                    <h3 id="totalWorks">0</h3>
                 </div>
             </div>
+
+            <div class="col-md-3">
+                <div class="card p-3 text-center">
+                    <h6>Approved</h6>
+                    <h3 id="approvedWorks">0</h3>
+                </div>
+            </div>
+
+            <div class="col-md-3">
+                <div class="card p-3 text-center">
+                    <h6>Pending</h6>
+                    <h3 id="pendingWorks">0</h3>
+                </div>
+            </div>
+
+            <div class="col-md-3">
+                <div class="card p-3 text-center">
+                    <h6>Users</h6>
+                    <h3 id="totalUsers">0</h3>
+                </div>
+            </div>
+
         </div>
 
-    </div>
+        <div class="row mt-4">
 
-    <script>
-        let socket = io();
+            <div class="col-md-6">
+                <div class="card p-3">
+                    <canvas id="workChart"></canvas>
+                </div>
+            </div>
 
-        // সহজ ফিল্টার ফাংশন
-        document.getElementById("searchInput").addEventListener("keyup", function() {
-            let value = this.value.toLowerCase();
-            let cards = document.querySelectorAll(".card");
-            
-            cards.forEach(card => {
-                card.style.display = card.innerText.toLowerCase().includes(value) ? "block" : "none";
+            <div class="col-md-6">
+                <div class="card p-3">
+                    <canvas id="userChart"></canvas>
+                </div>
+            </div>
+
+        </div>
+    `;
+
+    fetch(`/owner/analytics?days=30`)
+    .then(res => res.json())
+    .then(res => {
+
+        if (!res || !res.data) return;
+
+        const d = res.data;
+
+        document.getElementById("totalWorks").innerText = d.works.total;
+        document.getElementById("approvedWorks").innerText = d.works.approved;
+        document.getElementById("pendingWorks").innerText = d.works.pending;
+        document.getElementById("totalUsers").innerText = d.users.total;
+
+        // destroy old charts
+        if (workChart) workChart.destroy();
+        if (userChart) userChart.destroy();
+
+        // WORK CHART
+        const workCanvas = document.getElementById("workChart");
+
+        if (workCanvas) {
+            workChart = new Chart(workCanvas, {
+                type: "line",
+                data: {
+                    labels: d.growth.works.map(x => x.date),
+                    datasets: [{
+                        label: "Works",
+                        data: d.growth.works.map(x => x.count),
+                        borderWidth: 2
+                    }]
+                }
             });
-        });
-
-        function showSection(section) {
-            console.log("Loading section: " + section);
-            // এখানে আপনি AJAX দিয়ে ডাটা লোড করার লজিক দিতে পারেন
         }
 
-        // Socket.io দিয়ে লাইভ আপডেট
-        socket.on("new_work", function(data) {
-            let grid = document.getElementById("work-grid");
-            // প্রথমবার ডাটা আসলে empty-state সরিয়ে ফেলা
-            if(grid.querySelector('.empty-state')) grid.innerHTML = '';
+        // USER CHART
+        const userCanvas = document.getElementById("userChart");
 
-            let div = document.createElement("div");
-            div.className = "card";
-            div.innerHTML = `
-                <div style="display:flex; justify-content:space-between;">
-                    <b>🆕 ${data.title}</b>
-                    <span style="color:#10b981">● Live</span>
-                </div>
-                <p style="font-size:14px; color:#cbd5e1;">Salary: ${data.salary}</p>
-                <div style="display:flex; gap:10px; margin-top:10px;">
-                    <button class="filter-btn approved" style="flex:1">Approve</button>
-                    <button class="filter-btn rejected" style="flex:1">Reject</button>
-                </div>
-            `;
-            grid.prepend(div);
+        if (userCanvas) {
+            userChart = new Chart(userCanvas, {
+                type: "bar",
+                data: {
+                    labels: d.growth.users.map(x => x.date),
+                    datasets: [{
+                        label: "Users",
+                        data: d.growth.users.map(x => x.count)
+                    }]
+                }
+            });
+        }
+
+    })
+    .catch(err => {
+        main.innerHTML = `<div style="color:red">Analytics load failed</div>`;
+        console.log(err);
+    });
+}
+
+
+// ================= WORKS =================
+function loadWorks() {
+
+    document.getElementById("title").innerText = "🛠 Works";
+
+    document.getElementById("main").innerHTML =
+        `<div class="card p-3">Loading works...</div>`;
+
+    fetch('/owner/works')
+    .then(res => res.text())
+    .then(html => {
+        document.getElementById("main").innerHTML = html;
+    });
+}
+
+
+// ================= TRANSFER =================
+function loadTransfer() {
+
+    document.getElementById("title").innerText = "🔁 Transfer";
+
+    document.getElementById("main").innerHTML = `
+        <div class="card p-3">
+
+            <input id="userId" class="form-control mb-2" placeholder="User ID">
+            <input id="newAdminId" class="form-control mb-2" placeholder="New Admin ID">
+
+            <button class="btn btn-warning w-100" onclick="transferUser()">
+                Transfer
+            </button>
+
+        </div>
+    `;
+}
+
+function transferUser() {
+
+    fetch('/owner/transfer', {
+        method: 'POST',
+        headers: {'Content-Type':'application/json'},
+        body: JSON.stringify({
+            userId: document.getElementById("userId").value,
+            newAdminId: document.getElementById("newAdminId").value
+        })
+    })
+    .then(res => res.json())
+    .then(res => alert(res.message || "Success"))
+    .catch(() => alert("Failed"));
+}
+
+
+// ================= SEARCH =================
+document.addEventListener("keyup", function(e){
+    if(e.target.id === "search"){
+        let val = e.target.value.toLowerCase();
+
+        document.querySelectorAll(".work-card").forEach(card => {
+            card.style.display =
+                card.innerText.toLowerCase().includes(val)
+                ? ""
+                : "none";
         });
-    </script>
-</body>
-</html>
+    }
+});
+
+
+// ================= LOGOUT =================
+function logout(){
+    window.location = "/logout";
+}
+
+
+// INIT
+loadDashboard();
+
+          </script>
+          
