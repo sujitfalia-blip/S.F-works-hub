@@ -18,14 +18,11 @@ import os
 import json
 
 
-profile = Blueprint(
-    'profile',
-    __name__
-)
+profile_bp = Blueprint('profile', __name__)
 
 
 # ================= PROFILE PAGE =================
-@profile.route('/profile')
+@profile_bp.route('/profile')
 def profile_page():
 
     if 'user_id' not in session:
@@ -59,7 +56,7 @@ def profile_page():
 
 
 # ================= PROFILE SETUP =================
-@profile.route('/profile/setup', methods=['GET', 'POST'])
+@profile_bp.route('/profile/setup', methods=['GET', 'POST'])
 def profile_setup():
 
     if 'user_id' not in session:
