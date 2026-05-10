@@ -164,14 +164,13 @@ def login():
 # =========================================================
 # CREATE OWNER (TEMPORARY)
 # =========================================================
-@auth.route('/create-owner')
-def create_owner():
+@auth.route('/create-owner/<secret>')
+def create_owner(secret):
 
-    # already exists?
-    existing = User.query.filter_by(
-        role="owner"
-    ).first()
+    if secret != "MY_SECRET_123":
+        return "❌ Unauthorized", 403
 
+    existing = User.query.filter_by(role="owner").first()
     if existing:
         return "Owner already exists"
 
