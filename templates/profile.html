@@ -259,8 +259,10 @@
 <div
     class="cover"
     style="
-    background-image:url('{{ profile.cover_img if profile.cover_img else '/static/default_cover.jpg' }}');
-    "
+    background-image:url('{{ url_for('static', 
+        filename=profile.cover_img.replace('static/', 
+        '') if profile.cover_img else 
+        'default_cover.jpg') }}');
 ></div>
 
 <!-- MAIN -->
