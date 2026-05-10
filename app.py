@@ -32,16 +32,15 @@ def create_app():
     # ================= UPLOAD FOLDER =================
     upload_path = app.config.get("UPLOAD_FOLDER")
 
-if upload_path:
+    if upload_path:
 
-    # যদি folder না থাকে তাহলে create করবে
-    if not os.path.isdir(upload_path):
-
-        # যদি একই নামে file থাকে remove করবে
-        if os.path.exists(upload_path):
+        # যদি uploads নামে file থাকে remove করবে
+        if os.path.exists(upload_path) and not os.path.isdir(upload_path):
             os.remove(upload_path)
 
-        os.makedirs(upload_path)
+        # folder create
+        os.makedirs(upload_path, exist_ok=True)
+
     # ================= DATABASE =================
     db.init_app(app)
 
@@ -52,7 +51,7 @@ if upload_path:
         async_mode="gevent"
     )
 
-    # ================= MIGRATE =================
+    # ================= MIGRATION =================
     Migrate(app, db)
 
     # ================= BLUEPRINTS =================
@@ -69,7 +68,7 @@ if upload_path:
     return app
 
 
-# ================= APP INSTANCE =================
+# ================= APP =================
 app = create_app()
 
 
