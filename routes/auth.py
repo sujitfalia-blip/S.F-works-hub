@@ -9,7 +9,11 @@ from werkzeug.security import generate_password_hash, check_password_hash
 
 from utils.control import assign_control   # ✅ single import only
 
-auth = Blueprint('auth', __name__)
+auth = Blueprint(
+    "auth",
+    __name__,
+    url_prefix="/auth"
+)
 
 
 # =========================================================
