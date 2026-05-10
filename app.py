@@ -2,13 +2,15 @@ from dotenv import load_dotenv
 load_dotenv()
 
 import os
+
 from flask import Flask
+
 from config import Config
 from extensions import db, socketio
-from flask_migrate import Migrate
-from sqlalchemy import text
 
-# Routes
+from flask_migrate import Migrate
+
+# ================= ROUTES =================
 from routes.auth import auth
 from routes.owner import owner
 from routes.admin import admin_bp
@@ -20,27 +22,30 @@ from routes.profile import profile_bp
 from routes.admin_tools import admin_tools
 
 
-
-# ================= APP =================
+# ================= CREATE APP =================
 def create_app():
+
     app = Flask(__name__)
+
     app.config.from_object(Config)
 
-    # ================= SAFE UPLOAD FOLDER =================
-    upload_path = app.config.get('UPLOAD_FOLDER')
+    # ================= UPLOAD FOLDER =================
+    upload_path = app.config.get("UPLOAD_FOLDER")
 
-    if upload_path and not os.path.exists(upload_path):
-        os.makedirs(upload_path)
+    if upload_path:
+        os.makedirs(upload_path, exist_ok=True)
 
-    # ================= EXTENSIONS =================
+    # ================= DATABASE =================
     db.init_app(app)
 
+    # ================= SOCKET IO =================
     socketio.init_app(
         app,
         cors_allowed_origins="*",
         async_mode="gevent"
     )
 
+    # ================= MIGRATE =================
     Migrate(app, db)
 
     # ================= BLUEPRINTS =================
@@ -57,17 +62,25 @@ def create_app():
     return app
 
 
+# ================= APP INSTANCE =================
 app = create_app()
 
+
+# ================= CREATE TABLES =================
 with app.app_context():
+
     db.create_all()
+
     print("All tables created")
+
 
 # ================= RUN =================
 if __name__ == "__main__":
+
     socketio.run(
         app,
         host="0.0.0.0",
         port=int(os.environ.get("PORT", 5000)),
         debug=False
     )
+    
