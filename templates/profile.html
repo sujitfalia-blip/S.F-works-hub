@@ -1,8 +1,10 @@
 <!DOCTYPE html>
 <html>
+
 <head>
 
     <title>Profile</title>
+
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
 </head>
@@ -16,7 +18,7 @@
 height:250px;
 background-size:cover;
 background-position:center;
-background-image:url('{{ '/' + profile.cover_img if profile.cover_img else '/static/default_cover.jpg' }}');
+background-image:url('/{{ profile.cover_img if profile.cover_img else 'static/default_cover.jpg' }}');
 "></div>
 
 <!-- PROFILE CARD -->
@@ -34,7 +36,7 @@ box-shadow:0 5px 20px rgba(0,0,0,0.1);
 
         <!-- PROFILE IMAGE -->
         <img
-            src="{{ '/' + profile.profile_img if profile.profile_img else '/static/default.png' }}"
+            src="/{{ profile.profile_img if profile.profile_img else 'static/default.png' }}"
             width="140"
             height="140"
             style="
@@ -46,23 +48,35 @@ box-shadow:0 5px 20px rgba(0,0,0,0.1);
             "
         >
 
-        <h2>{{ profile.name or 'No Name' }}</h2>
+        <h2>
+            {{ profile.name or 'No Name' }}
+        </h2>
 
-        <p>{{ profile.work_desc or '' }}</p>
+        <p>
+            {{ profile.work_desc or '' }}
+        </p>
 
-        <p>📍 {{ profile.area or '' }}</p>
+        <p>
+            📍 {{ profile.area or '' }}
+        </p>
 
-        <p>📞 {{ user.phone }}</p>
+        <p>
+            📞 {{ user.phone }}
+        </p>
 
-        <a href="/profile/setup" style="
-        display:inline-block;
-        margin-top:10px;
-        padding:8px 14px;
-        background:#3b82f6;
-        color:white;
-        text-decoration:none;
-        border-radius:8px;
-        ">
+        <!-- EDIT BUTTON -->
+        <a
+            href="/profile/setup"
+            style="
+            display:inline-block;
+            margin-top:10px;
+            padding:8px 14px;
+            background:#3b82f6;
+            color:white;
+            text-decoration:none;
+            border-radius:8px;
+            "
+        >
             Edit Profile
         </a>
 
@@ -70,25 +84,50 @@ box-shadow:0 5px 20px rgba(0,0,0,0.1);
 
     <hr>
 
-    <h3>About</h3>
+    <!-- ABOUT -->
+    <h3>
+        About
+    </h3>
 
-    <p><b>Age:</b> {{ profile.age or '-' }}</p>
+    <p>
+        <b>Age:</b>
+        {{ profile.age or '-' }}
+    </p>
 
-    <p><b>Gender:</b> {{ profile.gender or '-' }}</p>
+    <p>
+        <b>Gender:</b>
+        {{ profile.gender or '-' }}
+    </p>
 
-    <p><b>Religion:</b> {{ profile.religion or '-' }}</p>
+    <p>
+        <b>Religion:</b>
+        {{ profile.religion or '-' }}
+    </p>
 
-    <p><b>Country:</b> {{ profile.country or '-' }}</p>
+    <p>
+        <b>Country:</b>
+        {{ profile.country or '-' }}
+    </p>
 
-    <p><b>Address:</b> {{ profile.address or '-' }}</p>
+    <p>
+        <b>Address:</b>
+        {{ profile.address or '-' }}
+    </p>
 
     <hr>
 
-    <h3>Gallery</h3>
+    <!-- GALLERY -->
+    <h3>
+        Gallery
+    </h3>
 
     {% if gallery and gallery|length > 0 %}
 
-        <div style="display:flex; flex-wrap:wrap; gap:10px;">
+        <div style="
+        display:flex;
+        flex-wrap:wrap;
+        gap:10px;
+        ">
 
             {% for img in gallery %}
 
@@ -109,7 +148,9 @@ box-shadow:0 5px 20px rgba(0,0,0,0.1);
 
     {% else %}
 
-        <p>No gallery uploaded</p>
+        <p>
+            No gallery uploaded
+        </p>
 
     {% endif %}
 
@@ -119,16 +160,21 @@ box-shadow:0 5px 20px rgba(0,0,0,0.1);
 
 <center style="margin-top:80px;">
 
-    <h2>No Profile Found</h2>
+    <h2>
+        No Profile Found
+    </h2>
 
-    <a href="/profile/setup" style="
-    display:inline-block;
-    padding:10px 16px;
-    background:#3b82f6;
-    color:white;
-    text-decoration:none;
-    border-radius:8px;
-    ">
+    <a
+        href="/profile/setup"
+        style="
+        display:inline-block;
+        padding:10px 16px;
+        background:#3b82f6;
+        color:white;
+        text-decoration:none;
+        border-radius:8px;
+        "
+    >
         Create Profile
     </a>
 
