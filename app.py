@@ -63,20 +63,6 @@ with app.app_context():
     db.create_all()
     print("All tables created")
 
-
-# ================= DB PATCH =================
-with app.app_context():
-    try:
-        db.session.execute(text("""
-            ALTER TABLE "user"
-            ALTER COLUMN email DROP NOT NULL;
-        """))
-        db.session.commit()
-        print("DB patch applied")
-    except Exception as e:
-        print("DB patch skipped:", e)
-
-
 # ================= RUN =================
 if __name__ == "__main__":
     socketio.run(
