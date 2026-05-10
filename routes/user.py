@@ -56,13 +56,16 @@ def post_work():
 @role_required("user")
 def dashboard():
 
-    # login check
+    # ================= LOGIN CHECK =================
     if 'user_id' not in session:
         return redirect('/auth/login')
 
     current_user_id = session['user_id']
 
-    # নিজের ছাড়া সব profile
+    # ================= CURRENT USER =================
+    current_user = User.query.get(current_user_id)
+
+    # ================= OTHER USERS =================
     profiles = (
         Profile.query
         .join(User)
@@ -70,8 +73,9 @@ def dashboard():
         .all()
     )
 
+    # ================= RENDER =================
     return render_template(
         "user/dashboard.html",
-        profiles=profiles
+        profiles=profiles,
+        current_user=current_user
     )
-    
