@@ -165,32 +165,6 @@ def login():
     else:
         return redirect('/user/dashboard')
 
-# =========================================================
-# CREATE OWNER (TEMPORARY)
-# =========================================================
-@auth.route('/create-owner/<secret>')
-def create_owner(secret):
-
-    if secret != "MY_SECRET_123":
-        return "❌ Unauthorized", 403
-
-    existing = User.query.filter_by(role="owner").first()
-    if existing:
-        return "Owner already exists"
-
-    owner = User(
-        name="Main Owner",
-        phone="9999999999",
-        password=generate_password_hash("owner123"),
-        role="owner",
-        status="active"
-    )
-
-    db.session.add(owner)
-    db.session.commit()
-
-    return "✅ Owner created successfully"
-
 
 # =========================================================
 # LOGOUT
