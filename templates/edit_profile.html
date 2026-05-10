@@ -1,128 +1,280 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
+
 <head>
 
-    <title>Profile</title>
+    <meta charset="UTF-8">
 
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>My Profile</title>
+
+    <style>
+
+        body{
+            margin:0;
+            padding:0;
+            font-family:Arial,sans-serif;
+            background:#f5f7fb;
+        }
+
+        .cover{
+            height:250px;
+            background-size:cover;
+            background-position:center;
+        }
+
+        .container{
+            max-width:750px;
+            margin:auto;
+            background:white;
+            padding:25px;
+            border-radius:15px;
+            margin-top:-60px;
+            box-shadow:0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        .profile-img{
+            width:140px;
+            height:140px;
+            border-radius:50%;
+            object-fit:cover;
+            border:5px solid white;
+            margin-top:-90px;
+            background:white;
+        }
+
+        h2{
+            margin:10px 0 5px;
+        }
+
+        p{
+            color:#555;
+        }
+
+        input,
+        textarea,
+        select{
+            width:100%;
+            padding:12px;
+            margin-top:10px;
+            border-radius:8px;
+            border:1px solid #ddd;
+            box-sizing:border-box;
+        }
+
+        button{
+            width:100%;
+            padding:14px;
+            border:none;
+            background:#2563eb;
+            color:white;
+            border-radius:10px;
+            font-size:16px;
+            cursor:pointer;
+            margin-top:15px;
+        }
+
+        button:hover{
+            background:#1d4ed8;
+        }
+
+        .gallery{
+            display:flex;
+            flex-wrap:wrap;
+            gap:10px;
+            margin-top:15px;
+        }
+
+        .gallery img{
+            width:120px;
+            height:120px;
+            object-fit:cover;
+            border-radius:10px;
+        }
+
+        .section{
+            margin-top:25px;
+        }
+
+        hr{
+            border:none;
+            border-top:1px solid #eee;
+            margin:25px 0;
+        }
+
+    </style>
 
 </head>
 
 <body>
 
-{% if profile %}
-
 <div
+    class="cover"
     style="
-    height:250px;
-    background-size:cover;
-    background-position:center;
-    background-image:url('/{{ profile.cover_img if profile.cover_img else 'static/default_cover.jpg' }}');
+    background-image:url('/{{ profile.cover_img if profile and profile.cover_img else 'static/default_cover.jpg' }}');
     "
 ></div>
 
-<div
-    style="
-    max-width:700px;
-    margin:auto;
-    background:white;
-    padding:20px;
-    border-radius:12px;
-    margin-top:-50px;
-    "
->
+<div class="container">
 
     <center>
 
         <img
-            src="/{{ profile.profile_img if profile.profile_img else 'static/default.png' }}"
-            width="140"
-            height="140"
-            style="
-            border-radius:50%;
-            object-fit:cover;
-            border:5px solid white;
-            "
+            src="/{{ profile.profile_img if profile and profile.profile_img else 'static/default.png' }}"
+            class="profile-img"
         >
 
         <h2>
-            {{ profile.name }}
+            {{ profile.name if profile else user.name }}
         </h2>
 
         <p>
-            {{ profile.work_desc }}
-        </p>
-
-        <p>
-            📍 {{ profile.area }}
+            {{ profile.work_desc if profile else 'No work description yet' }}
         </p>
 
         <p>
             📞 {{ user.phone }}
         </p>
 
-        <a href="/profile/setup">
-            Edit Profile
-        </a>
-
     </center>
 
     <hr>
 
-    <h3>About</h3>
+    <form method="POST" enctype="multipart/form-data">
 
-    <p><b>Age:</b> {{ profile.age }}</p>
+        <div class="section">
 
-    <p><b>Gender:</b> {{ profile.gender }}</p>
+            <h3>Basic Information</h3>
 
-    <p><b>Religion:</b> {{ profile.religion }}</p>
+            <input
+                type="text"
+                name="name"
+                placeholder="Full Name"
+                value="{{ profile.name if profile else '' }}"
+            >
 
-    <p><b>Country:</b> {{ profile.country }}</p>
+            <input
+                type="text"
+                name="address"
+                placeholder="Address"
+                value="{{ profile.address if profile else '' }}"
+            >
 
-    <p><b>Address:</b> {{ profile.address }}</p>
+            <input
+                type="number"
+                name="age"
+                placeholder="Age"
+                value="{{ profile.age if profile else '' }}"
+            >
+
+            <input
+                type="text"
+                name="education"
+                placeholder="Education"
+                value="{{ profile.education if profile else '' }}"
+            >
+
+            <input
+                type="text"
+                name="area"
+                placeholder="Area"
+                value="{{ profile.area if profile else '' }}"
+            >
+
+            <select name="gender">
+
+                <option value="">Select Gender</option>
+
+                <option value="Male"
+                    {% if profile and profile.gender == 'Male' %}
+                    selected
+                    {% endif %}
+                >
+                    Male
+                </option>
+
+                <option value="Female"
+                    {% if profile and profile.gender == 'Female' %}
+                    selected
+                    {% endif %}
+                >
+                    Female
+                </option>
+
+            </select>
+
+            <input
+                type="text"
+                name="religion"
+                placeholder="Religion"
+                value="{{ profile.religion if profile else '' }}"
+            >
+
+            <input
+                type="text"
+                name="country"
+                placeholder="Country"
+                value="{{ profile.country if profile else '' }}"
+            >
+
+            <textarea
+                name="work_desc"
+                placeholder="Work Description"
+                rows="4"
+            >{{ profile.work_desc if profile else '' }}</textarea>
+
+        </div>
+
+        <div class="section">
+
+            <h3>Upload Images</h3>
+
+            <label>Profile Image</label>
+            <input type="file" name="profile_img">
+
+            <label>Cover Image</label>
+            <input type="file" name="cover_img">
+
+            <label>Gallery Images</label>
+            <input type="file" name="gallery" multiple>
+
+        </div>
+
+        <button type="submit">
+            Save Profile
+        </button>
+
+    </form>
 
     <hr>
 
-    <h3>Gallery</h3>
+    <div class="section">
 
-    {% if gallery %}
+        <h3>Gallery</h3>
 
-        {% for img in gallery %}
+        {% if gallery %}
 
-            <img
-                src="/{{ img }}"
-                width="120"
-                height="120"
-                style="
-                object-fit:cover;
-                border-radius:10px;
-                margin:5px;
-                "
-            >
+        <div class="gallery">
 
-        {% endfor %}
+            {% for img in gallery %}
 
-    {% else %}
+            <img src="/{{ img }}">
+
+            {% endfor %}
+
+        </div>
+
+        {% else %}
 
         <p>No gallery uploaded</p>
 
-    {% endif %}
+        {% endif %}
+
+    </div>
 
 </div>
 
-{% else %}
-
-<center style="margin-top:50px;">
-
-    <h2>No Profile Found</h2>
-
-    <a href="/profile/setup">
-        Create Profile
-    </a>
-
-</center>
-
-{% endif %}
-
 </body>
-</html>
+                    </html>
+                    
