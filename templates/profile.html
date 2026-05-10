@@ -275,11 +275,12 @@
 
             <!-- PROFILE IMAGE -->
 
-            <img
-                src="{{ profile.profile_img if profile.profile_img else '/static/default.png' }}"
-                class="profile-img"
-            >
-
+            <img 
+                src="{{ url_for('static', 
+                filename=profile.profile_img.replace('static/', 
+                '') if profile.profile_img else 
+                'default.png') }}">
+            
             <h1 class="name">
                 {{ profile.name or 'No Name' }}
             </h1>
