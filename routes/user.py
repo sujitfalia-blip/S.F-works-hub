@@ -7,6 +7,10 @@ from services.otp_service import generate_otp
 
 from decorators.auth import role_required
 
+from models.user import User
+
+from models.profile import Profile
+
 user = Blueprint("user", __name__, url_prefix="/user")
 
 
@@ -51,4 +55,23 @@ def post_work():
 @user.route('/dashboard')
 @role_required("user")
 def dashboard():
-    return render_template("user/dashboard.html")
+
+    # login check
+    if 'user_id' not in session:
+        return redirect('/auth/login')
+
+    current_user_id = session['user_id']
+
+    # নিজের ছাড়া সব profile
+    profiles = (
+        Profile.query
+        .join(User)
+        .filter(Profile.user_id != current_user_id)
+        .all()
+    )
+
+    return render_template(
+        "user/dashboard.html",
+        profiles=profiles
+    )
+    
