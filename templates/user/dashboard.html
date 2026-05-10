@@ -9,9 +9,14 @@
 <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
 
 <style>
+
+*{
+    box-sizing:border-box;
+}
+
 body{
     margin:0;
-    font-family:Segoe UI, sans-serif;
+    font-family:Segoe UI,sans-serif;
     background:linear-gradient(135deg,#0f172a,#111827);
     color:white;
 }
@@ -89,7 +94,7 @@ input{
 /* BUTTON */
 .btn{
     display:inline-block;
-    padding:8px 12px;
+    padding:10px 14px;
     margin-top:10px;
     border-radius:8px;
     background:#3b82f6;
@@ -98,6 +103,10 @@ input{
     font-size:13px;
     border:none;
     cursor:pointer;
+}
+
+.btn:hover{
+    background:#2563eb;
 }
 
 /* ACTION GRID */
@@ -122,7 +131,7 @@ input{
     transform:scale(1.03);
 }
 
-/* PROFILE HEADER */
+/* PROFILE */
 .profile-box{
     display:flex;
     align-items:center;
@@ -140,6 +149,16 @@ input{
     font-weight:bold;
 }
 
+/* RESPONSIVE */
+@media(max-width:600px){
+
+    .topbar{
+        flex-direction:column;
+        gap:10px;
+    }
+
+}
+
 </style>
 </head>
 
@@ -147,150 +166,285 @@ input{
 
 <!-- TOPBAR -->
 <div class="topbar">
-    <div>👤 User Dashboard</div>
+
+    <div>
+        👤 User Dashboard
+    </div>
+
     <div>
         <span class="badge">User</span>
         <span class="badge">🟢 Online</span>
     </div>
+
 </div>
 
+<!-- CONTAINER -->
 <div class="container">
 
     <h2>Welcome Back 👋</h2>
 
     <!-- SEARCH -->
-    <input id="search" placeholder="🔍 Search jobs, profile, referral...">
+    <input
+        id="search"
+        placeholder="🔍 Search jobs, profile, referral..."
+    >
 
     <!-- ACTIONS -->
-    <div class="section-title">⚡ Quick Actions</div>
+    <div class="section-title">
+        ⚡ Quick Actions
+    </div>
 
     <div class="action-grid">
 
-        <div class="action" onclick="loadProfile()">👤 Profile</div>
-        <div class="action" onclick="loadReferral()">🔗 Referral</div>
-        <div class="action" onclick="loadHire()">🧑‍💼 Hire</div>
-        <div class="action" onclick="loadChat()">💬 Chat</div>
-        <div class="action" onclick="loadBooking()">📅 Booking</div>
-        <div class="action" onclick="loadNotifications()">🔔 Alerts</div>
+        <div class="action" onclick="loadProfile()">
+            👤 Profile
+        </div>
+
+        <div class="action" onclick="editProfile()">
+            ✏️ Edit Profile
+        </div>
+
+        <div class="action" onclick="loadReferral()">
+            🔗 Referral
+        </div>
+
+        <div class="action" onclick="loadHire()">
+            🧑‍💼 Hire
+        </div>
+
+        <div class="action" onclick="loadChat()">
+            💬 Chat
+        </div>
+
+        <div class="action" onclick="loadBooking()">
+            📅 Booking
+        </div>
+
+        <div class="action" onclick="loadNotifications()">
+            🔔 Alerts
+        </div>
+
+        <div class="action" onclick="logoutUser()">
+            🚪 Logout
+        </div>
 
     </div>
 
-    <!-- LIVE WORKS -->
-    <div class="section-title">🆕 Live Works</div>
+    <!-- LIVE WORK -->
+    <div class="section-title">
+        🆕 Live Works
+    </div>
+
     <div class="grid" id="grid"></div>
 
 </div>
 
 <script>
 
+/* ================= SOCKET ================= */
+
 let socket = io({
     transports:["websocket","polling"]
 });
 
-// LIVE WORK
+
+/* ================= LIVE WORK ================= */
+
 socket.on("new_work", function(data){
 
     let grid = document.getElementById("grid");
 
     let div = document.createElement("div");
+
     div.className = "card";
 
     div.innerHTML = `
         <b>🆕 ${data.title}</b>
-        <p>💰 ${data.salary}</p>
-        <a class="btn" href="/work/${data.id}">View</a>
+        <p>👷 Workers: ${data.workers || "N/A"}</p>
+        <p>💰 Salary: ${data.salary}</p>
+        <a class="btn" href="/work/${data.id}">
+            View Work
+        </a>
     `;
 
     grid.prepend(div);
+
 });
 
 
-// PROFILE
+/* ================= PROFILE ================= */
+
 function loadProfile(){
-    document.getElementById("grid").innerHTML = `
-        <div class="card">
-            <div class="profile-box">
-                <div class="avatar">U</div>
-                <div>
-                    <h3>User Profile</h3>
-                    <p>Email: user@mail.com</p>
-                </div>
-            </div>
-            <button class="btn">Edit Profile</button>
-        </div>
-    `;
+
+    window.location.href = "/profile";
+
 }
 
 
-// REFERRAL
+/* ================= EDIT PROFILE ================= */
+
+function editProfile(){
+
+    window.location.href = "/profile/setup";
+
+}
+
+
+/* ================= REFERRAL ================= */
+
 function loadReferral(){
+
     document.getElementById("grid").innerHTML = `
+
         <div class="card">
+
             <h3>🔗 Referral Program</h3>
-            <p>Invite friends and earn rewards.</p>
-            <input value="https://yourapp.com/ref?code=USER123" readonly>
-            <button class="btn">Copy Link</button>
+
+            <p>
+                Invite friends and earn rewards.
+            </p>
+
+            <input
+                value="https://yourapp.com/ref?code=USER123"
+                readonly
+            >
+
+            <button class="btn" onclick="copyReferral()">
+                Copy Link
+            </button>
+
         </div>
+
     `;
+
 }
 
 
-// HIRE
+/* ================= COPY REFERRAL ================= */
+
+function copyReferral(){
+
+    let input = document.querySelector("#grid input");
+
+    input.select();
+
+    document.execCommand("copy");
+
+    alert("Referral link copied");
+
+}
+
+
+/* ================= HIRE ================= */
+
 function loadHire(){
+
     document.getElementById("grid").innerHTML = `
+
         <div class="card">
+
             <h3>🧑‍💼 Hire Worker</h3>
+
             <input placeholder="Skill required">
+
             <input placeholder="Budget">
-            <button class="btn">Post Job</button>
+
+            <button class="btn">
+                Post Job
+            </button>
+
         </div>
+
     `;
+
 }
 
 
-// CHAT
+/* ================= CHAT ================= */
+
 function loadChat(){
+
     document.getElementById("grid").innerHTML = `
+
         <div class="card">
+
             <h3>💬 Chat</h3>
-            <p>Live chat coming soon...</p>
+
+            <p>
+                Live chat coming soon...
+            </p>
+
         </div>
+
     `;
+
 }
 
 
-// BOOKING
+/* ================= BOOKING ================= */
+
 function loadBooking(){
+
     document.getElementById("grid").innerHTML = `
+
         <div class="card">
+
             <h3>📅 Booking</h3>
-            <p>No bookings yet</p>
+
+            <p>
+                No bookings yet
+            </p>
+
         </div>
+
     `;
+
 }
 
 
-// NOTIFICATION
+/* ================= NOTIFICATIONS ================= */
+
 function loadNotifications(){
+
     document.getElementById("grid").innerHTML = `
+
         <div class="card">
+
             <h3>🔔 Notifications</h3>
-            <p>No new notifications</p>
+
+            <p>
+                No new notifications
+            </p>
+
         </div>
+
     `;
+
 }
 
 
-// SEARCH FILTER
+/* ================= LOGOUT ================= */
+
+function logoutUser(){
+
+    window.location.href = "/auth/logout";
+
+}
+
+
+/* ================= SEARCH ================= */
+
 document.getElementById("search").addEventListener("keyup", function(){
 
     let val = this.value.toLowerCase();
 
     document.querySelectorAll(".card").forEach(card => {
+
         card.style.display =
             card.innerText.toLowerCase().includes(val)
             ? ""
             : "none";
+
     });
 
 });
@@ -298,4 +452,5 @@ document.getElementById("search").addEventListener("keyup", function(){
 </script>
 
 </body>
-</html>
+    </html>
+    
