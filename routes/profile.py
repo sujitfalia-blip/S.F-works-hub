@@ -24,7 +24,7 @@ profile_bp = Blueprint('profile', __name__)
 def profile_page():
 
     if 'user_id' not in session:
-        return redirect('/login')
+        return redirect('/auth/login')
 
     user = User.query.get(session['user_id'])
 
@@ -53,7 +53,7 @@ def profile_setup():
     if 'user_id' not in session:
         return redirect('/login')
 
-    user = User.query.get(session['user_id'])
+    user = db.session.get(User, session['user_id'])
 
     # ================= GET =================
     if request.method == 'GET':
