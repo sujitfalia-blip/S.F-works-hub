@@ -1,186 +1,455 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 
 <head>
 
-    <title>Profile</title>
+    <meta charset="UTF-8">
 
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>{{ profile.name if profile else 'Profile' }}</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+
+        *{
+            margin:0;
+            padding:0;
+            box-sizing:border-box;
+        }
+
+        body{
+            font-family:'Inter',sans-serif;
+            background:#eef2f7;
+            color:#111827;
+        }
+
+        /* COVER */
+
+        .cover{
+            width:100%;
+            height:320px;
+            background-size:cover;
+            background-position:center;
+            position:relative;
+        }
+
+        .cover::after{
+            content:'';
+            position:absolute;
+            inset:0;
+            background:rgba(0,0,0,0.25);
+        }
+
+        /* MAIN CONTAINER */
+
+        .container{
+            max-width:950px;
+            margin:auto;
+            padding:0 20px 40px;
+            margin-top:-90px;
+            position:relative;
+            z-index:10;
+        }
+
+        /* PROFILE CARD */
+
+        .profile-card{
+            background:white;
+            border-radius:24px;
+            overflow:hidden;
+            box-shadow:0 10px 35px rgba(0,0,0,0.08);
+        }
+
+        /* TOP SECTION */
+
+        .top-section{
+            padding:30px;
+            text-align:center;
+            position:relative;
+        }
+
+        .profile-img{
+            width:170px;
+            height:170px;
+            border-radius:50%;
+            object-fit:cover;
+            border:6px solid white;
+            margin-top:-120px;
+            background:white;
+            box-shadow:0 10px 30px rgba(0,0,0,0.15);
+        }
+
+        .name{
+            font-size:30px;
+            font-weight:700;
+            margin-top:15px;
+        }
+
+        .work{
+            color:#4b5563;
+            margin-top:10px;
+            font-size:16px;
+        }
+
+        .info-line{
+            margin-top:12px;
+            color:#374151;
+            font-size:15px;
+        }
+
+        .btn-group{
+            margin-top:20px;
+            display:flex;
+            justify-content:center;
+            gap:12px;
+            flex-wrap:wrap;
+        }
+
+        .btn{
+            padding:12px 18px;
+            border-radius:12px;
+            text-decoration:none;
+            font-size:14px;
+            font-weight:600;
+            transition:0.2s;
+        }
+
+        .primary-btn{
+            background:#2563eb;
+            color:white;
+        }
+
+        .primary-btn:hover{
+            background:#1d4ed8;
+        }
+
+        .secondary-btn{
+            background:#f3f4f6;
+            color:#111827;
+        }
+
+        .secondary-btn:hover{
+            background:#e5e7eb;
+        }
+
+        /* SECTIONS */
+
+        .section{
+            padding:25px 30px;
+            border-top:1px solid #f1f5f9;
+        }
+
+        .section-title{
+            font-size:22px;
+            font-weight:700;
+            margin-bottom:20px;
+        }
+
+        /* ABOUT GRID */
+
+        .about-grid{
+            display:grid;
+            grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+            gap:18px;
+        }
+
+        .info-box{
+            background:#f8fafc;
+            padding:18px;
+            border-radius:16px;
+            border:1px solid #e5e7eb;
+        }
+
+        .info-label{
+            font-size:13px;
+            color:#6b7280;
+            margin-bottom:6px;
+        }
+
+        .info-value{
+            font-size:16px;
+            font-weight:600;
+            color:#111827;
+            word-break:break-word;
+        }
+
+        /* GALLERY */
+
+        .gallery{
+            display:grid;
+            grid-template-columns:repeat(auto-fit,minmax(160px,1fr));
+            gap:15px;
+        }
+
+        .gallery img{
+            width:100%;
+            height:180px;
+            object-fit:cover;
+            border-radius:18px;
+            transition:0.3s;
+            border:1px solid #e5e7eb;
+            background:#f9fafb;
+        }
+
+        .gallery img:hover{
+            transform:scale(1.03);
+        }
+
+        /* EMPTY */
+
+        .empty-box{
+            background:white;
+            max-width:500px;
+            margin:100px auto;
+            padding:40px;
+            text-align:center;
+            border-radius:20px;
+            box-shadow:0 10px 30px rgba(0,0,0,0.08);
+        }
+
+        .empty-box h2{
+            margin-bottom:15px;
+        }
+
+        .empty-box p{
+            color:#6b7280;
+            margin-bottom:20px;
+        }
+
+        /* MOBILE */
+
+        @media(max-width:768px){
+
+            .cover{
+                height:220px;
+            }
+
+            .profile-img{
+                width:130px;
+                height:130px;
+                margin-top:-90px;
+            }
+
+            .top-section{
+                padding:20px;
+            }
+
+            .section{
+                padding:20px;
+            }
+
+            .name{
+                font-size:24px;
+            }
+
+        }
+
+    </style>
 
 </head>
 
-<body style="margin:0; font-family:Arial; background:#f2f2f2;">
+<body>
 
 {% if profile %}
 
 <!-- COVER IMAGE -->
-<div style="
-height:250px;
-background-size:cover;
-background-position:center;
-background-image:url('/{{ profile.cover_img if profile.cover_img else 'static/default_cover.jpg' }}');
-"></div>
 
-<!-- PROFILE CARD -->
-<div style="
-max-width:700px;
-margin:auto;
-background:white;
-padding:20px;
-border-radius:12px;
-margin-top:-50px;
-box-shadow:0 5px 20px rgba(0,0,0,0.1);
-">
+<div
+    class="cover"
+    style="
+    background-image:url('{{ profile.cover_img if profile.cover_img else '/static/default_cover.jpg' }}');
+    "
+></div>
 
-    <center>
+<!-- MAIN -->
 
-        <!-- PROFILE IMAGE -->
-        <img
-            src="/{{ profile.profile_img if profile.profile_img else 'static/default.png' }}"
-            width="140"
-            height="140"
-            style="
-            border-radius:50%;
-            object-fit:cover;
-            border:5px solid white;
-            margin-top:-70px;
-            background:white;
-            "
-        >
+<div class="container">
 
-        <h2>
-            {{ profile.name or 'No Name' }}
-        </h2>
+    <div class="profile-card">
 
-        <p>
-            {{ profile.work_desc or '' }}
-        </p>
+        <!-- TOP -->
 
-        <p>
-            📍 {{ profile.area or '' }}
-        </p>
+        <div class="top-section">
 
-        <p>
-            📞 {{ user.phone }}
-        </p>
+            <!-- PROFILE IMAGE -->
 
-        <!-- EDIT BUTTON -->
-        <a
-            href="/profile/setup"
-            style="
-            display:inline-block;
-            margin-top:10px;
-            padding:8px 14px;
-            background:#3b82f6;
-            color:white;
-            text-decoration:none;
-            border-radius:8px;
-            "
-        >
-            Edit Profile
-        </a>
+            <img
+                src="{{ profile.profile_img if profile.profile_img else '/static/default.png' }}"
+                class="profile-img"
+            >
 
-    </center>
+            <h1 class="name">
+                {{ profile.name or 'No Name' }}
+            </h1>
 
-    <hr>
+            <p class="work">
+                {{ profile.work_desc or 'No work description added yet' }}
+            </p>
 
-    <!-- ABOUT -->
-    <h3>
-        About
-    </h3>
+            <div class="info-line">
+                📍 {{ profile.area or 'Unknown Area' }}
+            </div>
 
-    <p>
-        <b>Age:</b>
-        {{ profile.age or '-' }}
-    </p>
+            <div class="info-line">
+                📞 {{ user.phone }}
+            </div>
 
-    <p>
-        <b>Gender:</b>
-        {{ profile.gender or '-' }}
-    </p>
+            <div class="btn-group">
 
-    <p>
-        <b>Religion:</b>
-        {{ profile.religion or '-' }}
-    </p>
-
-    <p>
-        <b>Country:</b>
-        {{ profile.country or '-' }}
-    </p>
-
-    <p>
-        <b>Address:</b>
-        {{ profile.address or '-' }}
-    </p>
-
-    <hr>
-
-    <!-- GALLERY -->
-    <h3>
-        Gallery
-    </h3>
-
-    {% if gallery and gallery|length > 0 %}
-
-        <div style="
-        display:flex;
-        flex-wrap:wrap;
-        gap:10px;
-        ">
-
-            {% for img in gallery %}
-
-                <img
-                    src="/{{ img }}"
-                    width="120"
-                    height="120"
-                    style="
-                    object-fit:cover;
-                    border-radius:10px;
-                    border:1px solid #ddd;
-                    "
+                <a
+                    href="/profile/setup"
+                    class="btn primary-btn"
                 >
+                    ✏️ Edit Profile
+                </a>
 
-            {% endfor %}
+                <a
+                    href="/user/dashboard"
+                    class="btn secondary-btn"
+                >
+                    ⬅ Back Dashboard
+                </a>
+
+            </div>
 
         </div>
 
-    {% else %}
+        <!-- ABOUT -->
 
-        <p>
-            No gallery uploaded
-        </p>
+        <div class="section">
 
-    {% endif %}
+            <h2 class="section-title">
+                About Information
+            </h2>
+
+            <div class="about-grid">
+
+                <div class="info-box">
+                    <div class="info-label">
+                        Full Name
+                    </div>
+                    <div class="info-value">
+                        {{ profile.name or '-' }}
+                    </div>
+                </div>
+
+                <div class="info-box">
+                    <div class="info-label">
+                        Age
+                    </div>
+                    <div class="info-value">
+                        {{ profile.age or '-' }}
+                    </div>
+                </div>
+
+                <div class="info-box">
+                    <div class="info-label">
+                        Gender
+                    </div>
+                    <div class="info-value">
+                        {{ profile.gender or '-' }}
+                    </div>
+                </div>
+
+                <div class="info-box">
+                    <div class="info-label">
+                        Religion
+                    </div>
+                    <div class="info-value">
+                        {{ profile.religion or '-' }}
+                    </div>
+                </div>
+
+                <div class="info-box">
+                    <div class="info-label">
+                        Education
+                    </div>
+                    <div class="info-value">
+                        {{ profile.education or '-' }}
+                    </div>
+                </div>
+
+                <div class="info-box">
+                    <div class="info-label">
+                        Country
+                    </div>
+                    <div class="info-value">
+                        {{ profile.country or '-' }}
+                    </div>
+                </div>
+
+                <div class="info-box">
+                    <div class="info-label">
+                        Address
+                    </div>
+                    <div class="info-value">
+                        {{ profile.address or '-' }}
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- GALLERY -->
+
+        <div class="section">
+
+            <h2 class="section-title">
+                Photo Gallery
+            </h2>
+
+            {% if gallery and gallery|length > 0 %}
+
+                <div class="gallery">
+
+                    {% for img in gallery %}
+
+                        <img src="{{ img }}">
+
+                    {% endfor %}
+
+                </div>
+
+            {% else %}
+
+                <p style="color:#6b7280;">
+                    No gallery uploaded yet.
+                </p>
+
+            {% endif %}
+
+        </div>
+
+    </div>
 
 </div>
 
 {% else %}
 
-<center style="margin-top:80px;">
+<div class="empty-box">
 
     <h2>
         No Profile Found
     </h2>
 
+    <p>
+        Create your professional profile now.
+    </p>
+
     <a
         href="/profile/setup"
-        style="
-        display:inline-block;
-        padding:10px 16px;
-        background:#3b82f6;
-        color:white;
-        text-decoration:none;
-        border-radius:8px;
-        "
+        class="btn primary-btn"
     >
-        Create Profile
+        ➕ Create Profile
     </a>
 
-</center>
+</div>
 
 {% endif %}
 
 </body>
+
 </html>
