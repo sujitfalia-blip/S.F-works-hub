@@ -4,7 +4,6 @@
 <head>
 
     <meta charset="UTF-8">
-
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <title>My Profile</title>
@@ -91,6 +90,7 @@
             height:120px;
             object-fit:cover;
             border-radius:10px;
+            border:1px solid #ddd;
         }
 
         .section{
@@ -109,28 +109,28 @@
 
 <body>
 
+<!-- COVER -->
 <div
     class="cover"
-    style="
-    background-image:url('/{{ profile.cover_img if profile and profile.cover_img else 'static/default_cover.jpg' }}');
-    "
+    style="background-image:url('{{ url_for('static', filename='default_cover.jpg') if not profile or not profile.cover_img else '/' + profile.cover_img }}');"
 ></div>
 
 <div class="container">
 
     <center>
 
+        <!-- PROFILE IMAGE -->
         <img
-            src="/{{ profile.profile_img if profile and profile.profile_img else 'static/default.png' }}"
+            src="{{ url_for('static', filename='default.png') if not profile or not profile.profile_img else '/' + profile.profile_img }}"
             class="profile-img"
         >
 
         <h2>
-            {{ profile.name if profile else user.name }}
+            {{ profile.name if profile and profile.name else user.name }}
         </h2>
 
         <p>
-            {{ profile.work_desc if profile else 'No work description yet' }}
+            {{ profile.work_desc if profile and profile.work_desc else 'No work description yet' }}
         </p>
 
         <p>
@@ -141,6 +141,7 @@
 
     <hr>
 
+    <!-- FORM -->
     <form method="POST" enctype="multipart/form-data">
 
         <div class="section">
@@ -151,35 +152,35 @@
                 type="text"
                 name="name"
                 placeholder="Full Name"
-                value="{{ profile.name if profile else '' }}"
+                value="{{ profile.name if profile and profile.name else '' }}"
             >
 
             <input
                 type="text"
                 name="address"
                 placeholder="Address"
-                value="{{ profile.address if profile else '' }}"
+                value="{{ profile.address if profile and profile.address else '' }}"
             >
 
             <input
                 type="number"
                 name="age"
                 placeholder="Age"
-                value="{{ profile.age if profile else '' }}"
+                value="{{ profile.age if profile and profile.age else '' }}"
             >
 
             <input
                 type="text"
                 name="education"
                 placeholder="Education"
-                value="{{ profile.education if profile else '' }}"
+                value="{{ profile.education if profile and profile.education else '' }}"
             >
 
             <input
                 type="text"
                 name="area"
                 placeholder="Area"
-                value="{{ profile.area if profile else '' }}"
+                value="{{ profile.area if profile and profile.area else '' }}"
             >
 
             <select name="gender">
@@ -208,24 +209,25 @@
                 type="text"
                 name="religion"
                 placeholder="Religion"
-                value="{{ profile.religion if profile else '' }}"
+                value="{{ profile.religion if profile and profile.religion else '' }}"
             >
 
             <input
                 type="text"
                 name="country"
                 placeholder="Country"
-                value="{{ profile.country if profile else '' }}"
+                value="{{ profile.country if profile and profile.country else '' }}"
             >
 
             <textarea
                 name="work_desc"
                 placeholder="Work Description"
                 rows="4"
-            >{{ profile.work_desc if profile else '' }}</textarea>
+            >{{ profile.work_desc if profile and profile.work_desc else '' }}</textarea>
 
         </div>
 
+        <!-- IMAGE UPLOAD -->
         <div class="section">
 
             <h3>Upload Images</h3>
@@ -241,6 +243,7 @@
 
         </div>
 
+        <!-- SUBMIT -->
         <button type="submit">
             Save Profile
         </button>
@@ -249,11 +252,12 @@
 
     <hr>
 
+    <!-- GALLERY -->
     <div class="section">
 
         <h3>Gallery</h3>
 
-        {% if gallery %}
+        {% if gallery and gallery|length > 0 %}
 
         <div class="gallery">
 
@@ -276,5 +280,4 @@
 </div>
 
 </body>
-                    </html>
-                    
+</html>
