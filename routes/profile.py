@@ -3,8 +3,7 @@ from flask import (
     render_template,
     request,
     redirect,
-    session,
-    current_app
+    session
 )
 
 from models.profile import Profile
@@ -14,9 +13,23 @@ from extensions import db
 
 from PIL import Image
 
+import cloudinary
+import cloudinary.uploader
+
 import os
 import json
 import uuid
+import tempfile
+
+
+# ================= CLOUDINARY =================
+
+cloudinary.config(
+    cloud_name="dion15zps",
+    api_key="136556886157942",
+    api_secret="MBvKiT2EFaCzm9BGB9K1itfmiDU",
+    secure=True
+)
 
 
 profile_bp = Blueprint(
@@ -27,16 +40,20 @@ profile_bp = Blueprint(
 
 # ================= IMAGE RESIZE =================
 
-def resize_image(image_path, size):
+def resize_image(
+    input_path,
+    output_path,
+    size
+):
 
-    img = Image.open(image_path)
+    img = Image.open(input_path)
 
     img = img.convert("RGB")
 
     img.thumbnail(size)
 
     img.save(
-        image_path,
+        output_path,
         format="JPEG",
         quality=85,
         optimize=True
@@ -45,9 +62,9 @@ def resize_image(image_path, size):
 
 # ================= SAVE IMAGE =================
 
-def save_image(
+def save_image_cloudinary(
     file,
-    upload_folder,
+    folder,
     size=(800, 800)
 ):
 
@@ -56,25 +73,43 @@ def save_image(
         1
     )[1].lower()
 
-    filename = (
-        f"{uuid.uuid4().hex}.{ext}"
+    temp_input = tempfile.NamedTemporaryFile(
+        delete=False,
+        suffix=f".{ext}"
     )
 
-    filepath = os.path.join(
-        upload_folder,
-        filename
-    )
+    file.save(temp_input.name)
 
-    file.save(filepath)
+    temp_output = tempfile.NamedTemporaryFile(
+        delete=False,
+        suffix=".jpg"
+    )
 
     resize_image(
-        filepath,
+        temp_input.name,
+        temp_output.name,
         size
     )
 
-    return (
-        f"static/uploads/{filename}"
+    result = cloudinary.uploader.upload(
+        temp_output.name,
+        folder=folder,
+        public_id=uuid.uuid4().hex
     )
+
+    # DELETE TEMP FILES
+
+    try:
+        os.remove(temp_input.name)
+    except:
+        pass
+
+    try:
+        os.remove(temp_output.name)
+    except:
+        pass
+
+    return result["secure_url"]
 
 
 # ================= MY PROFILE =================
@@ -102,11 +137,13 @@ def my_profile():
     if profile and profile.gallery:
 
         try:
+
             gallery = json.loads(
                 profile.gallery
             )
 
         except:
+
             gallery = []
 
     return render_template(
@@ -139,11 +176,13 @@ def view_profile(user_id):
     if profile.gallery:
 
         try:
+
             gallery = json.loads(
                 profile.gallery
             )
 
         except:
+
             gallery = []
 
     return render_template(
@@ -200,11 +239,13 @@ def profile_setup():
         if profile.gallery:
 
             try:
+
                 gallery = json.loads(
                     profile.gallery
                 )
 
             except:
+
                 gallery = []
 
         return render_template(
@@ -266,25 +307,9 @@ def profile_setup():
             ''
         )
 
-        profile.bio = request.form.get(
-            'bio',
-            ''
-        )
-
     except Exception as e:
 
         return f"Form Error: {e}"
-
-    # ================= UPLOAD FOLDER =================
-
-    upload_folder = current_app.config[
-        'UPLOAD_FOLDER'
-    ]
-
-    os.makedirs(
-        upload_folder,
-        exist_ok=True
-    )
 
     # ================= PROFILE IMAGE =================
 
@@ -297,9 +322,9 @@ def profile_setup():
         profile_img.filename != ''
     ):
 
-        profile.profile_img = save_image(
+        profile.profile_img = save_image_cloudinary(
             profile_img,
-            upload_folder,
+            folder="sf_works_hub/profile",
             size=(600, 600)
         )
 
@@ -314,9 +339,9 @@ def profile_setup():
         cover_img.filename != ''
     ):
 
-        profile.cover_img = save_image(
+        profile.cover_img = save_image_cloudinary(
             cover_img,
-            upload_folder,
+            folder="sf_works_hub/cover",
             size=(1400, 600)
         )
 
@@ -328,19 +353,17 @@ def profile_setup():
 
     gallery_list = []
 
-    # OLD GALLERY
-
     if profile.gallery:
 
         try:
+
             gallery_list = json.loads(
                 profile.gallery
             )
 
         except:
-            gallery_list = []
 
-    # NEW GALLERY
+            gallery_list = []
 
     for file in gallery_files:
 
@@ -349,14 +372,14 @@ def profile_setup():
             file.filename != ''
         ):
 
-            img_path = save_image(
+            img_url = save_image_cloudinary(
                 file,
-                upload_folder,
+                folder="sf_works_hub/gallery",
                 size=(1200, 1200)
             )
 
             gallery_list.append(
-                img_path
+                img_url
             )
 
     profile.gallery = json.dumps(
@@ -402,35 +425,16 @@ def delete_gallery_image(index):
     if profile.gallery:
 
         try:
+
             gallery = json.loads(
                 profile.gallery
             )
 
         except:
+
             gallery = []
 
-    # ================= DELETE IMAGE =================
-
     if 0 <= index < len(gallery):
-
-        img_path = gallery[index]
-
-        full_path = os.path.join(
-            current_app.root_path,
-            img_path
-        )
-
-        # DELETE FILE
-
-        if os.path.exists(full_path):
-
-            try:
-                os.remove(full_path)
-
-            except:
-                pass
-
-        # REMOVE FROM LIST
 
         gallery.pop(index)
 
@@ -441,3 +445,4 @@ def delete_gallery_image(index):
         db.session.commit()
 
     return redirect('/profile')
+    
