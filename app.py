@@ -9,6 +9,9 @@ from config import Config
 from extensions import db, socketio
 
 from flask_migrate import Migrate
+import cloudinary
+import cloudinary.uploader
+
 
 # ================= ROUTES =================
 from routes.auth import auth
@@ -28,6 +31,14 @@ def create_app():
     app = Flask(__name__)
 
     app.config.from_object(Config)
+    # ================= CLOUDINARY =================
+
+cloudinary.config(
+    cloud_name="dion15zps",
+    api_key="136556886157942",
+    api_secret="MBvKiT2EFaCzm9BGB9K1itfmiDU",
+    secure=True
+)
 
     # ================= UPLOAD FOLDER =================
     upload_path = app.config.get("UPLOAD_FOLDER")
