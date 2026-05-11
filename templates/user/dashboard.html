@@ -10,7 +10,7 @@
 
 <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
 
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 
 <style>
 
@@ -27,6 +27,17 @@ body{
     overflow-x:hidden;
 }
 
+/* ================= SCROLLBAR ================= */
+
+::-webkit-scrollbar{
+    width:8px;
+}
+
+::-webkit-scrollbar-thumb{
+    background:#334155;
+    border-radius:20px;
+}
+
 /* ================= TOPBAR ================= */
 
 .topbar{
@@ -34,64 +45,103 @@ body{
     top:0;
     left:0;
     right:0;
-    height:70px;
-    background:#111827;
+    height:72px;
+    background:rgba(15,23,42,0.92);
+    backdrop-filter:blur(15px);
     display:flex;
     align-items:center;
     justify-content:space-between;
-    padding:0 20px;
-    border-bottom:1px solid rgba(255,255,255,0.08);
-    z-index:1000;
+    padding:0 18px;
+    z-index:9999;
+    border-bottom:1px solid rgba(255,255,255,0.06);
 }
 
-.logo{
-    font-size:22px;
-    font-weight:700;
-    color:#3b82f6;
-}
+/* ================= LEFT ================= */
 
-.search-bar{
-    width:40%;
-    position:relative;
-}
-
-.search-bar input{
-    width:100%;
-    padding:12px 18px;
-    border:none;
-    border-radius:12px;
-    background:#1e293b;
-    color:white;
-    outline:none;
-    font-size:14px;
-}
-
-.top-right{
+.top-left{
     display:flex;
     align-items:center;
     gap:15px;
 }
 
-.top-btn{
+.menu-btn{
+    width:46px;
+    height:46px;
+    border:none;
+    border-radius:14px;
     background:#1e293b;
-    padding:10px 14px;
-    border-radius:10px;
+    color:white;
+    font-size:22px;
     cursor:pointer;
-    transition:0.2s;
+    transition:0.3s;
 }
 
-.top-btn:hover{
+.menu-btn:hover{
+    background:#2563eb;
+}
+
+.logo-box{
+    display:flex;
+    align-items:center;
+    gap:12px;
+}
+
+.logo-circle{
+    width:42px;
+    height:42px;
+    border-radius:50%;
+    background:linear-gradient(135deg,#2563eb,#60a5fa);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:18px;
+    font-weight:700;
+    box-shadow:0 5px 18px rgba(37,99,235,0.4);
+}
+
+.logo-text{
+    font-size:22px;
+    font-weight:800;
+    color:white;
+}
+
+/* ================= SEARCH ================= */
+
+.search-wrapper{
+    width:40%;
+    position:relative;
+}
+
+.search-wrapper input{
+    width:100%;
+    height:48px;
+    border:none;
+    outline:none;
+    border-radius:16px;
+    padding:0 18px;
+    background:#1e293b;
+    color:white;
+    font-size:14px;
+    transition:0.3s;
+}
+
+.search-wrapper input:focus{
     background:#334155;
 }
 
-.my-profile{
+/* ================= PROFILE ================= */
+
+.profile-mini{
     display:flex;
     align-items:center;
     gap:10px;
+    background:#1e293b;
+    padding:8px 12px;
+    border-radius:14px;
     cursor:pointer;
 }
 
-.my-profile img{
+.profile-mini img{
     width:42px;
     height:42px;
     border-radius:50%;
@@ -99,157 +149,265 @@ body{
     border:2px solid #3b82f6;
 }
 
+.profile-name{
+    font-size:14px;
+    font-weight:600;
+}
+
 /* ================= SIDEBAR ================= */
 
 .sidebar{
     position:fixed;
-    top:70px;
-    left:0;
-    width:250px;
-    height:100vh;
+    top:0;
+    left:-300px;
+    width:280px;
+    height:100%;
     background:#111827;
-    padding:20px 15px;
-    border-right:1px solid rgba(255,255,255,0.08);
+    z-index:10000;
+    transition:0.35s;
     overflow-y:auto;
+    box-shadow:10px 0 35px rgba(0,0,0,0.35);
 }
 
-.menu-title{
-    font-size:13px;
-    color:#94a3b8;
-    margin:18px 10px 10px;
+.sidebar.active{
+    left:0;
+}
+
+/* ================= SIDEBAR HEADER ================= */
+
+.sidebar-header{
+    height:80px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:0 20px;
+    border-bottom:1px solid rgba(255,255,255,0.08);
+}
+
+.sidebar-brand{
+    display:flex;
+    align-items:center;
+    gap:12px;
+}
+
+.sidebar-logo{
+    width:42px;
+    height:42px;
+    border-radius:50%;
+    background:linear-gradient(135deg,#2563eb,#60a5fa);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-weight:700;
+}
+
+.sidebar-brand h2{
+    font-size:20px;
+}
+
+.close-btn{
+    font-size:28px;
+    cursor:pointer;
+}
+
+/* ================= MENU ================= */
+
+.sidebar-menu{
+    padding:18px;
+}
+
+.menu-label{
+    color:#64748b;
+    font-size:12px;
+    margin-bottom:12px;
+    padding-left:8px;
 }
 
 .menu-item{
     display:flex;
     align-items:center;
-    gap:12px;
-    padding:14px;
-    border-radius:12px;
+    gap:14px;
+    padding:15px;
+    border-radius:14px;
+    margin-bottom:10px;
     cursor:pointer;
-    transition:0.2s;
-    margin-bottom:8px;
+    transition:0.3s;
+    color:white;
+    text-decoration:none;
+    font-weight:500;
 }
 
 .menu-item:hover{
     background:#1e293b;
+    transform:translateX(4px);
 }
 
-.menu-item span{
-    font-size:15px;
+.menu-item i{
+    font-style:normal;
+    font-size:18px;
+}
+
+/* ================= OVERLAY ================= */
+
+.overlay{
+    position:fixed;
+    inset:0;
+    background:rgba(0,0,0,0.6);
+    z-index:9998;
+    display:none;
+}
+
+.overlay.active{
+    display:block;
 }
 
 /* ================= MAIN ================= */
 
 .main{
-    margin-left:250px;
-    margin-top:70px;
-    padding:25px;
+    padding:100px 22px 30px;
 }
 
 /* ================= HERO ================= */
 
 .hero{
     background:linear-gradient(135deg,#2563eb,#1d4ed8);
-    padding:25px;
-    border-radius:20px;
-    margin-bottom:25px;
+    border-radius:28px;
+    padding:35px;
+    position:relative;
+    overflow:hidden;
+    margin-bottom:28px;
+}
+
+.hero::before{
+    content:'';
+    position:absolute;
+    width:300px;
+    height:300px;
+    background:rgba(255,255,255,0.08);
+    border-radius:50%;
+    right:-100px;
+    top:-100px;
 }
 
 .hero h1{
-    font-size:28px;
+    font-size:34px;
+    font-weight:800;
     margin-bottom:10px;
+    position:relative;
+    z-index:2;
 }
 
 .hero p{
-    opacity:0.9;
+    font-size:15px;
+    opacity:0.95;
+    position:relative;
+    z-index:2;
 }
 
-/* ================= LIVE USERS ================= */
+/* ================= SECTION ================= */
 
 .section-title{
-    margin-bottom:15px;
-    font-size:20px;
-    font-weight:600;
+    font-size:22px;
+    font-weight:700;
+    margin-bottom:18px;
 }
+
+/* ================= GRID ================= */
 
 .grid{
     display:grid;
-    grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
-    gap:18px;
+    grid-template-columns:repeat(auto-fit,minmax(290px,1fr));
+    gap:22px;
 }
 
-/* ================= USER CARD ================= */
+/* ================= CARD ================= */
 
 .card{
     background:#111827;
-    border-radius:18px;
-    padding:20px;
+    border-radius:24px;
+    overflow:hidden;
     border:1px solid rgba(255,255,255,0.06);
-    transition:0.2s;
-}
-
-.card:hover{
-    transform:translateY(-5px);
-    border-color:#2563eb;
-}
-
-.user-cover{
-    height:110px;
-    border-radius:14px;
-    background-size:cover;
-    background-position:center;
-    margin-bottom:55px;
+    transition:0.35s;
     position:relative;
 }
 
+.card:hover{
+    transform:translateY(-8px);
+    border-color:#2563eb;
+    box-shadow:0 15px 35px rgba(37,99,235,0.15);
+}
+
+/* ================= COVER ================= */
+
+.user-cover{
+    height:130px;
+    background-size:cover;
+    background-position:center;
+    position:relative;
+}
+
+/* ================= AVATAR ================= */
+
 .user-avatar{
-    width:90px;
-    height:90px;
+    width:100px;
+    height:100px;
     border-radius:50%;
     object-fit:cover;
-    border:4px solid #111827;
+    border:5px solid #111827;
     position:absolute;
-    bottom:-45px;
+    bottom:-50px;
     left:50%;
     transform:translateX(-50%);
     background:white;
 }
 
-.user-name{
+/* ================= CARD BODY ================= */
+
+.card-body{
+    padding:60px 20px 20px;
     text-align:center;
-    font-size:20px;
-    font-weight:600;
-    margin-top:10px;
+}
+
+.user-name{
+    font-size:22px;
+    font-weight:700;
 }
 
 .user-skill{
-    text-align:center;
     color:#94a3b8;
+    margin-top:6px;
     font-size:14px;
-    margin-top:5px;
 }
 
 .user-area{
-    text-align:center;
-    margin-top:8px;
+    margin-top:10px;
     font-size:14px;
 }
 
+.user-desc{
+    margin-top:14px;
+    font-size:14px;
+    color:#cbd5e1;
+    line-height:1.6;
+    min-height:60px;
+}
+
+/* ================= BUTTONS ================= */
+
 .card-buttons{
     display:flex;
-    gap:10px;
-    margin-top:18px;
+    gap:12px;
+    margin-top:20px;
 }
 
 .btn{
     flex:1;
-    text-align:center;
-    padding:10px;
-    border-radius:10px;
     text-decoration:none;
+    padding:12px;
+    border-radius:14px;
     font-size:14px;
-    font-weight:500;
-    transition:0.2s;
+    font-weight:600;
+    transition:0.3s;
 }
 
 .view-btn{
@@ -270,55 +428,50 @@ body{
     background:#334155;
 }
 
-/* ================= LIVE STATUS ================= */
+/* ================= LIVE ================= */
 
-.live{
-    width:10px;
-    height:10px;
+.live-badge{
+    position:absolute;
+    top:14px;
+    right:14px;
     background:#22c55e;
-    border-radius:50%;
-    display:inline-block;
-    margin-right:5px;
+    color:white;
+    padding:6px 10px;
+    border-radius:20px;
+    font-size:12px;
+    font-weight:600;
 }
 
 /* ================= MOBILE ================= */
 
 @media(max-width:900px){
 
-    .sidebar{
-        width:80px;
-    }
-
-    .sidebar span{
-        display:none;
-    }
-
-    .main{
-        margin-left:80px;
-    }
-
-    .search-bar{
-        width:50%;
+    .search-wrapper{
+        width:45%;
     }
 
 }
 
 @media(max-width:700px){
 
-    .topbar{
-        padding:0 10px;
-    }
-
-    .search-bar{
+    .search-wrapper{
         display:none;
     }
 
-    .main{
-        padding:15px;
+    .hero{
+        padding:28px 22px;
     }
 
     .hero h1{
-        font-size:22px;
+        font-size:26px;
+    }
+
+    .main{
+        padding:95px 14px 25px;
+    }
+
+    .logo-text{
+        font-size:18px;
     }
 
 }
@@ -329,112 +482,156 @@ body{
 
 <body>
 
+<!-- ================= OVERLAY ================= -->
+
+<div
+    class="overlay"
+    id="overlay"
+    onclick="closeSidebar()"
+></div>
+
+<!-- ================= SIDEBAR ================= -->
+
+<div
+    class="sidebar"
+    id="sidebar"
+>
+
+    <div class="sidebar-header">
+
+        <div class="sidebar-brand">
+
+            <div class="sidebar-logo">
+                SF
+            </div>
+
+            <h2>
+                S.F Hub
+            </h2>
+
+        </div>
+
+        <div
+            class="close-btn"
+            onclick="closeSidebar()"
+        >
+            ✕
+        </div>
+
+    </div>
+
+    <div class="sidebar-menu">
+
+        <div class="menu-label">
+            MAIN MENU
+        </div>
+
+        <a href="/user/dashboard" class="menu-item">
+            <i>🏠</i> Dashboard
+        </a>
+
+        <a href="/profile" class="menu-item">
+            <i>👤</i> My Profile
+        </a>
+
+        <a href="/gallery" class="menu-item">
+            <i>🖼️</i> Gallery
+        </a>
+
+        <a href="/work-post" class="menu-item">
+            <i>💼</i> ওয়ার্ক পোস্ট
+        </a>
+
+        <a href="/booking" class="menu-item">
+            <i>📅</i> বুকিং
+        </a>
+
+        <a href="/referral" class="menu-item">
+            <i>🔗</i> রেফার
+        </a>
+
+        <a href="/help-line" class="menu-item">
+            <i>☎️</i> হেল্প লাইন
+        </a>
+
+        <a href="/settings" class="menu-item">
+            <i>⚙️</i> Settings
+        </a>
+
+        <a href="/forgot-password" class="menu-item">
+            <i>🔐</i> Forgot Password
+        </a>
+
+        <a href="/auth/logout" class="menu-item">
+            <i>🚪</i> Logout
+        </a>
+
+    </div>
+
+</div>
+
 <!-- ================= TOPBAR ================= -->
 
 <div class="topbar">
 
-    <div class="logo">
-        🔥 S.F Works Hub
-    </div>
+    <div class="top-left">
 
-    <div class="search-bar">
-
-        <input
-            type="text"
-            id="search"
-            placeholder="Search users, skills, area..."
+        <button
+            class="menu-btn"
+            onclick="openSidebar()"
         >
+            ☰
+        </button>
 
-    </div>
+        <div class="logo-box">
 
-    <div class="top-right">
+            <div class="logo-circle">
+                SF
+            </div>
 
-        <div class="top-btn">
-            🔔
-        </div>
-
-        <div class="top-btn">
-            💬
-        </div>
-
-        <div
-            class="my-profile"
-            onclick="window.location.href='/profile'"
-        >
-
-            <img
-                src="/{{ current_user.profile.profile_img if current_user.profile and current_user.profile.profile_img else 'static/default.png' }}"
-            >
-
-            <div>
-
-                <div style="font-size:14px;">
-                    {{ current_user.phone }}
-                </div>
-
-                <div style="font-size:12px;color:#94a3b8;">
-                    Online
-                </div>
-
+            <div class="logo-text">
+                S.F Works Hub
             </div>
 
         </div>
 
     </div>
 
-</div>
+    <!-- SEARCH -->
 
-<!-- ================= SIDEBAR ================= -->
+    <div class="search-wrapper">
 
-<div class="sidebar">
+        <input
+            type="text"
+            id="search"
+            placeholder="Search workers by area or skill..."
+        >
 
-    <div class="menu-title">
-        MENU
     </div>
 
+    <!-- PROFILE -->
+
     <div
-        class="menu-item"
+        class="profile-mini"
         onclick="window.location.href='/profile'"
     >
-        👤 <span>My Profile</span>
-    </div>
 
-    <div
-        class="menu-item"
-        onclick="window.location.href='/profile/setup'"
-    >
-        ✏️ <span>Edit Profile</span>
-    </div>
+        <img
+            src="/{{ current_user.profile.profile_img if current_user.profile and current_user.profile.profile_img else 'static/default.png' }}"
+        >
 
-    <div class="menu-item">
-        💼 <span>Jobs</span>
-    </div>
+        <div>
 
-    <div class="menu-item">
-        🔗 <span>Referral</span>
-    </div>
+            <div class="profile-name">
+                {{ current_user.profile.name if current_user.profile and current_user.profile.name else 'User' }}
+            </div>
 
-    <div class="menu-item">
-        💬 <span>Messages</span>
-    </div>
+            <div style="font-size:12px;color:#94a3b8;">
+                Online
+            </div>
 
-    <div class="menu-item">
-        📅 <span>Bookings</span>
-    </div>
+        </div>
 
-    <div class="menu-item">
-        🔔 <span>Notifications</span>
-    </div>
-
-    <div class="menu-item">
-        ⚙️ <span>Settings</span>
-    </div>
-
-    <div
-        class="menu-item"
-        onclick="window.location.href='/auth/logout'"
-    >
-        🚪 <span>Logout</span>
     </div>
 
 </div>
@@ -452,23 +649,29 @@ body{
         </h1>
 
         <p>
-            Find workers, skilled people, jobs and connect instantly.
+            Find skilled workers, connect instantly and grow your work network professionally.
         </p>
 
     </div>
 
-    <!-- LIVE USERS -->
+    <!-- USERS -->
 
     <div class="section-title">
-        <span class="live"></span>
-        Live Users
+        🔥 Active Workers
     </div>
 
-    <div class="grid" id="userGrid">
+    <div
+        class="grid"
+        id="userGrid"
+    >
 
         {% for profile in profiles %}
 
         <div class="card">
+
+            <div class="live-badge">
+                ● Online
+            </div>
 
             <!-- COVER -->
 
@@ -486,48 +689,45 @@ body{
 
             </div>
 
-            <!-- USER INFO -->
+            <!-- BODY -->
 
-            <div class="user-name">
-                {{ profile.name or 'No Name' }}
-            </div>
+            <div class="card-body">
 
-            <div class="user-skill">
-                {{ profile.education or 'Skilled User' }}
-            </div>
+                <div class="user-name">
+                    {{ profile.name or 'No Name' }}
+                </div>
 
-            <div class="user-area">
-                📍 {{ profile.area or 'Unknown Area' }}
-            </div>
+                <div class="user-skill">
+                    {{ profile.education or 'Skilled Worker' }}
+                </div>
 
-            <div
-                style="
-                margin-top:12px;
-                text-align:center;
-                font-size:14px;
-                color:#cbd5e1;
-                "
-            >
-                {{ profile.work_desc or 'No description available' }}
-            </div>
+                <div class="user-area">
+                    📍 {{ profile.area or 'Unknown Area' }}
+                </div>
 
-            <!-- BUTTONS -->
+                <div class="user-desc">
+                    {{ profile.work_desc or 'No description available.' }}
+                </div>
 
-            <div class="card-buttons">
+                <!-- BUTTONS -->
 
-                <a
-                    href="/profile/{{ profile.user_id }}"
-                    class="btn view-btn"
-                >
-                    View
-                </a>
+                <div class="card-buttons">
 
-                <a
-                    href="#"
-                    class="btn chat-btn"
-                >
-                    Message
-                </a>
+                    <a
+                        href="/profile/{{ profile.user_id }}"
+                        class="btn view-btn"
+                    >
+                        View Profile
+                    </a>
+
+                    <a
+                        href="#"
+                        class="btn chat-btn"
+                    >
+                        Message
+                    </a>
+
+                </div>
 
             </div>
 
@@ -539,7 +739,35 @@ body{
 
 </div>
 
+<!-- ================= JAVASCRIPT ================= -->
+
 <script>
+
+/* ================= SIDEBAR ================= */
+
+function openSidebar(){
+
+    document
+    .getElementById('sidebar')
+    .classList.add('active');
+
+    document
+    .getElementById('overlay')
+    .classList.add('active');
+
+}
+
+function closeSidebar(){
+
+    document
+    .getElementById('sidebar')
+    .classList.remove('active');
+
+    document
+    .getElementById('overlay')
+    .classList.remove('active');
+
+}
 
 /* ================= SOCKET ================= */
 
@@ -547,15 +775,11 @@ let socket = io({
     transports:["websocket","polling"]
 });
 
-
-/* ================= LIVE WORK ================= */
-
 socket.on("new_work", function(data){
 
     console.log("New Work:", data);
 
 });
-
 
 /* ================= SEARCH ================= */
 
@@ -563,18 +787,22 @@ document
 .getElementById("search")
 .addEventListener("keyup", function(){
 
-    let value = this.value.toLowerCase();
+    let value =
+    this.value.toLowerCase();
 
-    let cards = document.querySelectorAll(".card");
+    let cards =
+    document.querySelectorAll(".card");
 
     cards.forEach(card => {
 
         card.style.display =
-            card.innerText
-            .toLowerCase()
-            .includes(value)
-            ? "block"
-            : "none";
+
+        card.innerText
+        .toLowerCase()
+        .includes(value)
+
+        ? "block"
+        : "none";
 
     });
 
@@ -583,5 +811,4 @@ document
 </script>
 
 </body>
-    </html>
-    
+                </html>
