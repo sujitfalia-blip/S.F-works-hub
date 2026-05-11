@@ -297,16 +297,7 @@ body{
     justify-content:center;
     font-size:16px;
     font-weight:700;
-    box-shadow:0 5px 15px rgba(0,0,0,0.2);
-    transition:0.3s;
 }
-
-.delete-btn:hover{
-    background:#dc2626;
-    transform:scale(1.1);
-}
-
-/* ================= IMAGE MODAL ================= */
 
 .image-modal{
     display:none;
@@ -336,82 +327,6 @@ body{
     color:#fff;
     font-size:45px;
     cursor:pointer;
-}
-
-/* ================= EMPTY ================= */
-
-.empty-box{
-    max-width:500px;
-    margin:100px auto;
-    background:#fff;
-    padding:40px;
-    border-radius:20px;
-    text-align:center;
-    box-shadow:0 10px 30px rgba(0,0,0,0.08);
-}
-
-.empty-box h2{
-    margin-bottom:12px;
-}
-
-.empty-box p{
-    color:#6b7280;
-    margin-bottom:20px;
-}
-
-/* ================= MOBILE ================= */
-
-@media(max-width:900px){
-
-    .content{
-        grid-template-columns:1fr;
-    }
-
-}
-
-@media(max-width:768px){
-
-    .cover{
-        height:280px;
-    }
-
-    .profile-header{
-        flex-direction:column;
-        align-items:center;
-        text-align:center;
-        top:-60px;
-    }
-
-    .profile-img{
-        width:145px;
-        height:145px;
-    }
-
-    .user-info{
-        padding-bottom:0;
-    }
-
-    .user-info h1{
-        font-size:30px;
-    }
-
-    .user-details,
-    .action-buttons{
-        justify-content:center;
-    }
-
-    .profile-section{
-        padding:0 18px 25px;
-    }
-
-    .topbar{
-        padding:0 14px;
-    }
-
-    .brand{
-        font-size:18px;
-    }
-
 }
 
 </style>
@@ -445,8 +360,8 @@ body{
 
 <div
     class="cover"
-    style="background-image:url('{{ '/' + profile.cover_img if profile and profile.cover_img else 'static/default_cover.jpg' }}');"
-    onclick="openImage(this.style.backgroundImage.slice(5,-2))"
+    style="background-image:url('{{ profile.cover_img if profile and profile.cover_img else '/static/default_cover.jpg' }}');"
+    onclick="openImage('{{ profile.cover_img if profile and profile.cover_img else '/static/default_cover.jpg' }}')"
 >
 
     <div class="cover-overlay"></div>
@@ -459,13 +374,13 @@ body{
 
     <div class="profile-section">
 
-        <!-- ================= PROFILE HEADER ================= -->
-
         <div class="profile-header">
+
+            <!-- ================= PROFILE IMAGE ================= -->
 
             <img
                 class="profile-img"
-                src="{{ '/' + profile.profile_img if profile and profile.profile_img else '/static/default.png' }}"
+                src="{{ profile.profile_img if profile and profile.profile_img else '/static/default.png' }}"
                 onclick="openImage(this.src)"
             >
 
@@ -543,44 +458,32 @@ body{
 
                 <div class="info-item">
                     <div class="info-icon">👤</div>
-                    <div>
-                        {{ profile.name or '-' }}
-                    </div>
+                    <div>{{ profile.name or '-' }}</div>
                 </div>
 
                 <div class="info-item">
                     <div class="info-icon">🎂</div>
-                    <div>
-                        {{ profile.age or '-' }}
-                    </div>
+                    <div>{{ profile.age or '-' }}</div>
                 </div>
 
                 <div class="info-item">
                     <div class="info-icon">⚧</div>
-                    <div>
-                        {{ profile.gender or '-' }}
-                    </div>
+                    <div>{{ profile.gender or '-' }}</div>
                 </div>
 
                 <div class="info-item">
                     <div class="info-icon">🕌</div>
-                    <div>
-                        {{ profile.religion or '-' }}
-                    </div>
+                    <div>{{ profile.religion or '-' }}</div>
                 </div>
 
                 <div class="info-item">
                     <div class="info-icon">🎓</div>
-                    <div>
-                        {{ profile.education or '-' }}
-                    </div>
+                    <div>{{ profile.education or '-' }}</div>
                 </div>
 
                 <div class="info-item">
                     <div class="info-icon">🏠</div>
-                    <div>
-                        {{ profile.address or '-' }}
-                    </div>
+                    <div>{{ profile.address or '-' }}</div>
                 </div>
 
             </div>
@@ -603,9 +506,11 @@ body{
 
                 <div class="gallery-box">
 
+                    <!-- ================= GALLERY IMAGE ================= -->
+
                     <img
                         class="gallery-img"
-                        src="/{{ img }}"
+                        src="{{ img }}"
                         onclick="openImage(this.src)"
                     >
 
@@ -638,24 +543,6 @@ body{
         </div>
 
     </div>
-
-</div>
-
-{% else %}
-
-<div class="empty-box">
-
-    <h2>
-        No Profile Found
-    </h2>
-
-    <p>
-        Create your professional profile now.
-    </p>
-
-    <a href="/profile/setup" class="btn primary-btn">
-        ➕ Create Profile
-    </a>
 
 </div>
 
@@ -705,5 +592,4 @@ document.getElementById("imageModal").onclick = function(e){
 </script>
 
 </body>
-
-    </html>
+</html>
