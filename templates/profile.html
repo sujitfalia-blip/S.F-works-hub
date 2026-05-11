@@ -2,45 +2,78 @@
 <html lang="en">
 
 <head>
+
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>{{ profile.name if profile else 'Profile' }}</title>
+<title>
+    {{ profile.name if profile else 'Profile' }}
+</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
 <style>
 
-body{
+*{
     margin:0;
-    font-family:Arial;
+    padding:0;
+    box-sizing:border-box;
+}
+
+body{
+    font-family:'Inter',sans-serif;
     background:#eef2f7;
+    color:#111827;
 }
 
 /* ================= COVER ================= */
+
 .cover{
     width:100%;
-    height:280px;
+    height:320px;
     background-size:cover;
     background-position:center;
     background-repeat:no-repeat;
+    position:relative;
+    cursor:pointer;
+}
+
+.cover::after{
+    content:'';
+    position:absolute;
+    inset:0;
+    background:rgba(0,0,0,0.25);
 }
 
 /* ================= CONTAINER ================= */
+
 .container{
-    max-width:900px;
+    max-width:950px;
     margin:auto;
-    margin-top:-80px;
-    padding:20px;
+    padding:0 20px 40px;
+    margin-top:-90px;
+    position:relative;
+    z-index:10;
 }
 
 /* ================= CARD ================= */
+
 .card{
     background:white;
-    border-radius:16px;
-    box-shadow:0 10px 30px rgba(0,0,0,0.1);
+    border-radius:24px;
     overflow:hidden;
+    box-shadow:0 10px 35px rgba(0,0,0,0.08);
+}
+
+/* ================= HEADER ================= */
+
+.header{
+    text-align:center;
+    padding:30px;
 }
 
 /* ================= PROFILE IMAGE ================= */
+
 .profile-img{
     width:140px;
     height:140px;
@@ -49,35 +82,98 @@ body{
     object-position:center;
     border:5px solid #fff;
     box-shadow:0 5px 15px rgba(0,0,0,0.2);
-    margin-top:-70px;
+    margin-top:-100px;
     background:white;
+    cursor:pointer;
 }
 
-/* ================= HEADER ================= */
-.header{
-    text-align:center;
-    padding:20px;
-}
+/* ================= NAME ================= */
 
 .header h2{
-    margin:10px 0 5px;
+    margin-top:15px;
+    font-size:30px;
+    font-weight:700;
 }
 
-/* ================= INFO ================= */
-.info{
-    padding:20px;
+.work{
+    color:#4b5563;
+    margin-top:10px;
+    font-size:15px;
 }
 
-.info p{
-    margin:8px 0;
+.info-line{
+    margin-top:10px;
+    color:#374151;
+    font-size:15px;
+}
+
+/* ================= BUTTON ================= */
+
+.btn{
+    display:inline-block;
+    padding:12px 18px;
+    background:#2563eb;
+    color:white;
+    border-radius:12px;
+    text-decoration:none;
+    margin-top:18px;
+    font-size:14px;
+    font-weight:600;
+    transition:0.3s;
+}
+
+.btn:hover{
+    background:#1d4ed8;
+    transform:translateY(-2px);
+}
+
+/* ================= SECTION ================= */
+
+.section{
+    padding:25px 30px;
+    border-top:1px solid #f1f5f9;
+}
+
+.section-title{
+    font-size:22px;
+    font-weight:700;
+    margin-bottom:20px;
+}
+
+/* ================= INFO GRID ================= */
+
+.info-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+    gap:18px;
+}
+
+.info-box{
+    background:#f8fafc;
+    padding:18px;
+    border-radius:16px;
+    border:1px solid #e5e7eb;
+}
+
+.info-label{
+    font-size:13px;
+    color:#6b7280;
+    margin-bottom:6px;
+}
+
+.info-value{
+    font-size:16px;
+    font-weight:600;
+    color:#111827;
+    word-break:break-word;
 }
 
 /* ================= GALLERY ================= */
+
 .gallery{
     display:grid;
-    grid-template-columns:repeat(auto-fit, minmax(150px, 1fr));
-    gap:10px;
-    padding:20px;
+    grid-template-columns:repeat(auto-fit,minmax(160px,1fr));
+    gap:15px;
 }
 
 .gallery-img{
@@ -87,101 +183,321 @@ body{
     object-position:center;
     border-radius:12px;
     transition:0.3s;
+    cursor:pointer;
+    border:1px solid #e5e7eb;
+    background:#f9fafb;
 }
 
 .gallery-img:hover{
     transform:scale(1.05);
 }
 
-/* ================= BUTTON ================= */
-.btn{
-    display:inline-block;
-    padding:10px 15px;
-    background:#2563eb;
+/* ================= IMAGE VIEWER ================= */
+
+.image-modal{
+    display:none;
+    position:fixed;
+    z-index:9999;
+    left:0;
+    top:0;
+    width:100%;
+    height:100%;
+    background:rgba(0,0,0,0.9);
+    justify-content:center;
+    align-items:center;
+    padding:20px;
+}
+
+.image-modal img{
+    max-width:95%;
+    max-height:95%;
+    border-radius:10px;
+    object-fit:contain;
+}
+
+.image-modal span{
+    position:absolute;
+    top:20px;
+    right:30px;
     color:white;
-    border-radius:8px;
-    text-decoration:none;
-    margin-top:10px;
+    font-size:40px;
+    cursor:pointer;
+}
+
+/* ================= EMPTY ================= */
+
+.empty-box{
+    background:white;
+    max-width:500px;
+    margin:100px auto;
+    padding:40px;
+    text-align:center;
+    border-radius:20px;
+    box-shadow:0 10px 30px rgba(0,0,0,0.08);
+}
+
+.empty-box h2{
+    margin-bottom:15px;
+}
+
+.empty-box p{
+    color:#6b7280;
+    margin-bottom:20px;
+}
+
+/* ================= MOBILE ================= */
+
+@media(max-width:768px){
+
+    .cover{
+        height:240px;
+    }
+
+    .profile-img{
+        width:120px;
+        height:120px;
+        margin-top:-80px;
+    }
+
+    .header{
+        padding:20px;
+    }
+
+    .header h2{
+        font-size:24px;
+    }
+
+    .section{
+        padding:20px;
+    }
+
 }
 
 </style>
+
 </head>
 
 <body>
 
 {% if profile %}
 
-<!-- COVER -->
-<div class="cover"
-     style="background-image:url('{{ '/' + profile.cover_img if profile and profile.cover_img else '/static/default_cover.jpg' }}');">
+<!-- ================= COVER ================= -->
+
+<div
+    class="cover"
+    style="background-image:url('{{ '/' + profile.cover_img if profile and profile.cover_img else '/static/default_cover.jpg' }}');"
+    onclick="openImage(this.style.backgroundImage.slice(5,-2))"
+>
 </div>
+
+<!-- ================= MAIN ================= -->
 
 <div class="container">
 
-<div class="card">
+    <div class="card">
 
-    <!-- PROFILE -->
-    <div class="header">
+        <!-- ================= HEADER ================= -->
 
-        <img class="profile-img"
-             src="{{ '/' + profile.profile_img if profile and profile.profile_img else '/static/default.png' }}">
+        <div class="header">
 
-        <h2>{{ profile.name or 'No Name' }}</h2>
-        <p>{{ profile.work_desc or '' }}</p>
-        <p>📍 {{ profile.area or '' }}</p>
-        <p>📞 {{ user.phone if user else '' }}</p>
+            <img
+                class="profile-img"
+                src="{{ '/' + profile.profile_img if profile and profile.profile_img else '/static/default.png' }}"
+                onclick="openImage(this.src)"
+            >
 
-        <a class="btn" href="/profile/setup">Edit Profile</a>
+            <h2>
+                {{ profile.name or 'No Name' }}
+            </h2>
+
+            <p class="work">
+                {{ profile.work_desc or 'No work description added yet' }}
+            </p>
+
+            <div class="info-line">
+                📍 {{ profile.area or 'Unknown Area' }}
+            </div>
+
+            <div class="info-line">
+                📞 {{ user.phone if user else '' }}
+            </div>
+
+            {% if session.get('user_id') == user.id %}
+
+                <a class="btn" href="/profile/setup">
+                    ✏️ Edit Profile
+                </a>
+
+            {% endif %}
+
+        </div>
+
+        <!-- ================= ABOUT ================= -->
+
+        <div class="section">
+
+            <h2 class="section-title">
+                About Information
+            </h2>
+
+            <div class="info-grid">
+
+                <div class="info-box">
+                    <div class="info-label">Full Name</div>
+                    <div class="info-value">
+                        {{ profile.name or '-' }}
+                    </div>
+                </div>
+
+                <div class="info-box">
+                    <div class="info-label">Age</div>
+                    <div class="info-value">
+                        {{ profile.age or '-' }}
+                    </div>
+                </div>
+
+                <div class="info-box">
+                    <div class="info-label">Gender</div>
+                    <div class="info-value">
+                        {{ profile.gender or '-' }}
+                    </div>
+                </div>
+
+                <div class="info-box">
+                    <div class="info-label">Religion</div>
+                    <div class="info-value">
+                        {{ profile.religion or '-' }}
+                    </div>
+                </div>
+
+                <div class="info-box">
+                    <div class="info-label">Education</div>
+                    <div class="info-value">
+                        {{ profile.education or '-' }}
+                    </div>
+                </div>
+
+                <div class="info-box">
+                    <div class="info-label">Country</div>
+                    <div class="info-value">
+                        {{ profile.country or '-' }}
+                    </div>
+                </div>
+
+                <div class="info-box">
+                    <div class="info-label">Address</div>
+                    <div class="info-value">
+                        {{ profile.address or '-' }}
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- ================= GALLERY ================= -->
+
+        <div class="section">
+
+            <h2 class="section-title">
+                Photo Gallery
+            </h2>
+
+            {% if gallery and gallery|length > 0 %}
+
+                <div class="gallery">
+
+                    {% for img in gallery %}
+
+                        <img
+                            class="gallery-img"
+                            src="/{{ img }}"
+                            onclick="openImage(this.src)"
+                        >
+
+                    {% endfor %}
+
+                </div>
+
+            {% else %}
+
+                <p style="color:#6b7280;">
+                    No gallery uploaded yet.
+                </p>
+
+            {% endif %}
+
+        </div>
 
     </div>
-
-    <hr>
-
-    <!-- INFO -->
-    <div class="info">
-        <p><b>Age:</b> {{ profile.age or '-' }}</p>
-        <p><b>Gender:</b> {{ profile.gender or '-' }}</p>
-        <p><b>Religion:</b> {{ profile.religion or '-' }}</p>
-        <p><b>Country:</b> {{ profile.country or '-' }}</p>
-        <p><b>Address:</b> {{ profile.address or '-' }}</p>
-    </div>
-
-    <hr>
-
-    <!-- GALLERY -->
-    <h3 style="padding:0 20px;">Gallery</h3>
-
-    <div class="gallery">
-
-        {% if gallery and gallery|length > 0 %}
-
-            {% for img in gallery %}
-
-                <img class="gallery-img"
-                     src="/{{ img }}">
-
-            {% endfor %}
-
-        {% else %}
-
-            <p style="padding:20px;">No gallery uploaded</p>
-
-        {% endif %}
-
-    </div>
-
-</div>
 
 </div>
 
 {% else %}
 
-<center style="margin-top:80px;">
-    <h2>No Profile Found</h2>
-    <a class="btn" href="/profile/setup">Create Profile</a>
-</center>
+<!-- ================= EMPTY ================= -->
+
+<div class="empty-box">
+
+    <h2>
+        No Profile Found
+    </h2>
+
+    <p>
+        Create your professional profile now.
+    </p>
+
+    <a href="/profile/setup" class="btn">
+        ➕ Create Profile
+    </a>
+
+</div>
 
 {% endif %}
 
+<!-- ================= IMAGE MODAL ================= -->
+
+<div class="image-modal" id="imageModal">
+
+    <span onclick="closeImage()">
+        &times;
+    </span>
+
+    <img id="modalImage">
+
+</div>
+
+<!-- ================= SCRIPT ================= -->
+
+<script>
+
+function openImage(src){
+
+    document.getElementById("imageModal").style.display = "flex";
+
+    document.getElementById("modalImage").src = src;
+
+}
+
+function closeImage(){
+
+    document.getElementById("imageModal").style.display = "none";
+
+}
+
+/* CLOSE ON OUTSIDE CLICK */
+
+document.getElementById("imageModal").onclick = function(e){
+
+    if(e.target.id === "imageModal"){
+        closeImage();
+    }
+
+}
+
+</script>
+
 </body>
-</html>
+
+    </html>
+    
