@@ -10,7 +10,7 @@
     {{ profile.name if profile else 'Profile' }}
 </title>
 
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 
 <style>
 
@@ -29,28 +29,44 @@ body{
 /* ================= TOPBAR ================= */
 
 .topbar{
-    position:sticky;
-    top:0;
-    z-index:999;
-    background:#fff;
+    width:100%;
     height:65px;
+    background:#fff;
     display:flex;
     align-items:center;
     justify-content:space-between;
     padding:0 20px;
+    position:sticky;
+    top:0;
+    z-index:999;
     box-shadow:0 2px 10px rgba(0,0,0,0.08);
 }
 
+.logo-area{
+    display:flex;
+    align-items:center;
+    gap:12px;
+}
+
 .logo{
-    font-size:26px;
-    font-weight:700;
-    color:#1877f2;
+    width:42px;
+    height:42px;
+    border-radius:50%;
+    object-fit:cover;
+    border:2px solid #2563eb;
+}
+
+.brand{
+    font-size:22px;
+    font-weight:800;
+    color:#2563eb;
+    letter-spacing:0.5px;
 }
 
 .top-icons{
     display:flex;
-    gap:15px;
     align-items:center;
+    gap:15px;
 }
 
 .icon-btn{
@@ -70,19 +86,11 @@ body{
     background:#e5e7eb;
 }
 
-.top-profile{
-    width:42px;
-    height:42px;
-    border-radius:50%;
-    object-fit:cover;
-    border:2px solid #1877f2;
-}
-
 /* ================= COVER ================= */
 
 .cover{
     width:100%;
-    height:340px;
+    height:380px;
     background-size:cover;
     background-position:center;
     background-repeat:no-repeat;
@@ -90,226 +98,218 @@ body{
     cursor:pointer;
 }
 
-.cover::after{
-    content:'';
+.cover-overlay{
     position:absolute;
     inset:0;
-    background:rgba(0,0,0,0.2);
+    background:linear-gradient(
+        to top,
+        rgba(0,0,0,0.55),
+        rgba(0,0,0,0.15)
+    );
 }
 
 /* ================= MAIN ================= */
 
-.container{
-    max-width:950px;
+.main{
+    max-width:1100px;
     margin:auto;
-    margin-top:-90px;
     position:relative;
-    z-index:5;
-    padding:0 15px 40px;
 }
 
-/* ================= PROFILE CARD ================= */
+/* ================= PROFILE SECTION ================= */
 
-.card{
+.profile-section{
     background:#fff;
-    border-radius:22px;
-    overflow:hidden;
-    box-shadow:0 8px 30px rgba(0,0,0,0.08);
+    border-radius:0 0 18px 18px;
+    padding:0 30px 30px;
+    box-shadow:0 5px 20px rgba(0,0,0,0.08);
 }
 
 /* ================= PROFILE HEADER ================= */
 
-.header{
-    padding:25px;
-}
-
-/* ================= PROFILE TOP ================= */
-
-.profile-top{
+.profile-header{
     display:flex;
     align-items:flex-end;
     gap:20px;
     flex-wrap:wrap;
+    position:relative;
+    top:-70px;
+    margin-bottom:-40px;
 }
 
 /* ================= PROFILE IMAGE ================= */
 
-.profile-img-box{
-    position:relative;
-    margin-top:-90px;
-}
-
 .profile-img{
-    width:170px;
-    height:170px;
+    width:180px;
+    height:180px;
     border-radius:50%;
     object-fit:cover;
     object-position:center;
     border:6px solid #fff;
     background:#fff;
+    box-shadow:0 5px 25px rgba(0,0,0,0.25);
     cursor:pointer;
-    box-shadow:0 5px 20px rgba(0,0,0,0.2);
 }
 
-.camera-btn{
-    position:absolute;
-    bottom:10px;
-    right:10px;
-    width:38px;
-    height:38px;
-    border-radius:50%;
-    background:#e5e7eb;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    font-size:18px;
-    box-shadow:0 3px 10px rgba(0,0,0,0.2);
-}
+/* ================= USER INFO ================= */
 
-/* ================= PROFILE INFO ================= */
-
-.profile-info{
+.user-info{
     flex:1;
+    padding-bottom:20px;
 }
 
-.profile-info h1{
-    font-size:34px;
-    font-weight:700;
+.user-info h1{
+    font-size:38px;
+    font-weight:800;
+    color:#111827;
 }
 
-.follow-info{
-    margin-top:10px;
+.work{
+    margin-top:6px;
+    color:#4b5563;
+    font-size:17px;
+    font-weight:500;
+}
+
+.user-details{
+    display:flex;
+    flex-wrap:wrap;
+    gap:15px;
+    margin-top:12px;
     color:#374151;
     font-size:15px;
 }
 
-.bio{
-    margin-top:12px;
-    line-height:1.6;
-    color:#374151;
+.stats{
+    margin-top:14px;
+    display:flex;
+    gap:18px;
+    flex-wrap:wrap;
+    font-size:15px;
+    color:#111827;
+    font-weight:600;
 }
 
 /* ================= BUTTONS ================= */
 
 .action-buttons{
+    margin-top:20px;
     display:flex;
     gap:12px;
     flex-wrap:wrap;
-    margin-top:20px;
 }
 
 .btn{
     padding:12px 18px;
     border-radius:12px;
     text-decoration:none;
-    font-weight:600;
     font-size:14px;
+    font-weight:700;
     transition:0.3s;
     border:none;
     cursor:pointer;
 }
 
 .primary-btn{
-    background:#1877f2;
-    color:white;
+    background:#2563eb;
+    color:#fff;
 }
 
 .primary-btn:hover{
-    background:#166fe5;
+    background:#1d4ed8;
 }
 
 .secondary-btn{
-    background:#e4e6eb;
+    background:#e5e7eb;
     color:#111827;
 }
 
 .secondary-btn:hover{
-    background:#d8dadf;
+    background:#d1d5db;
 }
 
-/* ================= TABS ================= */
+/* ================= CONTENT ================= */
 
-.tabs{
-    display:flex;
+.content{
+    display:grid;
+    grid-template-columns:320px 1fr;
     gap:20px;
-    border-top:1px solid #eee;
-    padding:18px 25px;
-    overflow:auto;
+    margin-top:20px;
 }
 
-.tab{
-    font-weight:600;
-    color:#4b5563;
-    cursor:pointer;
-    white-space:nowrap;
-}
+/* ================= SIDEBAR ================= */
 
-.tab.active{
-    color:#1877f2;
-}
-
-/* ================= SECTION ================= */
-
-.section{
-    padding:25px;
-    border-top:1px solid #f1f1f1;
+.sidebar-card,
+.gallery-card{
+    background:#fff;
+    border-radius:18px;
+    padding:22px;
+    box-shadow:0 5px 20px rgba(0,0,0,0.06);
 }
 
 .section-title{
-    font-size:24px;
+    font-size:22px;
+    font-weight:800;
     margin-bottom:20px;
 }
 
-/* ================= DETAILS ================= */
+/* ================= INFO BOX ================= */
 
-.details-grid{
-    display:grid;
-    grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
-    gap:15px;
+.info-list{
+    display:flex;
+    flex-direction:column;
+    gap:16px;
 }
 
-.detail-box{
-    background:#f9fafb;
-    padding:18px;
-    border-radius:16px;
-    border:1px solid #eee;
+.info-item{
+    display:flex;
+    align-items:flex-start;
+    gap:12px;
+    font-size:15px;
+    color:#374151;
+    line-height:1.5;
 }
 
-.detail-title{
-    color:#6b7280;
-    font-size:13px;
-    margin-bottom:6px;
-}
-
-.detail-value{
-    font-size:16px;
-    font-weight:600;
+.info-icon{
+    width:38px;
+    height:38px;
+    border-radius:10px;
+    background:#eff6ff;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:18px;
+    color:#2563eb;
+    flex-shrink:0;
 }
 
 /* ================= GALLERY ================= */
 
 .gallery{
     display:grid;
-    grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
+    grid-template-columns:repeat(auto-fit,minmax(170px,1fr));
     gap:15px;
 }
 
 .gallery-box{
     position:relative;
+    overflow:hidden;
+    border-radius:16px;
 }
 
 .gallery-img{
     width:100%;
-    height:200px;
+    height:190px;
     object-fit:cover;
     object-position:center;
-    border-radius:18px;
+    border-radius:16px;
     cursor:pointer;
     transition:0.3s;
+    background:#f3f4f6;
 }
 
 .gallery-img:hover{
-    transform:scale(1.03);
+    transform:scale(1.06);
 }
 
 /* ================= DELETE BUTTON ================= */
@@ -323,12 +323,13 @@ body{
     border-radius:50%;
     background:#ef4444;
     color:#fff;
+    text-decoration:none;
     display:flex;
     align-items:center;
     justify-content:center;
-    text-decoration:none;
-    font-weight:bold;
-    font-size:15px;
+    font-size:16px;
+    font-weight:700;
+    backdrop-filter:blur(10px);
     box-shadow:0 5px 15px rgba(0,0,0,0.2);
 }
 
@@ -336,14 +337,17 @@ body{
     background:#dc2626;
 }
 
-/* ================= MODAL ================= */
+/* ================= IMAGE MODAL ================= */
 
 .image-modal{
     display:none;
     position:fixed;
-    inset:0;
-    background:rgba(0,0,0,0.92);
     z-index:99999;
+    left:0;
+    top:0;
+    width:100%;
+    height:100%;
+    background:rgba(0,0,0,0.92);
     justify-content:center;
     align-items:center;
     padding:20px;
@@ -353,7 +357,7 @@ body{
     max-width:95%;
     max-height:95%;
     object-fit:contain;
-    border-radius:12px;
+    border-radius:14px;
 }
 
 .close-modal{
@@ -365,22 +369,48 @@ body{
     cursor:pointer;
 }
 
+/* ================= EMPTY ================= */
+
+.empty-box{
+    max-width:500px;
+    margin:100px auto;
+    background:#fff;
+    padding:40px;
+    border-radius:20px;
+    text-align:center;
+    box-shadow:0 10px 30px rgba(0,0,0,0.08);
+}
+
+.empty-box h2{
+    margin-bottom:12px;
+}
+
+.empty-box p{
+    color:#6b7280;
+    margin-bottom:20px;
+}
+
 /* ================= MOBILE ================= */
+
+@media(max-width:900px){
+
+    .content{
+        grid-template-columns:1fr;
+    }
+
+}
 
 @media(max-width:768px){
 
     .cover{
-        height:250px;
+        height:280px;
     }
 
-    .profile-top{
+    .profile-header{
         flex-direction:column;
         align-items:center;
         text-align:center;
-    }
-
-    .profile-img-box{
-        margin-top:-100px;
+        top:-60px;
     }
 
     .profile-img{
@@ -388,12 +418,30 @@ body{
         height:140px;
     }
 
-    .profile-info h1{
+    .user-info{
+        padding-bottom:0;
+    }
+
+    .user-info h1{
         font-size:28px;
     }
 
+    .user-details,
+    .stats,
     .action-buttons{
         justify-content:center;
+    }
+
+    .profile-section{
+        padding:0 18px 25px;
+    }
+
+    .topbar{
+        padding:0 12px;
+    }
+
+    .brand{
+        font-size:18px;
     }
 
 }
@@ -410,21 +458,26 @@ body{
 
 <div class="topbar">
 
-    <div class="logo">
-        DreamXL
+    <div class="logo-area">
+
+        <img
+            src="/static/logo.png"
+            class="logo"
+        >
+
+        <div class="brand">
+            S.F Works Hub
+        </div>
+
     </div>
 
     <div class="top-icons">
 
         <div class="icon-btn">🏠</div>
-        <div class="icon-btn">🎥</div>
-        <div class="icon-btn">👥</div>
-        <div class="icon-btn">🔔</div>
 
-        <img
-            class="top-profile"
-            src="{{ '/' + profile.profile_img if profile and profile.profile_img else '/static/default.png' }}"
-        >
+        <div class="icon-btn">💬</div>
+
+        <div class="icon-btn">🔔</div>
 
     </div>
 
@@ -437,72 +490,89 @@ body{
     style="background-image:url('{{ '/' + profile.cover_img if profile and profile.cover_img else '/static/default_cover.jpg' }}');"
     onclick="openImage(this.style.backgroundImage.slice(5,-2))"
 >
+
+    <div class="cover-overlay"></div>
+
 </div>
 
 <!-- ================= MAIN ================= -->
 
-<div class="container">
+<div class="main">
 
-<div class="card">
+    <div class="profile-section">
 
-    <!-- ================= HEADER ================= -->
+        <!-- ================= PROFILE HEADER ================= -->
 
-    <div class="header">
+        <div class="profile-header">
 
-        <div class="profile-top">
+            <img
+                class="profile-img"
+                src="{{ '/' + profile.profile_img if profile and profile.profile_img else '/static/default.png' }}"
+                onclick="openImage(this.src)"
+            >
 
-            <div class="profile-img-box">
-
-                <img
-                    class="profile-img"
-                    src="{{ '/' + profile.profile_img if profile and profile.profile_img else '/static/default.png' }}"
-                    onclick="openImage(this.src)"
-                >
-
-                <div class="camera-btn">
-                    📷
-                </div>
-
-            </div>
-
-            <div class="profile-info">
+            <div class="user-info">
 
                 <h1>
                     {{ profile.name or 'No Name' }}
                 </h1>
 
-                <div class="follow-info">
-                    <b>3.6K</b> followers ·
-                    <b>179</b> following ·
-                    <b>{{ gallery|length if gallery else 0 }}</b> photos
+                <p class="work">
+                    {{ profile.work_desc or 'Digital Creator' }}
+                </p>
+
+                <div class="user-details">
+
+                    <span>
+                        📍 {{ profile.area or 'Unknown Area' }}
+                    </span>
+
+                    <span>
+                        📞 {{ user.phone if user else '' }}
+                    </span>
+
+                    <span>
+                        🌍 {{ profile.country or 'Country' }}
+                    </span>
+
                 </div>
 
-                <div class="bio">
-                    {{ profile.work_desc or 'Digital creator' }}
-                    <br><br>
-                    📍 {{ profile.area or 'Unknown Area' }}
-                    <br>
-                    📞 {{ user.phone if user else '' }}
+                <div class="stats">
+
+                    <span>
+                        <b>3.6K</b> Followers
+                    </span>
+
+                    <span>
+                        <b>295</b> Posts
+                    </span>
+
+                    <span>
+                        <b>179</b> Following
+                    </span>
+
                 </div>
 
                 <div class="action-buttons">
 
                     {% if session.get('user_id') == user.id %}
 
-                    <a href="/profile/setup" class="btn primary-btn">
+                    <a
+                        href="/profile/setup"
+                        class="btn primary-btn"
+                    >
                         ✏️ Edit Profile
                     </a>
 
                     {% endif %}
 
-                    <a href="/user/dashboard" class="btn secondary-btn">
-                        Dashboard
+                    <a
+                        href="/user/dashboard"
+                        class="btn secondary-btn"
+                    >
+                        ⬅ Dashboard
                     </a>
 
-                    <button class="btn secondary-btn">
-                        + Create
-                    </button>
-
                 </div>
 
             </div>
@@ -511,169 +581,148 @@ body{
 
     </div>
 
-    <!-- ================= TABS ================= -->
+    <!-- ================= CONTENT ================= -->
 
-    <div class="tabs">
+    <div class="content">
 
-        <div class="tab active">
-            Posts
+        <!-- ================= SIDEBAR ================= -->
+
+        <div class="sidebar-card">
+
+            <h2 class="section-title">
+                Personal Details
+            </h2>
+
+            <div class="info-list">
+
+                <div class="info-item">
+                    <div class="info-icon">👤</div>
+                    <div>
+                        {{ profile.name or '-' }}
+                    </div>
+                </div>
+
+                <div class="info-item">
+                    <div class="info-icon">🎂</div>
+                    <div>
+                        {{ profile.age or '-' }}
+                    </div>
+                </div>
+
+                <div class="info-item">
+                    <div class="info-icon">⚧</div>
+                    <div>
+                        {{ profile.gender or '-' }}
+                    </div>
+                </div>
+
+                <div class="info-item">
+                    <div class="info-icon">🕌</div>
+                    <div>
+                        {{ profile.religion or '-' }}
+                    </div>
+                </div>
+
+                <div class="info-item">
+                    <div class="info-icon">🎓</div>
+                    <div>
+                        {{ profile.education or '-' }}
+                    </div>
+                </div>
+
+                <div class="info-item">
+                    <div class="info-icon">🏠</div>
+                    <div>
+                        {{ profile.address or '-' }}
+                    </div>
+                </div>
+
+            </div>
+
         </div>
 
-        <div class="tab">
-            Photos
-        </div>
+        <!-- ================= GALLERY ================= -->
 
-        <div class="tab">
-            Reels
-        </div>
+        <div class="gallery-card">
 
-        <div class="tab">
-            Events
-        </div>
+            <h2 class="section-title">
+                Photo Gallery
+            </h2>
 
-        <div class="tab">
-            About
+            {% if gallery and gallery|length > 0 %}
+
+            <div class="gallery">
+
+                {% for img in gallery %}
+
+                <div class="gallery-box">
+
+                    <img
+                        class="gallery-img"
+                        src="/{{ img }}"
+                        onclick="openImage(this.src)"
+                    >
+
+                    {% if session.get('user_id') == profile.user_id %}
+
+                    <a
+                        href="/delete-gallery-image/{{ loop.index0 }}"
+                        class="delete-btn"
+                        onclick="return confirm('Delete this image?')"
+                    >
+                        ✕
+                    </a>
+
+                    {% endif %}
+
+                </div>
+
+                {% endfor %}
+
+            </div>
+
+            {% else %}
+
+            <p style="color:#6b7280;">
+                No gallery uploaded yet.
+            </p>
+
+            {% endif %}
+
         </div>
 
     </div>
-
-    <!-- ================= DETAILS ================= -->
-
-    <div class="section">
-
-        <h2 class="section-title">
-            Personal Details
-        </h2>
-
-        <div class="details-grid">
-
-            <div class="detail-box">
-                <div class="detail-title">Age</div>
-                <div class="detail-value">
-                    {{ profile.age or '-' }}
-                </div>
-            </div>
-
-            <div class="detail-box">
-                <div class="detail-title">Gender</div>
-                <div class="detail-value">
-                    {{ profile.gender or '-' }}
-                </div>
-            </div>
-
-            <div class="detail-box">
-                <div class="detail-title">Religion</div>
-                <div class="detail-value">
-                    {{ profile.religion or '-' }}
-                </div>
-            </div>
-
-            <div class="detail-box">
-                <div class="detail-title">Education</div>
-                <div class="detail-value">
-                    {{ profile.education or '-' }}
-                </div>
-            </div>
-
-            <div class="detail-box">
-                <div class="detail-title">Country</div>
-                <div class="detail-value">
-                    {{ profile.country or '-' }}
-                </div>
-            </div>
-
-            <div class="detail-box">
-                <div class="detail-title">Address</div>
-                <div class="detail-value">
-                    {{ profile.address or '-' }}
-                </div>
-            </div>
-
-        </div>
-
-    </div>
-
-    <!-- ================= GALLERY ================= -->
-
-    <div class="section">
-
-        <h2 class="section-title">
-            Photos
-        </h2>
-
-        {% if gallery and gallery|length > 0 %}
-
-        <div class="gallery">
-
-            {% for img in gallery %}
-
-            <div class="gallery-box">
-
-                <img
-                    class="gallery-img"
-                    src="/{{ img }}"
-                    onclick="openImage(this.src)"
-                >
-
-                {% if session.get('user_id') == profile.user_id %}
-
-                <a
-                    href="/delete-gallery-image/{{ loop.index0 }}"
-                    class="delete-btn"
-                    onclick="return confirm('Delete this image?')"
-                >
-                    ✕
-                </a>
-
-                {% endif %}
-
-            </div>
-
-            {% endfor %}
-
-        </div>
-
-        {% else %}
-
-        <p style="color:#6b7280;">
-            No gallery uploaded yet.
-        </p>
-
-        {% endif %}
-
-    </div>
-
-</div>
 
 </div>
 
 {% else %}
 
-<div class="container">
+<div class="empty-box">
 
-    <div class="card" style="padding:50px;text-align:center;">
+    <h2>
+        No Profile Found
+    </h2>
 
-        <h2>
-            No Profile Found
-        </h2>
+    <p>
+        Create your professional profile now.
+    </p>
 
-        <br>
-
-        <a href="/profile/setup" class="btn primary-btn">
-            Create Profile
-        </a>
-
-    </div>
+    <a href="/profile/setup" class="btn primary-btn">
+        ➕ Create Profile
+    </a>
 
 </div>
 
 {% endif %}
 
-<!-- ================= IMAGE VIEWER ================= -->
+<!-- ================= IMAGE MODAL ================= -->
 
 <div class="image-modal" id="imageModal">
 
-    <span class="close-modal" onclick="closeImage()">
+    <span
+        class="close-modal"
+        onclick="closeImage()"
+    >
         &times;
     </span>
 
@@ -710,4 +759,6 @@ document.getElementById("imageModal").onclick = function(e){
 </script>
 
 </body>
-</html>
+
+    </html>
+    
