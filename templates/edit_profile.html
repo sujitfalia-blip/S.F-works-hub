@@ -4,103 +4,222 @@
 <head>
 
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
 
     <title>My Profile</title>
 
+    <!-- ================= CROPPER CSS ================= -->
+
+    <link
+        rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/cropperjs@1.6.2/dist/cropper.min.css"
+    />
+
     <style>
 
-        body{
+        *{
             margin:0;
             padding:0;
+            box-sizing:border-box;
+        }
+
+        body{
             font-family:Arial,sans-serif;
             background:#f5f7fb;
+            color:#111827;
         }
+
+        /* ================= COVER ================= */
 
         .cover{
-            height:250px;
+            height:260px;
             background-size:cover;
             background-position:center;
+            position:relative;
         }
 
+        .cover::after{
+            content:'';
+            position:absolute;
+            inset:0;
+            background:rgba(0,0,0,0.25);
+        }
+
+        /* ================= CONTAINER ================= */
+
         .container{
-            max-width:750px;
+            max-width:760px;
             margin:auto;
             background:white;
             padding:25px;
-            border-radius:15px;
-            margin-top:-60px;
-            box-shadow:0 10px 30px rgba(0,0,0,0.1);
+            border-radius:20px;
+            margin-top:-70px;
+            position:relative;
+            z-index:10;
+            box-shadow:0 10px 35px rgba(0,0,0,0.08);
         }
 
+        /* ================= PROFILE IMAGE ================= */
+
         .profile-img{
-            width:140px;
-            height:140px;
+            width:150px;
+            height:150px;
             border-radius:50%;
             object-fit:cover;
-            border:5px solid white;
-            margin-top:-90px;
+            border:6px solid white;
+            margin-top:-100px;
             background:white;
+            box-shadow:0 5px 20px rgba(0,0,0,0.15);
         }
 
         h2{
-            margin:10px 0 5px;
+            margin-top:12px;
+            font-size:30px;
         }
 
         p{
             color:#555;
+            margin-top:6px;
+        }
+
+        /* ================= FORM ================= */
+
+        .section{
+            margin-top:30px;
+        }
+
+        .section h3{
+            margin-bottom:15px;
+            font-size:22px;
         }
 
         input,
         textarea,
         select{
             width:100%;
-            padding:12px;
-            margin-top:10px;
-            border-radius:8px;
-            border:1px solid #ddd;
-            box-sizing:border-box;
+            padding:13px;
+            margin-top:12px;
+            border-radius:12px;
+            border:1px solid #d1d5db;
+            font-size:15px;
+            background:#fff;
+            outline:none;
         }
+
+        input:focus,
+        textarea:focus,
+        select:focus{
+            border-color:#2563eb;
+        }
+
+        textarea{
+            resize:none;
+        }
+
+        /* ================= BUTTON ================= */
 
         button{
             width:100%;
-            padding:14px;
+            padding:15px;
             border:none;
             background:#2563eb;
             color:white;
-            border-radius:10px;
+            border-radius:12px;
             font-size:16px;
+            font-weight:bold;
             cursor:pointer;
-            margin-top:15px;
+            margin-top:20px;
+            transition:0.3s;
         }
 
         button:hover{
             background:#1d4ed8;
         }
 
+        /* ================= GALLERY ================= */
+
         .gallery{
-            display:flex;
-            flex-wrap:wrap;
-            gap:10px;
+            display:grid;
+            grid-template-columns:repeat(auto-fit,minmax(120px,1fr));
+            gap:12px;
             margin-top:15px;
         }
 
         .gallery img{
-            width:120px;
+            width:100%;
             height:120px;
             object-fit:cover;
-            border-radius:10px;
+            border-radius:12px;
             border:1px solid #ddd;
-        }
-
-        .section{
-            margin-top:25px;
         }
 
         hr{
             border:none;
             border-top:1px solid #eee;
-            margin:25px 0;
+            margin:30px 0;
+        }
+
+        label{
+            display:block;
+            margin-top:15px;
+            font-weight:bold;
+            color:#374151;
+        }
+
+        /* ================= CROP MODAL ================= */
+
+        #cropModal{
+            display:none;
+            position:fixed;
+            z-index:99999;
+            inset:0;
+            background:rgba(0,0,0,0.9);
+            justify-content:center;
+            align-items:center;
+            flex-direction:column;
+            padding:20px;
+        }
+
+        #cropImage{
+            max-width:90%;
+            max-height:70vh;
+            border-radius:12px;
+        }
+
+        .crop-btn{
+            margin-top:20px;
+            padding:12px 22px;
+            background:#2563eb;
+            color:white;
+            border:none;
+            border-radius:10px;
+            font-weight:bold;
+            cursor:pointer;
+            width:auto;
+        }
+
+        /* ================= MOBILE ================= */
+
+        @media(max-width:768px){
+
+            .container{
+                margin: -60px 15px 20px;
+                padding:20px;
+            }
+
+            .profile-img{
+                width:130px;
+                height:130px;
+            }
+
+            h2{
+                font-size:25px;
+            }
+
         }
 
     </style>
@@ -109,17 +228,21 @@
 
 <body>
 
-<!-- COVER -->
+<!-- ================= COVER ================= -->
+
 <div
     class="cover"
     style="background-image:url('{{ url_for('static', filename='default_cover.jpg') if not profile or not profile.cover_img else '/' + profile.cover_img }}');"
 ></div>
 
+<!-- ================= CONTAINER ================= -->
+
 <div class="container">
 
     <center>
 
-        <!-- PROFILE IMAGE -->
+        <!-- ================= PROFILE IMAGE ================= -->
+
         <img
             src="{{ url_for('static', filename='default.png') if not profile or not profile.profile_img else '/' + profile.profile_img }}"
             class="profile-img"
@@ -141,8 +264,14 @@
 
     <hr>
 
-    <!-- FORM -->
-    <form method="POST" enctype="multipart/form-data">
+    <!-- ================= FORM ================= -->
+
+    <form
+        method="POST"
+        enctype="multipart/form-data"
+    >
+
+        <!-- ================= BASIC INFO ================= -->
 
         <div class="section">
 
@@ -185,9 +314,12 @@
 
             <select name="gender">
 
-                <option value="">Select Gender</option>
+                <option value="">
+                    Select Gender
+                </option>
 
-                <option value="Male"
+                <option
+                    value="Male"
                     {% if profile and profile.gender == 'Male' %}
                     selected
                     {% endif %}
@@ -195,7 +327,8 @@
                     Male
                 </option>
 
-                <option value="Female"
+                <option
+                    value="Female"
                     {% if profile and profile.gender == 'Female' %}
                     selected
                     {% endif %}
@@ -227,23 +360,53 @@
 
         </div>
 
-        <!-- IMAGE UPLOAD -->
+        <!-- ================= IMAGE UPLOAD ================= -->
+
         <div class="section">
 
             <h3>Upload Images</h3>
 
-            <label>Profile Image</label>
-            <input type="file" name="profile_img">
+            <!-- PROFILE IMAGE -->
 
-            <label>Cover Image</label>
-            <input type="file" name="cover_img">
+            <label>
+                Profile Image
+            </label>
 
-            <label>Gallery Images</label>
-            <input type="file" name="gallery" multiple>
+            <input
+                type="file"
+                id="profileInput"
+                accept="image/*"
+            >
+
+            <!-- COVER IMAGE -->
+
+            <label>
+                Cover Image
+            </label>
+
+            <input
+                type="file"
+                name="cover_img"
+                accept="image/*"
+            >
+
+            <!-- GALLERY -->
+
+            <label>
+                Gallery Images
+            </label>
+
+            <input
+                type="file"
+                name="gallery"
+                multiple
+                accept="image/*"
+            >
 
         </div>
 
-        <!-- SUBMIT -->
+        <!-- ================= SUBMIT ================= -->
+
         <button type="submit">
             Save Profile
         </button>
@@ -252,7 +415,8 @@
 
     <hr>
 
-    <!-- GALLERY -->
+    <!-- ================= GALLERY ================= -->
+
     <div class="section">
 
         <h3>Gallery</h3>
@@ -271,7 +435,9 @@
 
         {% else %}
 
-        <p>No gallery uploaded</p>
+        <p>
+            No gallery uploaded
+        </p>
 
         {% endif %}
 
@@ -279,5 +445,127 @@
 
 </div>
 
+<!-- ================= CROP MODAL ================= -->
+
+<div id="cropModal">
+
+    <img id="cropImage">
+
+    <button
+        class="crop-btn"
+        onclick="cropAndSave()"
+    >
+        Crop Image
+    </button>
+
+</div>
+
+<!-- ================= CROPPER JS ================= -->
+
+<script src="https://cdn.jsdelivr.net/npm/cropperjs@1.6.2/dist/cropper.min.js"></script>
+
+<!-- ================= SCRIPT ================= -->
+
+<script>
+
+let cropper;
+
+const profileInput =
+document.getElementById('profileInput');
+
+profileInput.addEventListener('change', function(e){
+
+    const file = e.target.files[0];
+
+    if(!file) return;
+
+    const reader = new FileReader();
+
+    reader.onload = function(event){
+
+        document.getElementById(
+            'cropModal'
+        ).style.display = 'flex';
+
+        const image =
+        document.getElementById(
+            'cropImage'
+        );
+
+        image.src = event.target.result;
+
+        if(cropper){
+            cropper.destroy();
+        }
+
+        cropper = new Cropper(image,{
+
+            aspectRatio:1,
+            viewMode:1,
+            dragMode:'move',
+            autoCropArea:1,
+            responsive:true,
+            background:false
+
+        });
+
+    };
+
+    reader.readAsDataURL(file);
+
+});
+
+function cropAndSave(){
+
+    const canvas =
+    cropper.getCroppedCanvas({
+
+        width:600,
+        height:600
+
+    });
+
+    canvas.toBlob(function(blob){
+
+        const file = new File(
+            [blob],
+            "profile.jpg",
+            {
+                type:"image/jpeg"
+            }
+        );
+
+        const dataTransfer =
+        new DataTransfer();
+
+        dataTransfer.items.add(file);
+
+        const hiddenInput =
+        document.createElement('input');
+
+        hiddenInput.type = 'file';
+
+        hiddenInput.name = 'profile_img';
+
+        hiddenInput.files =
+        dataTransfer.files;
+
+        hiddenInput.style.display = 'none';
+
+        document.querySelector(
+            'form'
+        ).appendChild(hiddenInput);
+
+        document.getElementById(
+            'cropModal'
+        ).style.display = 'none';
+
+    }, 'image/jpeg', 0.9);
+
+}
+
+</script>
+
 </body>
+
 </html>
