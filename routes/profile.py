@@ -59,19 +59,15 @@ def my_profile():
         gallery=gallery
     )
 
-
-# ================= VIEW OTHER USER PROFILE =================
+# ================= VIEW OTHER PROFILE =================
 @profile_bp.route('/profile/<int:user_id>')
 def view_profile(user_id):
-
-    user = db.session.get(User, user_id)
-
-    if not user:
-        return "User not found"
 
     profile = Profile.query.filter_by(
         user_id=user_id
     ).first()
+
+    viewed_user = User.query.get(user_id)
 
     if not profile:
         return "Profile not found"
@@ -87,7 +83,7 @@ def view_profile(user_id):
 
     return render_template(
         "profile.html",
-        user=user,
+        user=viewed_user,
         profile=profile,
         gallery=gallery
     )
