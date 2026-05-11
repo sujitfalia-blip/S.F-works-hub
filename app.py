@@ -9,11 +9,13 @@ from config import Config
 from extensions import db, socketio
 
 from flask_migrate import Migrate
+
 import cloudinary
 import cloudinary.uploader
 
 
 # ================= ROUTES =================
+
 from routes.auth import auth
 from routes.owner import owner
 from routes.admin import admin_bp
@@ -26,36 +28,43 @@ from routes.admin_tools import admin_tools
 
 
 # ================= CREATE APP =================
+
 def create_app():
 
     app = Flask(__name__)
 
     app.config.from_object(Config)
+
     # ================= CLOUDINARY =================
 
-cloudinary.config(
-    cloud_name="dion15zps",
-    api_key="136556886157942",
-    api_secret="MBvKiT2EFaCzm9BGB9K1itfmiDU",
-    secure=True
-)
+    cloudinary.config(
+        cloud_name="dion15zps",
+        api_key="136556886157942",
+        api_secret="MBvKiT2EFaCzm9BGB9K1itfmiDU",
+        secure=True
+    )
+
+    # ================= MAX UPLOAD SIZE =================
+
+    app.config['MAX_CONTENT_LENGTH'] = 20 * 1024 * 1024
 
     # ================= UPLOAD FOLDER =================
+
     upload_path = app.config.get("UPLOAD_FOLDER")
 
     if upload_path:
 
-        # যদি uploads নামে file থাকে remove করবে
         if os.path.exists(upload_path) and not os.path.isdir(upload_path):
             os.remove(upload_path)
 
-        # folder create
         os.makedirs(upload_path, exist_ok=True)
 
     # ================= DATABASE =================
+
     db.init_app(app)
 
     # ================= SOCKET IO =================
+
     socketio.init_app(
         app,
         cors_allowed_origins="*",
@@ -63,9 +72,11 @@ cloudinary.config(
     )
 
     # ================= MIGRATION =================
+
     Migrate(app, db)
 
     # ================= BLUEPRINTS =================
+
     app.register_blueprint(auth)
     app.register_blueprint(owner)
     app.register_blueprint(admin_bp)
@@ -80,10 +91,12 @@ cloudinary.config(
 
 
 # ================= APP =================
+
 app = create_app()
 
 
 # ================= CREATE TABLES =================
+
 with app.app_context():
 
     db.create_all()
@@ -92,6 +105,7 @@ with app.app_context():
 
 
 # ================= RUN =================
+
 if __name__ == "__main__":
 
     socketio.run(
@@ -100,4 +114,3 @@ if __name__ == "__main__":
         port=int(os.environ.get("PORT", 5000)),
         debug=False
     )
-    
