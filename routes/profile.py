@@ -291,6 +291,52 @@ def profile_setup():
         gallery_list
     )
 
+    # ================= DELETE GALLERY IMAGE =================
+@profile_bp.route('/delete-gallery-image/<int:index>')
+def delete_gallery_image(index):
+
+    if 'user_id' not in session:
+        return redirect('/login')
+
+    profile = Profile.query.filter_by(
+        user_id=session['user_id']
+    ).first()
+
+    if not profile:
+        return redirect('/profile')
+
+    gallery = []
+
+    if profile.gallery:
+
+        try:
+            gallery = json.loads(profile.gallery)
+        except:
+            gallery = []
+
+    # DELETE IMAGE
+    if 0 <= index < len(gallery):
+
+        img_path = gallery[index]
+
+        # REMOVE FILE
+        full_path = os.path.join(
+            current_app.root_path,
+            img_path
+        )
+
+        if os.path.exists(full_path):
+            os.remove(full_path)
+
+        # REMOVE FROM LIST
+        gallery.pop(index)
+
+        profile.gallery = json.dumps(gallery)
+
+        db.session.commit()
+
+    return redirect('/profile')
+
     # ================= SAVE DATABASE =================
 
     try:
