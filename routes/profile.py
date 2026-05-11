@@ -16,6 +16,7 @@ from extensions import db
 
 import os
 import json
+import uuid
 
 
 profile_bp = Blueprint("profile", __name__)
@@ -25,7 +26,6 @@ profile_bp = Blueprint("profile", __name__)
 @profile_bp.route('/profile')
 def my_profile():
 
-    # LOGIN CHECK
     if 'user_id' not in session:
         return redirect('/auth/login')
 
@@ -37,12 +37,10 @@ def my_profile():
     if not user:
         return redirect('/auth/login')
 
-    # GET PROFILE
     profile = Profile.query.filter_by(
         user_id=user.id
     ).first()
 
-    # GALLERY
     gallery = []
 
     if profile and profile.gallery:
@@ -59,6 +57,7 @@ def my_profile():
         gallery=gallery
     )
 
+
 # ================= VIEW OTHER PROFILE =================
 @profile_bp.route('/profile/<int:user_id>')
 def view_profile(user_id):
@@ -67,7 +66,10 @@ def view_profile(user_id):
         user_id=user_id
     ).first()
 
-    viewed_user = User.query.get(user_id)
+    viewed_user = db.session.get(
+        User,
+        user_id
+    )
 
     if not profile:
         return "Profile not found"
@@ -93,7 +95,6 @@ def view_profile(user_id):
 @profile_bp.route('/profile/setup', methods=['GET', 'POST'])
 def profile_setup():
 
-    # LOGIN CHECK
     if 'user_id' not in session:
         return redirect('/auth/login')
 
@@ -110,7 +111,7 @@ def profile_setup():
         user_id=user.id
     ).first()
 
-    # CREATE PROFILE
+    # CREATE PROFILE IF NOT EXISTS
     if not profile:
 
         profile = Profile(
@@ -139,8 +140,7 @@ def profile_setup():
             gallery=gallery
         )
 
-    # ================= SAVE FORM =================
-
+    # ================= POST REQUEST =================
     try:
 
         profile.name = request.form.get(
@@ -189,7 +189,6 @@ def profile_setup():
         )
 
     except Exception as e:
-
         return f"Form Error: {e}"
 
     # ================= UPLOAD FOLDER =================
@@ -211,9 +210,9 @@ def profile_setup():
 
     if profile_img and profile_img.filename != '':
 
-        filename = secure_filename(
-            profile_img.filename
-        )
+        ext = profile_img.filename.rsplit('.', 1)[1].lower()
+
+        filename = f"{uuid.uuid4()}.{ext}"
 
         filepath = os.path.join(
             upload_folder,
@@ -234,9 +233,9 @@ def profile_setup():
 
     if cover_img and cover_img.filename != '':
 
-        filename = secure_filename(
-            cover_img.filename
-        )
+        ext = cover_img.filename.rsplit('.', 1)[1].lower()
+
+        filename = f"{uuid.uuid4()}.{ext}"
 
         filepath = os.path.join(
             upload_folder,
@@ -272,9 +271,9 @@ def profile_setup():
 
         if file and file.filename != '':
 
-            filename = secure_filename(
-                file.filename
-            )
+            ext = file.filename.rsplit('.', 1)[1].lower()
+
+            filename = f"{uuid.uuid4()}.{ext}"
 
             filepath = os.path.join(
                 upload_folder,
@@ -291,12 +290,27 @@ def profile_setup():
         gallery_list
     )
 
-    # ================= DELETE GALLERY IMAGE =================
+    # ================= SAVE DATABASE =================
+
+    try:
+
+        db.session.commit()
+
+    except Exception as e:
+
+        db.session.rollback()
+
+        return f"Database Error: {e}"
+
+    return redirect('/profile')
+
+
+# ================= DELETE GALLERY IMAGE =================
 @profile_bp.route('/delete-gallery-image/<int:index>')
 def delete_gallery_image(index):
 
     if 'user_id' not in session:
-        return redirect('/login')
+        return redirect('/auth/login')
 
     profile = Profile.query.filter_by(
         user_id=session['user_id']
@@ -319,35 +333,26 @@ def delete_gallery_image(index):
 
         img_path = gallery[index]
 
-        # REMOVE FILE
         full_path = os.path.join(
             current_app.root_path,
             img_path
         )
 
+        # DELETE FILE
         if os.path.exists(full_path):
-            os.remove(full_path)
 
-        # REMOVE FROM LIST
+            try:
+                os.remove(full_path)
+            except:
+                pass
+
+        # REMOVE FROM GALLERY
         gallery.pop(index)
 
-        profile.gallery = json.dumps(gallery)
+        profile.gallery = json.dumps(
+            gallery
+        )
 
         db.session.commit()
 
     return redirect('/profile')
-
-    # ================= SAVE DATABASE =================
-
-    try:
-
-        db.session.commit()
-
-    except Exception as e:
-
-        db.session.rollback()
-
-        return f"Database Error: {e}"
-
-    return redirect('/profile')
-    
