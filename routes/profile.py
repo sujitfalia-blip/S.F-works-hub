@@ -7,22 +7,78 @@ from flask import (
     current_app
 )
 
-from werkzeug.utils import secure_filename
-
 from models.profile import Profile
 from models.user import User
 
 from extensions import db
+
+from PIL import Image
 
 import os
 import json
 import uuid
 
 
-profile_bp = Blueprint("profile", __name__)
+profile_bp = Blueprint(
+    "profile",
+    __name__
+)
+
+
+# ================= IMAGE RESIZE =================
+
+def resize_image(image_path, size):
+
+    img = Image.open(image_path)
+
+    img = img.convert("RGB")
+
+    img.thumbnail(size)
+
+    img.save(
+        image_path,
+        format="JPEG",
+        quality=85,
+        optimize=True
+    )
+
+
+# ================= SAVE IMAGE =================
+
+def save_image(
+    file,
+    upload_folder,
+    size=(800, 800)
+):
+
+    ext = file.filename.rsplit(
+        '.',
+        1
+    )[1].lower()
+
+    filename = (
+        f"{uuid.uuid4().hex}.{ext}"
+    )
+
+    filepath = os.path.join(
+        upload_folder,
+        filename
+    )
+
+    file.save(filepath)
+
+    resize_image(
+        filepath,
+        size
+    )
+
+    return (
+        f"static/uploads/{filename}"
+    )
 
 
 # ================= MY PROFILE =================
+
 @profile_bp.route('/profile')
 def my_profile():
 
@@ -46,7 +102,10 @@ def my_profile():
     if profile and profile.gallery:
 
         try:
-            gallery = json.loads(profile.gallery)
+            gallery = json.loads(
+                profile.gallery
+            )
+
         except:
             gallery = []
 
@@ -59,6 +118,7 @@ def my_profile():
 
 
 # ================= VIEW OTHER PROFILE =================
+
 @profile_bp.route('/profile/<int:user_id>')
 def view_profile(user_id):
 
@@ -79,7 +139,10 @@ def view_profile(user_id):
     if profile.gallery:
 
         try:
-            gallery = json.loads(profile.gallery)
+            gallery = json.loads(
+                profile.gallery
+            )
+
         except:
             gallery = []
 
@@ -92,7 +155,11 @@ def view_profile(user_id):
 
 
 # ================= PROFILE SETUP =================
-@profile_bp.route('/profile/setup', methods=['GET', 'POST'])
+
+@profile_bp.route(
+    '/profile/setup',
+    methods=['GET', 'POST']
+)
 def profile_setup():
 
     if 'user_id' not in session:
@@ -106,12 +173,14 @@ def profile_setup():
     if not user:
         return redirect('/auth/login')
 
-    # FIND PROFILE
+    # ================= FIND PROFILE =================
+
     profile = Profile.query.filter_by(
         user_id=user.id
     ).first()
 
-    # CREATE PROFILE IF NOT EXISTS
+    # ================= CREATE PROFILE =================
+
     if not profile:
 
         profile = Profile(
@@ -119,9 +188,11 @@ def profile_setup():
         )
 
         db.session.add(profile)
+
         db.session.commit()
 
     # ================= GET REQUEST =================
+
     if request.method == 'GET':
 
         gallery = []
@@ -129,7 +200,10 @@ def profile_setup():
         if profile.gallery:
 
             try:
-                gallery = json.loads(profile.gallery)
+                gallery = json.loads(
+                    profile.gallery
+                )
+
             except:
                 gallery = []
 
@@ -141,6 +215,7 @@ def profile_setup():
         )
 
     # ================= POST REQUEST =================
+
     try:
 
         profile.name = request.form.get(
@@ -153,9 +228,12 @@ def profile_setup():
             ''
         )
 
-        age = request.form.get('age')
+        age = request.form.get(
+            'age'
+        )
 
         if age and age.isdigit():
+
             profile.age = int(age)
 
         profile.education = request.form.get(
@@ -188,7 +266,13 @@ def profile_setup():
             ''
         )
 
+        profile.bio = request.form.get(
+            'bio',
+            ''
+        )
+
     except Exception as e:
+
         return f"Form Error: {e}"
 
     # ================= UPLOAD FOLDER =================
@@ -208,21 +292,15 @@ def profile_setup():
         'profile_img'
     )
 
-    if profile_img and profile_img.filename != '':
+    if (
+        profile_img and
+        profile_img.filename != ''
+    ):
 
-        ext = profile_img.filename.rsplit('.', 1)[1].lower()
-
-        filename = f"{uuid.uuid4()}.{ext}"
-
-        filepath = os.path.join(
+        profile.profile_img = save_image(
+            profile_img,
             upload_folder,
-            filename
-        )
-
-        profile_img.save(filepath)
-
-        profile.profile_img = (
-            f"static/uploads/{filename}"
+            size=(600, 600)
         )
 
     # ================= COVER IMAGE =================
@@ -231,21 +309,15 @@ def profile_setup():
         'cover_img'
     )
 
-    if cover_img and cover_img.filename != '':
+    if (
+        cover_img and
+        cover_img.filename != ''
+    ):
 
-        ext = cover_img.filename.rsplit('.', 1)[1].lower()
-
-        filename = f"{uuid.uuid4()}.{ext}"
-
-        filepath = os.path.join(
+        profile.cover_img = save_image(
+            cover_img,
             upload_folder,
-            filename
-        )
-
-        cover_img.save(filepath)
-
-        profile.cover_img = (
-            f"static/uploads/{filename}"
+            size=(1400, 600)
         )
 
     # ================= GALLERY =================
@@ -257,33 +329,34 @@ def profile_setup():
     gallery_list = []
 
     # OLD GALLERY
+
     if profile.gallery:
 
         try:
             gallery_list = json.loads(
                 profile.gallery
             )
+
         except:
             gallery_list = []
 
     # NEW GALLERY
+
     for file in gallery_files:
 
-        if file and file.filename != '':
+        if (
+            file and
+            file.filename != ''
+        ):
 
-            ext = file.filename.rsplit('.', 1)[1].lower()
-
-            filename = f"{uuid.uuid4()}.{ext}"
-
-            filepath = os.path.join(
+            img_path = save_image(
+                file,
                 upload_folder,
-                filename
+                size=(1200, 1200)
             )
 
-            file.save(filepath)
-
             gallery_list.append(
-                f"static/uploads/{filename}"
+                img_path
             )
 
     profile.gallery = json.dumps(
@@ -300,13 +373,18 @@ def profile_setup():
 
         db.session.rollback()
 
-        return f"Database Error: {e}"
+        return (
+            f"Database Error: {e}"
+        )
 
     return redirect('/profile')
 
 
 # ================= DELETE GALLERY IMAGE =================
-@profile_bp.route('/delete-gallery-image/<int:index>')
+
+@profile_bp.route(
+    '/delete-gallery-image/<int:index>'
+)
 def delete_gallery_image(index):
 
     if 'user_id' not in session:
@@ -324,11 +402,15 @@ def delete_gallery_image(index):
     if profile.gallery:
 
         try:
-            gallery = json.loads(profile.gallery)
+            gallery = json.loads(
+                profile.gallery
+            )
+
         except:
             gallery = []
 
-    # DELETE IMAGE
+    # ================= DELETE IMAGE =================
+
     if 0 <= index < len(gallery):
 
         img_path = gallery[index]
@@ -339,14 +421,17 @@ def delete_gallery_image(index):
         )
 
         # DELETE FILE
+
         if os.path.exists(full_path):
 
             try:
                 os.remove(full_path)
+
             except:
                 pass
 
-        # REMOVE FROM GALLERY
+        # REMOVE FROM LIST
+
         gallery.pop(index)
 
         profile.gallery = json.dumps(
