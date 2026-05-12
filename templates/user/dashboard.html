@@ -7,7 +7,6 @@
 
 <title>S.F Works Hub - Dashboard</title>
 
-<script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 
 <style>
@@ -24,7 +23,7 @@ body{
     color:white;
 }
 
-/* ================= TOPBAR FIX ================= */
+/* ================= TOPBAR ================= */
 
 .topbar{
     position:fixed;
@@ -39,16 +38,10 @@ body{
     justify-content:space-between;
     padding:0 18px;
     z-index:9999;
-    gap:15px;
+    gap:12px;
 }
 
 /* LEFT */
-
-.top-left{
-    display:flex;
-    align-items:center;
-    gap:10px;
-}
 
 .menu-btn{
     width:46px;
@@ -78,22 +71,19 @@ body{
     font-weight:700;
 }
 
-.logo-text{
-    font-size:18px;
-    font-weight:800;
-}
-
-/* ================= SEARCH FIXED ================= */
+/* ================= SEARCH ================= */
 
 .search-wrapper{
     flex:1;
     display:flex;
     justify-content:center;
+    align-items:center;
+    gap:8px;
 }
 
 .search-wrapper input{
     width:100%;
-    max-width:450px;
+    max-width:420px;
     height:45px;
     border:none;
     outline:none;
@@ -101,6 +91,18 @@ body{
     padding:0 15px;
     background:#1e293b;
     color:white;
+}
+
+/* search icon */
+.search-icon{
+    width:45px;
+    height:45px;
+    border-radius:12px;
+    background:#1e293b;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    cursor:pointer;
 }
 
 /* ================= PROFILE ================= */
@@ -123,75 +125,11 @@ body{
     border:2px solid #3b82f6;
 }
 
-/* ================= SIDEBAR ================= */
-
-.sidebar{
-    position:fixed;
-    top:0;
-    left:-300px;
-    width:280px;
-    height:100%;
-    background:#111827;
-    transition:0.3s;
-    z-index:10000;
-}
-
-.sidebar.active{
-    left:0;
-}
-
-.sidebar-header{
-    height:75px;
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-    padding:0 18px;
-    border-bottom:1px solid rgba(255,255,255,0.1);
-}
-
-.close-btn{
-    font-size:26px;
-    cursor:pointer;
-}
-
-.sidebar-menu{
-    padding:15px;
-}
-
-.menu-item{
-    display:block;
-    padding:14px;
-    margin-bottom:8px;
-    border-radius:10px;
-    color:white;
-    text-decoration:none;
-    background:transparent;
-}
-
-.menu-item:hover{
-    background:#1e293b;
-}
-
-/* OVERLAY */
-
-.overlay{
-    position:fixed;
-    inset:0;
-    background:rgba(0,0,0,0.6);
-    display:none;
-}
-
-.overlay.active{
-    display:block;
-}
-
-/* MAIN */
+/* ================= GRID ================= */
 
 .main{
     padding:100px 20px;
 }
-
-/* GRID */
 
 .grid{
     display:grid;
@@ -220,6 +158,26 @@ body{
     transform:translateX(-50%);
     bottom:-45px;
     background:white;
+}
+
+/* STATUS BADGE */
+
+.status{
+    position:absolute;
+    top:10px;
+    right:10px;
+    padding:5px 10px;
+    border-radius:20px;
+    font-size:11px;
+    font-weight:600;
+}
+
+.online{
+    background:#22c55e;
+}
+
+.offline{
+    background:#64748b;
 }
 
 /* CARD BODY */
@@ -256,79 +214,38 @@ body{
     color:white;
 }
 
-/* MOBILE */
-
-@media(max-width:700px){
-    .search-wrapper{
-        display:flex;
-    }
-}
-
 </style>
 
 </head>
 
 <body>
 
-<!-- OVERLAY -->
-<div class="overlay" id="overlay" onclick="closeSidebar()"></div>
-
-<!-- SIDEBAR -->
-<div class="sidebar" id="sidebar">
-
-    <div class="sidebar-header">
-        <h2>S.F Hub</h2>
-        <div class="close-btn" onclick="closeSidebar()">✕</div>
-    </div>
-
-    <div class="sidebar-menu">
-
-        <a class="menu-item" href="/user/dashboard">Dashboard</a>
-        <a class="menu-item" href="/profile">My Profile</a>
-        <a class="menu-item" href="/gallery">Gallery</a>
-        <a class="menu-item" href="/work-post">Work Posts</a>
-        <a class="menu-item" href="/booking">Booking</a>
-        <a class="menu-item" href="/referral">Referral</a>
-        <a class="menu-item" href="/help-line">Help Line</a>
-        <a class="menu-item" href="/settings">Settings</a>
-        <a class="menu-item" href="/forgot-password">Forgot Password</a>
-        <a class="menu-item" href="/auth/logout">Logout</a>
-
-    </div>
-
-</div>
-
 <!-- TOPBAR -->
 <div class="topbar">
 
-    <div class="top-left">
+    <button class="menu-btn">☰</button>
 
-        <button class="menu-btn" onclick="openSidebar()">☰</button>
-
-        <div class="logo-box">
-            <div class="logo-circle">SF</div>
-            <div class="logo-text">S.F Hub</div>
-        </div>
-
+    <div class="logo-box">
+        <div class="logo-circle">SF</div>
+        <b>S.F Hub</b>
     </div>
 
     <!-- SEARCH FIXED -->
     <div class="search-wrapper">
-        <input type="text" placeholder="Search workers...">
+
+        <input id="searchInput" type="text" placeholder="Search by area, skill or name...">
+
+        <div class="search-icon" onclick="filterUsers()">🔍</div>
+
     </div>
 
     <!-- PROFILE -->
-    <div class="profile-mini" onclick="window.location.href='/profile'">
-
-        <img src="{{ current_user.profile.profile_img if current_user.profile and current_user.profile.profile_img else url_for('static', filename='default.png') }}">
-
+    <div class="profile-mini">
+        <img src="/static/default.png">
         <div>
-            <div style="font-size:14px;font-weight:600;">
-                {{ current_user.profile.name if current_user.profile and current_user.profile.name else 'User' }}
-            </div>
-            <div style="font-size:12px;color:#22c55e;">● Online</div>
+            <div style="font-size:13px;font-weight:600;">User</div>
+            <div style="font-size:11px;color:#22c55e;">● Online</div>
         </div>
-
     </div>
 
 </div>
@@ -336,13 +253,16 @@ body{
 <!-- MAIN -->
 <div class="main">
 
-    <h2>Active Workers</h2>
-
-    <div class="grid">
+    <div class="grid" id="userGrid">
 
         {% for profile in profiles %}
 
-        <div class="card">
+        <div class="card user-card">
+
+            <!-- STATUS (demo: random online/offline) -->
+            <div class="status {{ 'online' if loop.index % 2 == 0 else 'offline' }}">
+                {{ 'Online' if loop.index % 2 == 0 else 'Offline' }}
+            </div>
 
             <div style="height:120px;background:#1e293b;position:relative;">
 
@@ -353,19 +273,17 @@ body{
 
             <div class="card-body">
 
-                <h3>{{ profile.name }}</h3>
-                <p>{{ profile.area }}</p>
+                <h3 class="name">{{ profile.name }}</h3>
+                <p class="area">{{ profile.area }}</p>
+                <p class="skill">{{ profile.education }}</p>
 
-                <!-- BUTTON FIX -->
                 <div class="btn-group">
 
-                    <a class="btn view-btn"
-                       href="/profile/{{ profile.user_id }}">
+                    <a class="btn view-btn" href="/profile/{{ profile.user_id }}">
                         View Profile
                     </a>
 
-                    <a class="btn msg-btn"
-                       href="/chat/{{ profile.user_id }}">
+                    <a class="btn msg-btn" href="/chat/{{ profile.user_id }}">
                         Message
                     </a>
 
@@ -383,18 +301,32 @@ body{
 
 <script>
 
-function openSidebar(){
-    document.getElementById("sidebar").classList.add("active");
-    document.getElementById("overlay").classList.add("active");
+/* ================= SEARCH FILTER ================= */
+
+function filterUsers(){
+
+    let input = document.getElementById("searchInput").value.toLowerCase();
+    let cards = document.querySelectorAll(".user-card");
+
+    cards.forEach(card => {
+
+        let name = card.querySelector(".name").innerText.toLowerCase();
+        let area = card.querySelector(".area").innerText.toLowerCase();
+        let skill = card.querySelector(".skill").innerText.toLowerCase();
+
+        if(name.includes(input) || area.includes(input) || skill.includes(input)){
+            card.style.display = "block";
+        }else{
+            card.style.display = "none";
+        }
+
+    });
+
 }
 
-function closeSidebar(){
-    document.getElementById("sidebar").classList.remove("active");
-    document.getElementById("overlay").classList.remove("active");
-}
+document.getElementById("searchInput").addEventListener("keyup", filterUsers);
 
 </script>
 
 </body>
-            </html>
-            
+</html>
