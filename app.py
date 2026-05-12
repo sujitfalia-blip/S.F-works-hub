@@ -8,11 +8,7 @@ import os
 
 from flask import Flask
 from flask_socketio import emit, join_room
-from flask_login import current_user
-from flask_login import LoginManager
-
-login_manager = LoginManager()
-
+from flask_login import current_user, LoginManager
 
 from config import Config
 from extensions import db, socketio
@@ -24,7 +20,8 @@ import cloudinary.uploader
 
 # ================= MODELS =================
 
-from models import Chat
+from models.chat import Chat
+from models.user import User
 
 # ================= ROUTES =================
 
@@ -38,6 +35,10 @@ from routes.work import work as work_bp
 from routes.profile import profile_bp
 from routes.admin_tools import admin_tools
 
+# ================= LOGIN MANAGER =================
+
+login_manager = LoginManager()
+login_manager.login_view = "auth.login"
 
 # ================= CREATE APP =================
 
@@ -46,7 +47,14 @@ def create_app():
     app = Flask(__name__)
 
     app.config.from_object(Config)
+
+    # ================= LOGIN =================
+
     login_manager.init_app(app)
+
+    @login_manager.user_loader
+    def load_user(user_id):
+        return User.query.get(int(user_id))
 
     # ================= CLOUDINARY =================
 
@@ -57,7 +65,7 @@ def create_app():
         secure=True
     )
 
-    # ================= MAX UPLOAD SIZE =================
+    # ================= MAX UPLOAD =================
 
     app.config['MAX_CONTENT_LENGTH'] = 20 * 1024 * 1024
 
@@ -106,8 +114,6 @@ def create_app():
 # ================= APP =================
 
 app = create_app()
-import socket_events
-
 
 # ================= CREATE TABLES =================
 
@@ -116,7 +122,6 @@ with app.app_context():
     db.create_all()
 
     print("✅ All tables created")
-
 
 # =====================================================
 # ================= SOCKET EVENTS =====================
@@ -127,16 +132,22 @@ with app.app_context():
 @socketio.on("join")
 def on_join(data):
 
-    user_id = data.get("user_id")
+    try:
 
-    if not user_id:
-        return
+        user_id = data.get("user_id")
 
-    room = f"chat_{user_id}"
+        if not user_id:
+            return
 
-    join_room(room)
+        room = f"chat_{user_id}"
 
-    print(f"✅ User Joined Room: {room}")
+        join_room(room)
+
+        print(f"✅ User Joined Room: {room}")
+
+    except Exception as e:
+
+        print("❌ Join Room Error:", str(e))
 
 
 # ================= SEND MESSAGE =================
@@ -145,6 +156,9 @@ def on_join(data):
 def handle_send_message(data):
 
     try:
+
+        if not current_user.is_authenticated:
+            return
 
         receiver_id = data.get("receiver_id")
         message = data.get("message")
@@ -196,21 +210,31 @@ def handle_send_message(data):
         print("❌ Chat Error:", str(e))
 
 
-# ================= TYPING INDICATOR =================
+# ================= TYPING =================
 
 @socketio.on("typing")
 def typing(data):
 
-    receiver_id = data.get("receiver_id")
+    try:
 
-    if not receiver_id:
-        return
+        receiver_id = data.get("receiver_id")
 
-    room = f"chat_{receiver_id}"
+        if not receiver_id:
+            return
 
-    emit("typing", {
-        "user_id": current_user.id
-    }, room=room)
+        room = f"chat_{receiver_id}"
+
+        emit(
+            "typing",
+            {
+                "user_id": current_user.id
+            },
+            room=room
+        )
+
+    except Exception as e:
+
+        print("❌ Typing Error:", str(e))
 
 
 # ================= STOP TYPING =================
@@ -218,16 +242,66 @@ def typing(data):
 @socketio.on("stop_typing")
 def stop_typing(data):
 
-    receiver_id = data.get("receiver_id")
+    try:
 
-    if not receiver_id:
-        return
+        receiver_id = data.get("receiver_id")
 
-    room = f"chat_{receiver_id}"
+        if not receiver_id:
+            return
 
-    emit("stop_typing", {
-        "user_id": current_user.id
-    }, room=room)
+        room = f"chat_{receiver_id}"
+
+        emit(
+            "stop_typing",
+            {
+                "user_id": current_user.id
+            },
+            room=room
+        )
+
+    except Exception as e:
+
+        print("❌ Stop Typing Error:", str(e))
+
+
+# ================= USER ONLINE =================
+
+@socketio.on("connect")
+def handle_connect():
+
+    try:
+
+        if current_user.is_authenticated:
+
+            current_user.is_online = True
+
+            db.session.commit()
+
+            print(f"✅ {current_user.id} Online")
+
+    except Exception as e:
+
+        print("❌ Connect Error:", str(e))
+
+
+# ================= USER OFFLINE =================
+
+@socketio.on("disconnect")
+def handle_disconnect():
+
+    try:
+
+        if current_user.is_authenticated:
+
+            current_user.is_online = False
+
+            db.session.commit()
+
+            print(f"❌ {current_user.id} Offline")
+
+    except Exception as e:
+
+        print("❌ Disconnect Error:", str(e))
 
 
 # ================= RUN =================
@@ -239,5 +313,4 @@ if __name__ == "__main__":
         host="0.0.0.0",
         port=int(os.environ.get("PORT", 5000)),
         debug=False
-    )
-    
+)
