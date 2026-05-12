@@ -388,70 +388,41 @@ document
 
 
 // ================= RECEIVE MESSAGE =================
-
 socket.on("receive_message", (data) => {
 
-    // ONLY THIS CHAT
-
-    if(
+    if (
         Number(data.sender_id) !== receiverId &&
-        Number(data.receiver_id) !== receiverId
-    ){
+        Number(data.sender_id) !== currentUserId
+    ) {
         return;
     }
 
     const box = document.getElementById("chatBox");
-
     const row = document.createElement("div");
 
-    // ================= MY MESSAGE =================
-
-    if(Number(data.sender_id) === currentUserId){
+    if (Number(data.sender_id) === currentUserId) {
 
         row.className = "message-row me";
-
         row.innerHTML = `
-
             <div class="message me">
-
                 ${data.message}
-
-                <div class="time">
-                    You
-                </div>
-
+                <div class="time">You</div>
             </div>
-
         `;
 
-    }
-
-    // ================= OTHER MESSAGE =================
-
-    else{
+    } else {
 
         row.className = "message-row other";
-
         row.innerHTML = `
-
             <div class="message other">
-
                 ${data.message}
-
-                <div class="time">
-                    {{ receiver.name }}
-                </div>
-
+                <div class="time">{{ receiver.name }}</div>
             </div>
-
         `;
-
     }
 
     box.appendChild(row);
-
     box.scrollTop = box.scrollHeight;
-
 });
 
 
