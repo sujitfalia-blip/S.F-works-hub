@@ -69,24 +69,23 @@ def chat(user_id):
 
     # ================= LOGIN CHECK =================
     if 'user_id' not in session:
-        return redirect('/auth/login')
+        return redirect("/auth/login")
 
     current_user_id = session['user_id']
 
     # ================= SELF CHAT BLOCK =================
     if current_user_id == user_id:
-        return redirect('/user/dashboard')
+        return redirect("/user/dashboard")
 
     # ================= RECEIVER =================
     receiver = User.query.get_or_404(user_id)
 
-    # ================= CHAT HISTORY =================
+    # ================= MESSAGES LOAD =================
     messages = Chat.query.filter(
         (
             (Chat.sender_id == current_user_id) &
             (Chat.receiver_id == user_id)
-        )
-        |
+        ) |
         (
             (Chat.sender_id == user_id) &
             (Chat.receiver_id == current_user_id)
@@ -99,7 +98,6 @@ def chat(user_id):
         messages=messages,
         current_user_id=current_user_id
     )
-
 # ================= USER DASHBOARD =================
 
 @user.route('/dashboard')
