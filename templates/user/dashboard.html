@@ -76,13 +76,28 @@ body{
     font-weight:700;
 }
 
-/* ================= PROFILE FIXED ================= */
+/* RIGHT */
 
 .right{
     display:flex;
     align-items:center;
     gap:10px;
 }
+
+/* NOTIFICATION FIXED */
+.notif{
+    width:42px;
+    height:42px;
+    border-radius:10px;
+    background:#1e293b;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    cursor:pointer;
+    font-size:18px;
+}
+
+/* PROFILE */
 
 .profile{
     display:flex;
@@ -95,7 +110,6 @@ body{
     position:relative;
 }
 
-/* FIXED IMAGE SIZE */
 .profile img{
     width:34px;
     height:34px;
@@ -147,11 +161,57 @@ body{
     cursor:pointer;
 }
 
-/* ================= GRID ================= */
+/* ================= SIDEBAR FIX ================= */
+
+.sidebar{
+    position:fixed;
+    top:0;
+    left:-280px;
+    width:260px;
+    height:100%;
+    background:#111827;
+    transition:0.3s;
+    z-index:2000;
+    padding-top:20px;
+}
+
+.sidebar.active{
+    left:0;
+}
+
+.sidebar a{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    padding:14px;
+    color:white;
+    text-decoration:none;
+}
+
+.sidebar a:hover{
+    background:#1e293b;
+}
+
+/* OVERLAY FIX */
+.overlay{
+    position:fixed;
+    inset:0;
+    background:rgba(0,0,0,0.6);
+    display:none;
+    z-index:1500;
+}
+
+.overlay.active{
+    display:block;
+}
+
+/* MAIN */
 
 .main{
     padding:20px;
 }
+
+/* GRID */
 
 .grid{
     display:grid;
@@ -159,7 +219,7 @@ body{
     gap:15px;
 }
 
-/* ================= CARD (PRO LEVEL) ================= */
+/* CARD */
 
 .card{
     background:#111827;
@@ -167,14 +227,9 @@ body{
     overflow:hidden;
     position:relative;
     box-shadow:0 8px 20px rgba(0,0,0,0.3);
-    transition:0.3s;
 }
 
-.card:hover{
-    transform:translateY(-5px);
-}
-
-/* STATUS BADGE */
+/* STATUS FIX */
 .status{
     position:absolute;
     top:10px;
@@ -215,7 +270,6 @@ body{
 .body p{
     font-size:13px;
     color:#94a3b8;
-    margin-top:3px;
 }
 
 /* BUTTONS */
@@ -244,25 +298,37 @@ body{
     color:white;
 }
 
-/* MOBILE */
-@media(max-width:700px){
-    .search-bar input{
-        width:90%;
-    }
-}
-
 </style>
 
 </head>
 
 <body>
 
+<!-- OVERLAY -->
+<div class="overlay" id="overlay" onclick="closeMenu()"></div>
+
+<!-- SIDEBAR FIXED -->
+<div class="sidebar" id="sidebar">
+
+    <a href="/user/dashboard">🏠 Dashboard</a>
+    <a href="/profile">👤 My Profile</a>
+    <a href="/gallery">🖼️ Gallery</a>
+    <a href="/work-post">💼 Work Posts</a>
+    <a href="/booking">📅 Booking</a>
+    <a href="/referral">🔗 Referral</a>
+    <a href="/help-line">☎️ Help Line</a>
+    <a href="/settings">⚙️ Settings</a>
+    <a href="/forgot-password">🔐 Forgot Password</a>
+    <a href="/auth/logout">🚪 Logout</a>
+
+</div>
+
 <!-- TOPBAR -->
 <div class="topbar">
 
     <div class="left">
 
-        <button class="menu-btn">☰</button>
+        <button class="menu-btn" onclick="openMenu()">☰</button>
 
         <div class="logo">
             <div class="logo-box">SF</div>
@@ -272,6 +338,9 @@ body{
     </div>
 
     <div class="right">
+
+        <!-- NOTIFICATION FIXED -->
+        <div class="notif">🔔</div>
 
         <!-- PROFILE FIXED -->
         <div class="profile" onclick="window.location.href='/profile'">
@@ -308,6 +377,7 @@ body{
 
         <div class="card user">
 
+            <!-- ONLINE/OFFLINE FIX -->
             <div class="status {{ 'online' if loop.index % 2 == 0 else 'offline' }}">
                 {{ 'Online' if loop.index % 2 == 0 else 'Offline' }}
             </div>
@@ -349,6 +419,17 @@ body{
 
 <script>
 
+/* MENU FIX */
+function openMenu(){
+    document.getElementById("sidebar").classList.add("active");
+    document.getElementById("overlay").classList.add("active");
+}
+
+function closeMenu(){
+    document.getElementById("sidebar").classList.remove("active");
+    document.getElementById("overlay").classList.remove("active");
+}
+
 /* SEARCH */
 function filterUsers(){
 
@@ -374,4 +455,4 @@ function filterUsers(){
 </script>
 
 </body>
-                </html>
+</html>
