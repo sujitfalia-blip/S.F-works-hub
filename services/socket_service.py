@@ -4,6 +4,7 @@ from extensions import db
 from flask import session
 from datetime import datetime
 from flask_login import current_user
+from models.chat import Chat
 
 
 # ================= USER CONNECT =================
