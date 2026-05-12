@@ -64,12 +64,11 @@ def post_work():
 
 
 # ================= CHAT PAGE =================
-
 @user.route("/chat/<int:user_id>")
 @login_required
 def chat(user_id):
 
-    # ================= CHECK SELF CHAT =================
+    # ================= SELF CHAT BLOCK =================
 
     if current_user.id == user_id:
 
@@ -99,13 +98,14 @@ def chat(user_id):
 
     ).order_by(Chat.created_at.asc()).all()
 
-    # ================= RENDER =================
+    # ================= RENDER CHAT =================
 
     return render_template(
         "chat.html",
         receiver=receiver,
         messages=messages
     )
+
 
 
 # ================= USER DASHBOARD =================
