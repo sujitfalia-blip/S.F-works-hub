@@ -239,20 +239,20 @@ def handle_disconnect():
 # ================= JOIN ROOM =================
 
 @socketio.on("join")
-def on_join(data):
+def join(data):
 
     user_id = data.get("user_id")
     if not user_id:
         return
 
     join_room(f"chat_{user_id}")
-    print(f"✅ Joined Room: chat_{user_id}")
+    print("joined:", user_id)
 
 
 
 # ================= SEND MESSAGE =================
 @socketio.on("send_message")
-def handle_send_message(data):
+def send_message(data):
 
     if not current_user.is_authenticated:
         return
@@ -263,7 +263,6 @@ def handle_send_message(data):
     if not receiver_id or not message:
         return
 
-    # ================= SAVE MESSAGE =================
     chat = Chat(
         sender_id=current_user.id,
         receiver_id=receiver_id,
@@ -273,29 +272,14 @@ def handle_send_message(data):
     db.session.add(chat)
     db.session.commit()
 
-    # ================= RESPONSE =================
     response = {
-        "id": chat.id,
         "sender_id": current_user.id,
         "receiver_id": receiver_id,
-        "message": message,
-        "created_at": str(chat.created_at)
+        "message": message
     }
 
-    # ================= SEND TO RECEIVER =================
-    emit(
-        "receive_message",
-        response,
-        room=f"chat_{receiver_id}"
-    )
-
-    # ================= SEND TO SENDER =================
-    emit(
-        "receive_message",
-        response,
-        room=f"chat_{current_user.id}"
-    )
-
+    emit("receive_message", response, room=f"chat_{receiver_id}")
+    emit("receive_message", response, room=f"chat_{current_user.id}")
 
 
 # ================= MESSAGE READ =================
