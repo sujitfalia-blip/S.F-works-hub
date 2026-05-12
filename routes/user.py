@@ -67,13 +67,17 @@ def post_work():
 @user.route("/chat/<int:user_id>")
 def chat(user_id):
 
+    # ================= LOGIN CHECK =================
+
+    if 'user_id' not in session:
+        return redirect('/auth/login')
+
+    current_user_id = session['user_id']
+
     # ================= SELF CHAT BLOCK =================
 
-    if current_user.id == user_id:
-
-        flash("You cannot chat with yourself.", "danger")
-
-        return redirect(url_for("user.dashboard"))
+    if current_user_id == user_id:
+        return redirect('/user/dashboard')
 
     # ================= RECEIVER =================
 
@@ -84,7 +88,7 @@ def chat(user_id):
     messages = Chat.query.filter(
 
         (
-            (Chat.sender_id == current_user.id) &
+            (Chat.sender_id == current_user_id) &
             (Chat.receiver_id == user_id)
         )
 
@@ -92,19 +96,19 @@ def chat(user_id):
 
         (
             (Chat.sender_id == user_id) &
-            (Chat.receiver_id == current_user.id)
+            (Chat.receiver_id == current_user_id)
         )
 
     ).order_by(Chat.created_at.asc()).all()
 
-    # ================= RENDER CHAT =================
+    # ================= RENDER =================
 
     return render_template(
         "chat.html",
         receiver=receiver,
-        messages=messages
+        messages=messages,
+        current_user_id=current_user_id
     )
-
 
 
 # ================= USER DASHBOARD =================
