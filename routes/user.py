@@ -1,19 +1,32 @@
-from flask import Blueprint, request, session, redirect, render_template
+from flask import (
+    Blueprint,
+    request,
+    session,
+    redirect,
+    render_template,
+    flash,
+    url_for
+)
 
 from flask_login import login_required, current_user
 
 from models.work import Work
+from models.user import User
+from models.profile import Profile
+from models.chat import Chat
+
 from extensions import db
 
 from services.otp_service import generate_otp
 
 from decorators.auth import role_required
 
-from models.user import User
-from models.profile import Profile
 
 user = Blueprint("user", __name__, url_prefix="/user")
+
+
 # ================= POST WORK =================
+
 @user.route('/post_work', methods=['POST'])
 def post_work():
 
@@ -48,6 +61,9 @@ def post_work():
     }
 
     return "OTP Sent (check console)"
+
+
+# ================= CHAT PAGE =================
 
 @user.route("/chat/<int:user_id>")
 @login_required
@@ -93,20 +109,24 @@ def chat(user_id):
 
 
 # ================= USER DASHBOARD =================
+
 @user.route('/dashboard')
 @role_required("user")
 def dashboard():
 
     # ================= LOGIN CHECK =================
+
     if 'user_id' not in session:
         return redirect('/auth/login')
 
     current_user_id = session['user_id']
 
     # ================= CURRENT USER =================
-    current_user = User.query.get(current_user_id)
+
+    current_user_data = User.query.get(current_user_id)
 
     # ================= OTHER USERS =================
+
     profiles = (
         Profile.query
         .join(User)
@@ -115,8 +135,9 @@ def dashboard():
     )
 
     # ================= RENDER =================
+
     return render_template(
         "user/dashboard.html",
         profiles=profiles,
-        current_user=current_user
+        current_user=current_user_data
     )
