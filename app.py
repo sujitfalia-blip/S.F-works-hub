@@ -1,11 +1,14 @@
 from gevent import monkey
 monkey.patch_all()
+
 from dotenv import load_dotenv
 load_dotenv()
 
 import os
 
 from flask import Flask
+from flask_socketio import emit, join_room
+from flask_login import current_user
 
 from config import Config
 from extensions import db, socketio
@@ -15,6 +18,9 @@ from flask_migrate import Migrate
 import cloudinary
 import cloudinary.uploader
 
+# ================= MODELS =================
+
+from models import Chat
 
 # ================= ROUTES =================
 
@@ -103,7 +109,119 @@ with app.app_context():
 
     db.create_all()
 
-    print("All tables created")
+    print("✅ All tables created")
+
+
+# =====================================================
+# ================= SOCKET EVENTS =====================
+# =====================================================
+
+# ================= JOIN ROOM =================
+
+@socketio.on("join")
+def on_join(data):
+
+    user_id = data.get("user_id")
+
+    if not user_id:
+        return
+
+    room = f"chat_{user_id}"
+
+    join_room(room)
+
+    print(f"✅ User Joined Room: {room}")
+
+
+# ================= SEND MESSAGE =================
+
+@socketio.on("send_message")
+def handle_send_message(data):
+
+    try:
+
+        receiver_id = data.get("receiver_id")
+        message = data.get("message")
+
+        if not receiver_id or not message:
+            return
+
+        # ================= SAVE MESSAGE =================
+
+        chat = Chat(
+            sender_id=current_user.id,
+            receiver_id=receiver_id,
+            message=message
+        )
+
+        db.session.add(chat)
+        db.session.commit()
+
+        # ================= ROOM =================
+
+        room = f"chat_{receiver_id}"
+
+        response = {
+            "sender_id": current_user.id,
+            "receiver_id": receiver_id,
+            "message": message,
+            "created_at": str(chat.created_at)
+        }
+
+        # ================= SEND TO RECEIVER =================
+
+        emit(
+            "receive_message",
+            response,
+            room=room
+        )
+
+        # ================= SEND TO SENDER =================
+
+        emit(
+            "receive_message",
+            response
+        )
+
+        print("✅ Message Sent")
+
+    except Exception as e:
+
+        print("❌ Chat Error:", str(e))
+
+
+# ================= TYPING INDICATOR =================
+
+@socketio.on("typing")
+def typing(data):
+
+    receiver_id = data.get("receiver_id")
+
+    if not receiver_id:
+        return
+
+    room = f"chat_{receiver_id}"
+
+    emit("typing", {
+        "user_id": current_user.id
+    }, room=room)
+
+
+# ================= STOP TYPING =================
+
+@socketio.on("stop_typing")
+def stop_typing(data):
+
+    receiver_id = data.get("receiver_id")
+
+    if not receiver_id:
+        return
+
+    room = f"chat_{receiver_id}"
+
+    emit("stop_typing", {
+        "user_id": current_user.id
+    }, room=room)
 
 
 # ================= RUN =================
@@ -116,3 +234,4 @@ if __name__ == "__main__":
         port=int(os.environ.get("PORT", 5000)),
         debug=False
     )
+    
