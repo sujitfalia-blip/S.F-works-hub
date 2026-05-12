@@ -258,7 +258,7 @@ body{
 
     {% for msg in messages %}
 
-        {% if msg.sender_id == current_user.id %}
+        {% if msg.sender_id == current_user_id %}
 
             <div class="message-row me">
 
@@ -328,7 +328,7 @@ body{
 const socket = io();
 
 const receiverId = Number("{{ receiver.id }}");
-const currentUserId = Number("{{ current_user.id }}");
+const currentUserId = Number("{{ current_user_id }}");
 
 
 // ================= CONNECT =================
