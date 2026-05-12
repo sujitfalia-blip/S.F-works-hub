@@ -185,10 +185,17 @@ socket.on("receive_message", (data) => {
 
     const box = document.getElementById("chatBox");
 
+    // শুধু এই chat room এর message দেখাবে
+    if (
+        (data.sender_id != currentUserId && data.sender_id != receiverId) &&
+        (data.receiver_id != currentUserId && data.receiver_id != receiverId)
+    ) {
+        return;
+    }
+
     const row = document.createElement("div");
 
-    /* MY MESSAGE */
-    if(Number(data.sender_id) === currentUserId){
+    if (Number(data.sender_id) === currentUserId) {
 
         row.className = "message-row me";
         row.innerHTML = `
@@ -197,10 +204,7 @@ socket.on("receive_message", (data) => {
             </div>
         `;
 
-    }
-
-    /* OTHER MESSAGE */
-    else{
+    } else {
 
         row.className = "message-row other";
         row.innerHTML = `
@@ -213,6 +217,7 @@ socket.on("receive_message", (data) => {
     box.appendChild(row);
     box.scrollTop = box.scrollHeight;
 });
+
 
 </script>
 
