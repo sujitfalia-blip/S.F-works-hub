@@ -241,22 +241,13 @@ def handle_disconnect():
 @socketio.on("join")
 def on_join(data):
 
-    try:
+    user_id = data.get("user_id")
+    if not user_id:
+        return
 
-        user_id = data.get("user_id")
+    join_room(f"chat_{user_id}")
+    print(f"✅ Joined Room: chat_{user_id}")
 
-        if not user_id:
-            return
-
-        room = f"chat_{user_id}"
-
-        join_room(room)
-
-        print(f"✅ Joined Room: {room}")
-
-    except Exception as e:
-
-        print("❌ Join Room Error:", str(e))
 
 
 # ================= SEND MESSAGE =================
