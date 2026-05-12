@@ -50,6 +50,48 @@ def post_work():
 
     return "OTP Sent (check console)"
 
+@user.route("/chat/<int:user_id>")
+@login_required
+def chat(user_id):
+
+    # ================= CHECK SELF CHAT =================
+
+    if current_user.id == user_id:
+
+        flash("You cannot chat with yourself.", "danger")
+
+        return redirect(url_for("user.dashboard"))
+
+    # ================= RECEIVER =================
+
+    receiver = User.query.get_or_404(user_id)
+
+    # ================= LOAD OLD MESSAGES =================
+
+    messages = Chat.query.filter(
+
+        (
+            (Chat.sender_id == current_user.id) &
+            (Chat.receiver_id == user_id)
+        )
+
+        |
+
+        (
+            (Chat.sender_id == user_id) &
+            (Chat.receiver_id == current_user.id)
+        )
+
+    ).order_by(Chat.created_at.asc()).all()
+
+    # ================= RENDER =================
+
+    return render_template(
+        "chat.html",
+        receiver=receiver,
+        messages=messages
+    )
+
 
 # ================= USER DASHBOARD =================
 @user.route('/dashboard')
