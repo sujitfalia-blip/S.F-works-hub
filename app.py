@@ -115,17 +115,126 @@ def create_app():
 
 app = create_app()
 
-# ================= CREATE TABLES =================
+# =====================================================
+# ================= DATABASE AUTO FIX ==================
+# =====================================================
 
 with app.app_context():
 
+    # ================= CREATE ALL TABLES =================
+
     db.create_all()
 
+    try:
+
+        # ================= USER TABLE FIX =================
+
+        db.session.execute(db.text("""
+            ALTER TABLE "user"
+            ADD COLUMN IF NOT EXISTS profile_img TEXT
+        """))
+
+        db.session.execute(db.text("""
+            ALTER TABLE "user"
+            ADD COLUMN IF NOT EXISTS is_online BOOLEAN DEFAULT FALSE
+        """))
+
+        db.session.execute(db.text("""
+            ALTER TABLE "user"
+            ADD COLUMN IF NOT EXISTS last_seen TIMESTAMP
+        """))
+
+        db.session.execute(db.text("""
+            ALTER TABLE "user"
+            ADD COLUMN IF NOT EXISTS socket_id VARCHAR(100)
+        """))
+
+        # ================= CHAT TABLE FIX =================
+
+        db.session.execute(db.text("""
+            ALTER TABLE chat
+            ADD COLUMN IF NOT EXISTS is_read BOOLEAN DEFAULT FALSE
+        """))
+
+        db.session.execute(db.text("""
+            ALTER TABLE chat
+            ADD COLUMN IF NOT EXISTS read_at TIMESTAMP
+        """))
+
+        db.session.execute(db.text("""
+            ALTER TABLE chat
+            ADD COLUMN IF NOT EXISTS is_typing BOOLEAN DEFAULT FALSE
+        """))
+
+        db.session.execute(db.text("""
+            ALTER TABLE chat
+            ADD COLUMN IF NOT EXISTS typing_at TIMESTAMP
+        """))
+
+        db.session.execute(db.text("""
+            ALTER TABLE chat
+            ADD COLUMN IF NOT EXISTS is_deleted BOOLEAN DEFAULT FALSE
+        """))
+
+        db.session.execute(db.text("""
+            ALTER TABLE chat
+            ADD COLUMN IF NOT EXISTS deleted_at TIMESTAMP
+        """))
+
+        db.session.commit()
+
+        print("✅ Missing columns added successfully")
+
+    except Exception as e:
+
+        print("❌ DB Update Error:", str(e))
+
     print("✅ All tables created")
+
 
 # =====================================================
 # ================= SOCKET EVENTS =====================
 # =====================================================
+
+# ================= USER CONNECT =================
+
+@socketio.on("connect")
+def handle_connect():
+
+    try:
+
+        if current_user.is_authenticated:
+
+            current_user.is_online = True
+
+            db.session.commit()
+
+            print(f"✅ User Online: {current_user.id}")
+
+    except Exception as e:
+
+        print("❌ Connect Error:", str(e))
+
+
+# ================= USER DISCONNECT =================
+
+@socketio.on("disconnect")
+def handle_disconnect():
+
+    try:
+
+        if current_user.is_authenticated:
+
+            current_user.is_online = False
+
+            db.session.commit()
+
+            print(f"❌ User Offline: {current_user.id}")
+
+    except Exception as e:
+
+        print("❌ Disconnect Error:", str(e))
+
 
 # ================= JOIN ROOM =================
 
@@ -143,7 +252,7 @@ def on_join(data):
 
         join_room(room)
 
-        print(f"✅ User Joined Room: {room}")
+        print(f"✅ Joined Room: {room}")
 
     except Exception as e:
 
@@ -182,10 +291,12 @@ def handle_send_message(data):
         room = f"chat_{receiver_id}"
 
         response = {
+            "id": chat.id,
             "sender_id": current_user.id,
             "receiver_id": receiver_id,
             "message": message,
-            "created_at": str(chat.created_at)
+            "created_at": str(chat.created_at),
+            "is_read": False
         }
 
         # ================= SEND TO RECEIVER =================
@@ -210,12 +321,50 @@ def handle_send_message(data):
         print("❌ Chat Error:", str(e))
 
 
+# ================= MESSAGE READ =================
+
+@socketio.on("mark_read")
+def mark_read(data):
+
+    try:
+
+        message_id = data.get("message_id")
+
+        if not message_id:
+            return
+
+        message = Chat.query.get(message_id)
+
+        if message:
+
+            message.is_read = True
+
+            db.session.commit()
+
+            emit(
+                "message_read",
+                {
+                    "message_id": message.id
+                },
+                room=f"chat_{message.sender_id}"
+            )
+
+            print("✅ Message Read")
+
+    except Exception as e:
+
+        print("❌ Read Error:", str(e))
+
+
 # ================= TYPING =================
 
 @socketio.on("typing")
 def typing(data):
 
     try:
+
+        if not current_user.is_authenticated:
+            return
 
         receiver_id = data.get("receiver_id")
 
@@ -244,6 +393,9 @@ def stop_typing(data):
 
     try:
 
+        if not current_user.is_authenticated:
+            return
+
         receiver_id = data.get("receiver_id")
 
         if not receiver_id:
@@ -264,46 +416,6 @@ def stop_typing(data):
         print("❌ Stop Typing Error:", str(e))
 
 
-# ================= USER ONLINE =================
-
-@socketio.on("connect")
-def handle_connect():
-
-    try:
-
-        if current_user.is_authenticated:
-
-            current_user.is_online = True
-
-            db.session.commit()
-
-            print(f"✅ {current_user.id} Online")
-
-    except Exception as e:
-
-        print("❌ Connect Error:", str(e))
-
-
-# ================= USER OFFLINE =================
-
-@socketio.on("disconnect")
-def handle_disconnect():
-
-    try:
-
-        if current_user.is_authenticated:
-
-            current_user.is_online = False
-
-            db.session.commit()
-
-            print(f"❌ {current_user.id} Offline")
-
-    except Exception as e:
-
-        print("❌ Disconnect Error:", str(e))
-
-
 # ================= RUN =================
 
 if __name__ == "__main__":
@@ -313,4 +425,4 @@ if __name__ == "__main__":
         host="0.0.0.0",
         port=int(os.environ.get("PORT", 5000)),
         debug=False
-)
+    )
