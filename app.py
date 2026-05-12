@@ -260,34 +260,43 @@ def handle_send_message(data):
     if not current_user.is_authenticated:
         return
 
-    receiver_id = int(data.get("receiver_id"))
-    message = data.get("message")
+    try:
+        receiver_id = data.get("receiver_id")
+        message = data.get("message")
 
-    sender_id = current_user.id
+        if not receiver_id or not message:
+            return
 
-    chat = Chat(
-        sender_id=sender_id,
-        receiver_id=receiver_id,
-        message=message
-    )
+        receiver_id = int(receiver_id)
+        sender_id = current_user.id
 
-    db.session.add(chat)
-    db.session.commit()
+        # ================= SAVE =================
+        chat = Chat(
+            sender_id=sender_id,
+            receiver_id=receiver_id,
+            message=message.strip()
+        )
 
-    room = f"chat_{min(sender_id, receiver_id)}_{max(sender_id, receiver_id)}"
+        db.session.add(chat)
+        db.session.commit()
 
-    response = {
-        "id": chat.id,
-        "sender_id": sender_id,
-        "receiver_id": receiver_id,
-        "message": message,
-        "created_at": str(chat.created_at)
-    }
+        # ================= ROOM (WHATSAPP STYLE) =================
+        room = f"chat_{min(sender_id, receiver_id)}_{max(sender_id, receiver_id)}"
 
-    emit("receive_message", response, room=room)
+        response = {
+            "id": chat.id,
+            "sender_id": sender_id,
+            "receiver_id": receiver_id,
+            "message": chat.message,
+            "created_at": str(chat.created_at)
+        }
 
-    print("✅ Message Sent")
+        emit("receive_message", response, room=room)
 
+        print("✅ Message Sent")
+
+    except Exception as e:
+        print("❌ Chat Error:", str(e))
 
 # ================= MESSAGE READ =================
 
