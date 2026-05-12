@@ -251,65 +251,51 @@ def on_join(data):
 
 
 # ================= SEND MESSAGE =================
-
 @socketio.on("send_message")
 def handle_send_message(data):
 
-    try:
+    if not current_user.is_authenticated:
+        return
 
-        if not current_user.is_authenticated:
-            return
+    receiver_id = data.get("receiver_id")
+    message = data.get("message")
 
-        receiver_id = data.get("receiver_id")
-        message = data.get("message")
+    if not receiver_id or not message:
+        return
 
-        if not receiver_id or not message:
-            return
+    # ================= SAVE MESSAGE =================
+    chat = Chat(
+        sender_id=current_user.id,
+        receiver_id=receiver_id,
+        message=message
+    )
 
-        # ================= SAVE MESSAGE =================
+    db.session.add(chat)
+    db.session.commit()
 
-        chat = Chat(
-            sender_id=current_user.id,
-            receiver_id=receiver_id,
-            message=message
-        )
+    # ================= RESPONSE =================
+    response = {
+        "id": chat.id,
+        "sender_id": current_user.id,
+        "receiver_id": receiver_id,
+        "message": message,
+        "created_at": str(chat.created_at)
+    }
 
-        db.session.add(chat)
-        db.session.commit()
+    # ================= SEND TO RECEIVER =================
+    emit(
+        "receive_message",
+        response,
+        room=f"chat_{receiver_id}"
+    )
 
-        # ================= ROOM =================
+    # ================= SEND TO SENDER =================
+    emit(
+        "receive_message",
+        response,
+        room=f"chat_{current_user.id}"
+    )
 
-        room = f"chat_{receiver_id}"
-
-        response = {
-            "id": chat.id,
-            "sender_id": current_user.id,
-            "receiver_id": receiver_id,
-            "message": message,
-            "created_at": str(chat.created_at),
-            "is_read": False
-        }
-
-        # ================= SEND TO RECEIVER =================
-
-        emit(
-            "receive_message",
-            response,
-            room=room
-        )
-
-        # ================= SEND TO SENDER =================
-
-        emit(
-            "receive_message",
-            response
-        )
-
-        print("✅ Message Sent")
-
-    except Exception as e:
-
-        print("❌ Chat Error:", str(e))
 
 
 # ================= MESSAGE READ =================
