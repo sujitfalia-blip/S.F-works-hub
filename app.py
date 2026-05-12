@@ -105,6 +105,7 @@ def create_app():
 # ================= APP =================
 
 app = create_app()
+import socket_events
 
 
 # ================= CREATE TABLES =================
