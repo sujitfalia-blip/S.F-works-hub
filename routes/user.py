@@ -65,7 +65,6 @@ def post_work():
 
 # ================= CHAT PAGE =================
 @user.route("/chat/<int:user_id>")
-@login_required
 def chat(user_id):
 
     # ================= SELF CHAT BLOCK =================
