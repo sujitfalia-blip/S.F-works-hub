@@ -12,7 +12,7 @@ from flask_login import current_user
 from flask_login import LoginManager
 
 login_manager = LoginManager()
-login_manager.init_app(app)
+
 
 from config import Config
 from extensions import db, socketio
@@ -46,6 +46,7 @@ def create_app():
     app = Flask(__name__)
 
     app.config.from_object(Config)
+    login_manager.init_app(app)
 
     # ================= CLOUDINARY =================
 
