@@ -24,7 +24,7 @@ body{
     color:white;
 }
 
-/* TOPBAR */
+/* ================= TOPBAR FIX ================= */
 
 .topbar{
     position:fixed;
@@ -39,6 +39,7 @@ body{
     justify-content:space-between;
     padding:0 18px;
     z-index:9999;
+    gap:15px;
 }
 
 /* LEFT */
@@ -46,7 +47,7 @@ body{
 .top-left{
     display:flex;
     align-items:center;
-    gap:12px;
+    gap:10px;
 }
 
 .menu-btn{
@@ -82,16 +83,17 @@ body{
     font-weight:800;
 }
 
-/* SEARCH (FIXED - ALWAYS VISIBLE) */
+/* ================= SEARCH FIXED ================= */
 
 .search-wrapper{
     flex:1;
-    max-width:420px;
-    margin:0 15px;
+    display:flex;
+    justify-content:center;
 }
 
 .search-wrapper input{
     width:100%;
+    max-width:450px;
     height:45px;
     border:none;
     outline:none;
@@ -101,7 +103,7 @@ body{
     color:white;
 }
 
-/* PROFILE */
+/* ================= PROFILE ================= */
 
 .profile-mini{
     display:flex;
@@ -121,7 +123,7 @@ body{
     border:2px solid #3b82f6;
 }
 
-/* SIDEBAR */
+/* ================= SIDEBAR ================= */
 
 .sidebar{
     position:fixed;
@@ -152,8 +154,6 @@ body{
     cursor:pointer;
 }
 
-/* MENU */
-
 .sidebar-menu{
     padding:15px;
 }
@@ -170,13 +170,6 @@ body{
 
 .menu-item:hover{
     background:#1e293b;
-}
-
-/* SETTINGS SUB */
-
-.sub-menu{
-    padding-left:10px;
-    margin-top:5px;
 }
 
 /* OVERLAY */
@@ -198,7 +191,7 @@ body{
     padding:100px 20px;
 }
 
-/* CARD */
+/* GRID */
 
 .grid{
     display:grid;
@@ -206,13 +199,16 @@ body{
     gap:20px;
 }
 
+/* CARD */
+
 .card{
     background:#111827;
     border-radius:20px;
     overflow:hidden;
+    position:relative;
 }
 
-/* AVATAR FIX */
+/* AVATAR */
 
 .user-avatar{
     width:90px;
@@ -226,11 +222,45 @@ body{
     background:white;
 }
 
-/* MOBILE FIX */
+/* CARD BODY */
+
+.card-body{
+    padding:60px 15px 20px;
+    text-align:center;
+}
+
+/* BUTTONS */
+
+.btn-group{
+    display:flex;
+    gap:10px;
+    margin-top:15px;
+}
+
+.btn{
+    flex:1;
+    padding:10px;
+    border-radius:10px;
+    text-decoration:none;
+    font-weight:600;
+    font-size:13px;
+}
+
+.view-btn{
+    background:#2563eb;
+    color:white;
+}
+
+.msg-btn{
+    background:#1e293b;
+    color:white;
+}
+
+/* MOBILE */
 
 @media(max-width:700px){
     .search-wrapper{
-        display:block;
+        display:flex;
     }
 }
 
@@ -260,18 +290,8 @@ body{
         <a class="menu-item" href="/booking">Booking</a>
         <a class="menu-item" href="/referral">Referral</a>
         <a class="menu-item" href="/help-line">Help Line</a>
-
-        <!-- SETTINGS -->
-        <div class="menu-item">
-            Settings
-
-            <div class="sub-menu">
-                <a class="menu-item" href="/settings">General Settings</a>
-                <a class="menu-item" href="/forgot-password">Forgot Password</a>
-            </div>
-
-        </div>
-
+        <a class="menu-item" href="/settings">Settings</a>
+        <a class="menu-item" href="/forgot-password">Forgot Password</a>
         <a class="menu-item" href="/auth/logout">Logout</a>
 
     </div>
@@ -281,19 +301,23 @@ body{
 <!-- TOPBAR -->
 <div class="topbar">
 
-    <button class="menu-btn" onclick="openSidebar()">☰</button>
+    <div class="top-left">
 
-    <div class="logo-box">
-        <div class="logo-circle">SF</div>
-        <div class="logo-text">S.F Works Hub</div>
+        <button class="menu-btn" onclick="openSidebar()">☰</button>
+
+        <div class="logo-box">
+            <div class="logo-circle">SF</div>
+            <div class="logo-text">S.F Hub</div>
+        </div>
+
     </div>
 
-    <!-- SEARCH FIX -->
+    <!-- SEARCH FIXED -->
     <div class="search-wrapper">
         <input type="text" placeholder="Search workers...">
     </div>
 
-    <!-- PROFILE IMAGE FIX -->
+    <!-- PROFILE -->
     <div class="profile-mini" onclick="window.location.href='/profile'">
 
         <img src="{{ current_user.profile.profile_img if current_user.profile and current_user.profile.profile_img else url_for('static', filename='default.png') }}">
@@ -320,18 +344,32 @@ body{
 
         <div class="card">
 
-            <div style="height:120px;position:relative;background:#1e293b;">
+            <div style="height:120px;background:#1e293b;position:relative;">
 
                 <img class="user-avatar"
                      src="{{ profile.profile_img if profile.profile_img else url_for('static', filename='default.png') }}">
 
             </div>
 
-            <div style="padding:60px 15px 20px;text-align:center;">
+            <div class="card-body">
 
                 <h3>{{ profile.name }}</h3>
                 <p>{{ profile.area }}</p>
-                <p>{{ profile.work_desc }}</p>
+
+                <!-- BUTTON FIX -->
+                <div class="btn-group">
+
+                    <a class="btn view-btn"
+                       href="/profile/{{ profile.user_id }}">
+                        View Profile
+                    </a>
+
+                    <a class="btn msg-btn"
+                       href="/chat/{{ profile.user_id }}">
+                        Message
+                    </a>
+
+                </div>
 
             </div>
 
@@ -358,4 +396,5 @@ function closeSidebar(){
 </script>
 
 </body>
-    </html>
+            </html>
+            
