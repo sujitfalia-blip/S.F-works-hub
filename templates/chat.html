@@ -90,7 +90,7 @@ body{
 /* ================= CHAT AREA ================= */
 
 .chat-container{
-    height:calc(100vh - 140px);
+    height:calc(100vh - 160px);
     overflow-y:auto;
     padding:15px;
 }
@@ -98,6 +98,7 @@ body{
 .message-row{
     margin-bottom:14px;
     display:flex;
+    width:100%;
 }
 
 .message-row.me{
@@ -115,6 +116,8 @@ body{
     position:relative;
     word-wrap:break-word;
     animation:fadeIn .2s ease;
+    font-size:14px;
+    line-height:1.5;
 }
 
 .message.me{
@@ -137,8 +140,8 @@ body{
 /* ================= TYPING ================= */
 
 .typing-box{
-    padding:0 15px;
     height:20px;
+    padding:0 15px;
     color:#22c55e;
     font-size:13px;
 }
@@ -217,8 +220,9 @@ body{
 
     <div class="left">
 
-        <button class="back-btn"
-                onclick="window.history.back()">
+        <button
+            class="back-btn"
+            onclick="window.history.back()">
             ←
         </button>
 
@@ -231,11 +235,13 @@ body{
                 <h3>{{ receiver.name }}</h3>
 
                 <small id="onlineStatus">
+
                     {% if receiver.is_online %}
                         Online
                     {% else %}
                         Offline
                     {% endif %}
+
                 </small>
 
             </div>
@@ -254,35 +260,35 @@ body{
 
         {% if msg.sender_id == current_user.id %}
 
-        <div class="message-row me">
+            <div class="message-row me">
 
-            <div class="message me">
+                <div class="message me">
 
-                {{ msg.message }}
+                    {{ msg.message }}
 
-                <div class="time">
-                    You
+                    <div class="time">
+                        You
+                    </div>
+
                 </div>
 
             </div>
-
-        </div>
 
         {% else %}
 
-        <div class="message-row other">
+            <div class="message-row other">
 
-            <div class="message other">
+                <div class="message other">
 
-                {{ msg.message }}
+                    {{ msg.message }}
 
-                <div class="time">
-                    {{ receiver.name }}
+                    <div class="time">
+                        {{ receiver.name }}
+                    </div>
+
                 </div>
 
             </div>
-
-        </div>
 
         {% endif %}
 
@@ -302,6 +308,7 @@ body{
         type="text"
         id="messageInput"
         placeholder="Type your message..."
+        autocomplete="off"
         oninput="typing()"
         onblur="stopTyping()"
     >
@@ -320,8 +327,8 @@ body{
 
 const socket = io();
 
-const receiverId = "{{ receiver.id }}";
-const currentUserId = "{{ current_user.id }}";
+const receiverId = Number("{{ receiver.id }}");
+const currentUserId = Number("{{ current_user.id }}");
 
 
 // ================= CONNECT =================
@@ -341,11 +348,13 @@ socket.on("connect", () => {
 
 function sendMessage(){
 
-    let input = document.getElementById("messageInput");
+    const input = document.getElementById("messageInput");
 
-    let message = input.value.trim();
+    const message = input.value.trim();
 
-    if(message === "") return;
+    if(message === ""){
+        return;
+    }
 
     socket.emit("send_message", {
 
@@ -363,10 +372,13 @@ function sendMessage(){
 
 // ================= ENTER KEY =================
 
-document.getElementById("messageInput")
+document
+.getElementById("messageInput")
 .addEventListener("keypress", function(e){
 
     if(e.key === "Enter"){
+
+        e.preventDefault();
 
         sendMessage();
 
@@ -379,11 +391,22 @@ document.getElementById("messageInput")
 
 socket.on("receive_message", (data) => {
 
+    // ONLY THIS CHAT
+
+    if(
+        Number(data.sender_id) !== receiverId &&
+        Number(data.receiver_id) !== receiverId
+    ){
+        return;
+    }
+
     const box = document.getElementById("chatBox");
 
     const row = document.createElement("div");
 
-    if(data.sender_id == currentUserId){
+    // ================= MY MESSAGE =================
+
+    if(Number(data.sender_id) === currentUserId){
 
         row.className = "message-row me";
 
@@ -401,7 +424,11 @@ socket.on("receive_message", (data) => {
 
         `;
 
-    }else{
+    }
+
+    // ================= OTHER MESSAGE =================
+
+    else{
 
         row.className = "message-row other";
 
@@ -479,5 +506,4 @@ window.onload = () => {
 </script>
 
 </body>
-  </html>
-  
+</html>
