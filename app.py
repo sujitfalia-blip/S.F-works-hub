@@ -239,32 +239,34 @@ def handle_disconnect():
 # ================= JOIN ROOM =================
 
 @socketio.on("join")
-def join(data):
-
-    user_id = data.get("user_id")
-    if not user_id:
-        return
-
-    join_room(f"chat_{user_id}")
-    print("joined:", user_id)
-
-
-
-# ================= SEND MESSAGE =================
-@socketio.on("send_message")
-def send_message(data):
+def on_join(data):
 
     if not current_user.is_authenticated:
         return
 
-    receiver_id = data.get("receiver_id")
-    message = data.get("message")
+    user_id = current_user.id
 
-    if not receiver_id or not message:
+    room = f"chat_{min(user_id, int(data['user_id']))}_{max(user_id, int(data['user_id']))}"
+
+    join_room(room)
+
+    print(f"✅ Joined Room: {room}")
+
+
+# ================= SEND MESSAGE =================
+@socketio.on("send_message")
+def handle_send_message(data):
+
+    if not current_user.is_authenticated:
         return
 
+    receiver_id = int(data.get("receiver_id"))
+    message = data.get("message")
+
+    sender_id = current_user.id
+
     chat = Chat(
-        sender_id=current_user.id,
+        sender_id=sender_id,
         receiver_id=receiver_id,
         message=message
     )
@@ -272,14 +274,19 @@ def send_message(data):
     db.session.add(chat)
     db.session.commit()
 
+    room = f"chat_{min(sender_id, receiver_id)}_{max(sender_id, receiver_id)}"
+
     response = {
-        "sender_id": current_user.id,
+        "id": chat.id,
+        "sender_id": sender_id,
         "receiver_id": receiver_id,
-        "message": message
+        "message": message,
+        "created_at": str(chat.created_at)
     }
 
-    emit("receive_message", response, room=f"chat_{receiver_id}")
-    emit("receive_message", response, room=f"chat_{current_user.id}")
+    emit("receive_message", response, room=room)
+
+    print("✅ Message Sent")
 
 
 # ================= MESSAGE READ =================
