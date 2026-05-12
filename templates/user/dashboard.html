@@ -2,14 +2,12 @@
 <html lang="en">
 
 <head>
-
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <title>S.F Works Hub - Dashboard</title>
 
 <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
-
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 
 <style>
@@ -24,21 +22,9 @@ body{
     font-family:'Inter',sans-serif;
     background:#0f172a;
     color:white;
-    overflow-x:hidden;
 }
 
-/* ================= SCROLLBAR ================= */
-
-::-webkit-scrollbar{
-    width:8px;
-}
-
-::-webkit-scrollbar-thumb{
-    background:#334155;
-    border-radius:20px;
-}
-
-/* ================= TOPBAR ================= */
+/* TOPBAR */
 
 .topbar{
     position:fixed;
@@ -53,37 +39,31 @@ body{
     justify-content:space-between;
     padding:0 18px;
     z-index:9999;
-    border-bottom:1px solid rgba(255,255,255,0.06);
 }
 
-/* ================= LEFT ================= */
+/* LEFT */
 
 .top-left{
     display:flex;
     align-items:center;
-    gap:15px;
+    gap:12px;
 }
 
 .menu-btn{
     width:46px;
     height:46px;
     border:none;
-    border-radius:14px;
+    border-radius:12px;
     background:#1e293b;
     color:white;
     font-size:22px;
     cursor:pointer;
-    transition:0.3s;
-}
-
-.menu-btn:hover{
-    background:#2563eb;
 }
 
 .logo-box{
     display:flex;
     align-items:center;
-    gap:12px;
+    gap:10px;
 }
 
 .logo-circle{
@@ -94,67 +74,54 @@ body{
     display:flex;
     align-items:center;
     justify-content:center;
-    font-size:18px;
     font-weight:700;
-    box-shadow:0 5px 18px rgba(37,99,235,0.4);
 }
 
 .logo-text{
-    font-size:22px;
+    font-size:18px;
     font-weight:800;
-    color:white;
 }
 
-/* ================= SEARCH ================= */
+/* SEARCH (FIXED - ALWAYS VISIBLE) */
 
 .search-wrapper{
-    width:40%;
-    position:relative;
+    flex:1;
+    max-width:420px;
+    margin:0 15px;
 }
 
 .search-wrapper input{
     width:100%;
-    height:48px;
+    height:45px;
     border:none;
     outline:none;
-    border-radius:16px;
-    padding:0 18px;
+    border-radius:14px;
+    padding:0 15px;
     background:#1e293b;
     color:white;
-    font-size:14px;
-    transition:0.3s;
 }
 
-.search-wrapper input:focus{
-    background:#334155;
-}
-
-/* ================= PROFILE ================= */
+/* PROFILE */
 
 .profile-mini{
     display:flex;
     align-items:center;
     gap:10px;
     background:#1e293b;
-    padding:8px 12px;
-    border-radius:14px;
+    padding:6px 10px;
+    border-radius:12px;
     cursor:pointer;
 }
 
 .profile-mini img{
-    width:42px;
-    height:42px;
+    width:40px;
+    height:40px;
     border-radius:50%;
     object-fit:cover;
     border:2px solid #3b82f6;
 }
 
-.profile-name{
-    font-size:14px;
-    font-weight:600;
-}
-
-/* ================= SIDEBAR ================= */
+/* SIDEBAR */
 
 .sidebar{
     position:fixed;
@@ -163,97 +130,61 @@ body{
     width:280px;
     height:100%;
     background:#111827;
+    transition:0.3s;
     z-index:10000;
-    transition:0.35s;
-    overflow-y:auto;
-    box-shadow:10px 0 35px rgba(0,0,0,0.35);
 }
 
 .sidebar.active{
     left:0;
 }
 
-/* ================= SIDEBAR HEADER ================= */
-
 .sidebar-header{
-    height:80px;
+    height:75px;
     display:flex;
-    align-items:center;
     justify-content:space-between;
-    padding:0 20px;
-    border-bottom:1px solid rgba(255,255,255,0.08);
-}
-
-.sidebar-brand{
-    display:flex;
     align-items:center;
-    gap:12px;
-}
-
-.sidebar-logo{
-    width:42px;
-    height:42px;
-    border-radius:50%;
-    background:linear-gradient(135deg,#2563eb,#60a5fa);
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    font-weight:700;
-}
-
-.sidebar-brand h2{
-    font-size:20px;
+    padding:0 18px;
+    border-bottom:1px solid rgba(255,255,255,0.1);
 }
 
 .close-btn{
-    font-size:28px;
+    font-size:26px;
     cursor:pointer;
 }
 
-/* ================= MENU ================= */
+/* MENU */
 
 .sidebar-menu{
-    padding:18px;
-}
-
-.menu-label{
-    color:#64748b;
-    font-size:12px;
-    margin-bottom:12px;
-    padding-left:8px;
+    padding:15px;
 }
 
 .menu-item{
-    display:flex;
-    align-items:center;
-    gap:14px;
-    padding:15px;
-    border-radius:14px;
-    margin-bottom:10px;
-    cursor:pointer;
-    transition:0.3s;
+    display:block;
+    padding:14px;
+    margin-bottom:8px;
+    border-radius:10px;
     color:white;
     text-decoration:none;
-    font-weight:500;
+    background:transparent;
 }
 
 .menu-item:hover{
     background:#1e293b;
-    transform:translateX(4px);
 }
 
-.menu-item i{
-    font-style:normal;
-    font-size:18px;
+/* SETTINGS SUB */
+
+.sub-menu{
+    padding-left:10px;
+    margin-top:5px;
 }
 
-/* ================= OVERLAY ================= */
+/* OVERLAY */
 
 .overlay{
     position:fixed;
     inset:0;
     background:rgba(0,0,0,0.6);
-    z-index:9998;
     display:none;
 }
 
@@ -261,219 +192,46 @@ body{
     display:block;
 }
 
-/* ================= MAIN ================= */
+/* MAIN */
 
 .main{
-    padding:100px 22px 30px;
+    padding:100px 20px;
 }
 
-/* ================= HERO ================= */
-
-.hero{
-    background:linear-gradient(135deg,#2563eb,#1d4ed8);
-    border-radius:28px;
-    padding:35px;
-    position:relative;
-    overflow:hidden;
-    margin-bottom:28px;
-}
-
-.hero::before{
-    content:'';
-    position:absolute;
-    width:300px;
-    height:300px;
-    background:rgba(255,255,255,0.08);
-    border-radius:50%;
-    right:-100px;
-    top:-100px;
-}
-
-.hero h1{
-    font-size:34px;
-    font-weight:800;
-    margin-bottom:10px;
-    position:relative;
-    z-index:2;
-}
-
-.hero p{
-    font-size:15px;
-    opacity:0.95;
-    position:relative;
-    z-index:2;
-}
-
-/* ================= SECTION ================= */
-
-.section-title{
-    font-size:22px;
-    font-weight:700;
-    margin-bottom:18px;
-}
-
-/* ================= GRID ================= */
+/* CARD */
 
 .grid{
     display:grid;
-    grid-template-columns:repeat(auto-fit,minmax(290px,1fr));
-    gap:22px;
+    grid-template-columns:repeat(auto-fit,minmax(280px,1fr));
+    gap:20px;
 }
-
-/* ================= CARD ================= */
 
 .card{
     background:#111827;
-    border-radius:24px;
+    border-radius:20px;
     overflow:hidden;
-    border:1px solid rgba(255,255,255,0.06);
-    transition:0.35s;
-    position:relative;
 }
 
-.card:hover{
-    transform:translateY(-8px);
-    border-color:#2563eb;
-    box-shadow:0 15px 35px rgba(37,99,235,0.15);
-}
-
-/* ================= COVER ================= */
-
-.user-cover{
-    height:130px;
-    background-size:cover;
-    background-position:center;
-    position:relative;
-}
-
-/* ================= AVATAR ================= */
+/* AVATAR FIX */
 
 .user-avatar{
-    width:100px;
-    height:100px;
+    width:90px;
+    height:90px;
     border-radius:50%;
-    object-fit:cover;
-    border:5px solid #111827;
+    border:4px solid #111827;
     position:absolute;
-    bottom:-50px;
     left:50%;
     transform:translateX(-50%);
+    bottom:-45px;
     background:white;
 }
 
-/* ================= CARD BODY ================= */
-
-.card-body{
-    padding:60px 20px 20px;
-    text-align:center;
-}
-
-.user-name{
-    font-size:22px;
-    font-weight:700;
-}
-
-.user-skill{
-    color:#94a3b8;
-    margin-top:6px;
-    font-size:14px;
-}
-
-.user-area{
-    margin-top:10px;
-    font-size:14px;
-}
-
-.user-desc{
-    margin-top:14px;
-    font-size:14px;
-    color:#cbd5e1;
-    line-height:1.6;
-    min-height:60px;
-}
-
-/* ================= BUTTONS ================= */
-
-.card-buttons{
-    display:flex;
-    gap:12px;
-    margin-top:20px;
-}
-
-.btn{
-    flex:1;
-    text-decoration:none;
-    padding:12px;
-    border-radius:14px;
-    font-size:14px;
-    font-weight:600;
-    transition:0.3s;
-}
-
-.view-btn{
-    background:#2563eb;
-    color:white;
-}
-
-.view-btn:hover{
-    background:#1d4ed8;
-}
-
-.chat-btn{
-    background:#1e293b;
-    color:white;
-}
-
-.chat-btn:hover{
-    background:#334155;
-}
-
-/* ================= LIVE ================= */
-
-.live-badge{
-    position:absolute;
-    top:14px;
-    right:14px;
-    background:#22c55e;
-    color:white;
-    padding:6px 10px;
-    border-radius:20px;
-    font-size:12px;
-    font-weight:600;
-}
-
-/* ================= MOBILE ================= */
-
-@media(max-width:900px){
-
-    .search-wrapper{
-        width:45%;
-    }
-
-}
+/* MOBILE FIX */
 
 @media(max-width:700px){
-
     .search-wrapper{
-        display:none;
+        display:block;
     }
-
-    .hero{
-        padding:28px 22px;
-    }
-
-    .hero h1{
-        font-size:26px;
-    }
-
-    .main{
-        padding:95px 14px 25px;
-    }
-
-    .logo-text{
-        font-size:18px;
-    }
-
 }
 
 </style>
@@ -482,252 +240,98 @@ body{
 
 <body>
 
-<!-- ================= OVERLAY ================= -->
+<!-- OVERLAY -->
+<div class="overlay" id="overlay" onclick="closeSidebar()"></div>
 
-<div
-    class="overlay"
-    id="overlay"
-    onclick="closeSidebar()"
-></div>
-
-<!-- ================= SIDEBAR ================= -->
-
-<div
-    class="sidebar"
-    id="sidebar"
->
+<!-- SIDEBAR -->
+<div class="sidebar" id="sidebar">
 
     <div class="sidebar-header">
-
-        <div class="sidebar-brand">
-
-            <div class="sidebar-logo">
-                SF
-            </div>
-
-            <h2>
-                S.F Hub
-            </h2>
-
-        </div>
-
-        <div
-            class="close-btn"
-            onclick="closeSidebar()"
-        >
-            ✕
-        </div>
-
+        <h2>S.F Hub</h2>
+        <div class="close-btn" onclick="closeSidebar()">✕</div>
     </div>
 
     <div class="sidebar-menu">
 
-        <div class="menu-label">
-            MAIN MENU
+        <a class="menu-item" href="/user/dashboard">Dashboard</a>
+        <a class="menu-item" href="/profile">My Profile</a>
+        <a class="menu-item" href="/gallery">Gallery</a>
+        <a class="menu-item" href="/work-post">Work Posts</a>
+        <a class="menu-item" href="/booking">Booking</a>
+        <a class="menu-item" href="/referral">Referral</a>
+        <a class="menu-item" href="/help-line">Help Line</a>
+
+        <!-- SETTINGS -->
+        <div class="menu-item">
+            Settings
+
+            <div class="sub-menu">
+                <a class="menu-item" href="/settings">General Settings</a>
+                <a class="menu-item" href="/forgot-password">Forgot Password</a>
+            </div>
+
         </div>
 
-        <a href="/user/dashboard" class="menu-item">
-            <i>🏠</i> Dashboard
-        </a>
-
-        <a href="/profile" class="menu-item">
-            <i>👤</i> My Profile
-        </a>
-
-        <a href="/gallery" class="menu-item">
-            <i>🖼️</i> Gallery
-        </a>
-
-        <a href="/work-post" class="menu-item">
-            <i>💼</i> ওয়ার্ক পোস্ট
-        </a>
-
-        <a href="/booking" class="menu-item">
-            <i>📅</i> বুকিং
-        </a>
-
-        <a href="/referral" class="menu-item">
-            <i>🔗</i> রেফার
-        </a>
-
-        <a href="/help-line" class="menu-item">
-            <i>☎️</i> হেল্প লাইন
-        </a>
-
-        <a href="/settings" class="menu-item">
-            <i>⚙️</i> Settings
-        </a>
-
-        <a href="/forgot-password" class="menu-item">
-            <i>🔐</i> Forgot Password
-        </a>
-
-        <a href="/auth/logout" class="menu-item">
-            <i>🚪</i> Logout
-        </a>
+        <a class="menu-item" href="/auth/logout">Logout</a>
 
     </div>
 
 </div>
 
-<!-- ================= TOPBAR ================= -->
-
+<!-- TOPBAR -->
 <div class="topbar">
 
-    <div class="top-left">
+    <button class="menu-btn" onclick="openSidebar()">☰</button>
 
-        <button
-            class="menu-btn"
-            onclick="openSidebar()"
-        >
-            ☰
-        </button>
-
-        <div class="logo-box">
-
-            <div class="logo-circle">
-                SF
-            </div>
-
-            <div class="logo-text">
-                S.F Works Hub
-            </div>
-
-        </div>
-
+    <div class="logo-box">
+        <div class="logo-circle">SF</div>
+        <div class="logo-text">S.F Works Hub</div>
     </div>
 
-    <!-- SEARCH -->
-
+    <!-- SEARCH FIX -->
     <div class="search-wrapper">
-
-        <input
-            type="text"
-            id="search"
-            placeholder="Search workers by area or skill..."
-        >
-
+        <input type="text" placeholder="Search workers...">
     </div>
 
-    <!-- PROFILE -->
+    <!-- PROFILE IMAGE FIX -->
+    <div class="profile-mini" onclick="window.location.href='/profile'">
 
-    <div
-        class="profile-mini"
-        onclick="window.location.href='/profile'"
-    >
-
-        <img
-            src="/{{ current_user.profile.profile_img if current_user.profile and current_user.profile.profile_img else 'static/default.png' }}"
-        >
+        <img src="{{ current_user.profile.profile_img if current_user.profile and current_user.profile.profile_img else url_for('static', filename='default.png') }}">
 
         <div>
-
-            <div class="profile-name">
+            <div style="font-size:14px;font-weight:600;">
                 {{ current_user.profile.name if current_user.profile and current_user.profile.name else 'User' }}
             </div>
-
-            <div style="font-size:12px;color:#94a3b8;">
-                Online
-            </div>
-
+            <div style="font-size:12px;color:#22c55e;">● Online</div>
         </div>
 
     </div>
 
 </div>
 
-<!-- ================= MAIN ================= -->
-
+<!-- MAIN -->
 <div class="main">
 
-    <!-- HERO -->
+    <h2>Active Workers</h2>
 
-    <div class="hero">
-
-        <h1>
-            Welcome to S.F Works Hub 👋
-        </h1>
-
-        <p>
-            Find skilled workers, connect instantly and grow your work network professionally.
-        </p>
-
-    </div>
-
-    <!-- USERS -->
-
-    <div class="section-title">
-        🔥 Active Workers
-    </div>
-
-    <div
-        class="grid"
-        id="userGrid"
-    >
+    <div class="grid">
 
         {% for profile in profiles %}
 
         <div class="card">
 
-            <div class="live-badge">
-                ● Online
-            </div>
+            <div style="height:120px;position:relative;background:#1e293b;">
 
-            <!-- COVER -->
-
-            <div
-                class="user-cover"
-                style="
-                background-image:url('/{{ profile.cover_img if profile.cover_img else 'static/default_cover.jpg' }}');
-                "
-            >
-
-                <img
-                    src="/{{ profile.profile_img if profile.profile_img else 'static/default.png' }}"
-                    class="user-avatar"
-                >
+                <img class="user-avatar"
+                     src="{{ profile.profile_img if profile.profile_img else url_for('static', filename='default.png') }}">
 
             </div>
 
-            <!-- BODY -->
+            <div style="padding:60px 15px 20px;text-align:center;">
 
-            <div class="card-body">
-
-                <div class="user-name">
-                    {{ profile.name or 'No Name' }}
-                </div>
-
-                <div class="user-skill">
-                    {{ profile.education or 'Skilled Worker' }}
-                </div>
-
-                <div class="user-area">
-                    📍 {{ profile.area or 'Unknown Area' }}
-                </div>
-
-                <div class="user-desc">
-                    {{ profile.work_desc or 'No description available.' }}
-                </div>
-
-                <!-- BUTTONS -->
-
-                <div class="card-buttons">
-
-                    <a
-                        href="/profile/{{ profile.user_id }}"
-                        class="btn view-btn"
-                    >
-                        View Profile
-                    </a>
-
-                    <a
-                        href="#"
-                        class="btn chat-btn"
-                    >
-                        Message
-                    </a>
-
-                </div>
+                <h3>{{ profile.name }}</h3>
+                <p>{{ profile.area }}</p>
+                <p>{{ profile.work_desc }}</p>
 
             </div>
 
@@ -739,76 +343,19 @@ body{
 
 </div>
 
-<!-- ================= JAVASCRIPT ================= -->
-
 <script>
 
-/* ================= SIDEBAR ================= */
-
 function openSidebar(){
-
-    document
-    .getElementById('sidebar')
-    .classList.add('active');
-
-    document
-    .getElementById('overlay')
-    .classList.add('active');
-
+    document.getElementById("sidebar").classList.add("active");
+    document.getElementById("overlay").classList.add("active");
 }
 
 function closeSidebar(){
-
-    document
-    .getElementById('sidebar')
-    .classList.remove('active');
-
-    document
-    .getElementById('overlay')
-    .classList.remove('active');
-
+    document.getElementById("sidebar").classList.remove("active");
+    document.getElementById("overlay").classList.remove("active");
 }
-
-/* ================= SOCKET ================= */
-
-let socket = io({
-    transports:["websocket","polling"]
-});
-
-socket.on("new_work", function(data){
-
-    console.log("New Work:", data);
-
-});
-
-/* ================= SEARCH ================= */
-
-document
-.getElementById("search")
-.addEventListener("keyup", function(){
-
-    let value =
-    this.value.toLowerCase();
-
-    let cards =
-    document.querySelectorAll(".card");
-
-    cards.forEach(card => {
-
-        card.style.display =
-
-        card.innerText
-        .toLowerCase()
-        .includes(value)
-
-        ? "block"
-        : "none";
-
-    });
-
-});
 
 </script>
 
 </body>
-                </html>
+    </html>
