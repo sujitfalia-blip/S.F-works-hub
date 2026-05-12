@@ -9,6 +9,10 @@ import os
 from flask import Flask
 from flask_socketio import emit, join_room
 from flask_login import current_user
+from flask_login import LoginManager
+
+login_manager = LoginManager()
+login_manager.init_app(app)
 
 from config import Config
 from extensions import db, socketio
