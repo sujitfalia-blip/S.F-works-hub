@@ -62,6 +62,7 @@ class User(UserMixin, db.Model):
 
     profile_img = db.Column(
         db.Text,
+        nullable=True,
         default="/static/default.png"
     )
 
@@ -103,7 +104,7 @@ class User(UserMixin, db.Model):
 
     referred_by = db.Column(
         db.Integer,
-        db.ForeignKey('user.id'),
+        db.ForeignKey("user.id"),
         nullable=True
     )
 
@@ -127,7 +128,7 @@ class User(UserMixin, db.Model):
 
     controller_id = db.Column(
         db.Integer,
-        db.ForeignKey('user.id'),
+        db.ForeignKey("user.id"),
         nullable=True
     )
 
@@ -170,7 +171,7 @@ class User(UserMixin, db.Model):
     )
 
     # ======================
-    # TIMESTAMP
+    # TIMESTAMPS
     # ======================
 
     created_at = db.Column(
