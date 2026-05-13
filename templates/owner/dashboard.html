@@ -379,61 +379,209 @@
 
     </div>
 
-<!-- ================= USER TRANSFER ================= -->
+<!-- ================= FULL USER CONTROL PANEL ================= -->
 
 <div class="section">
 
-    <h3>🔁 Transfer User Control</h3>
+    <h3>🛡 Full User Control Panel</h3>
 
-    <form method="POST"
-          action="/owner/transfer">
+    <div class="table-responsive">
 
-        <div class="row">
+        <table class="table table-bordered align-middle">
 
-            <div class="col-md-5 mb-3">
+            <thead>
 
-                <label class="form-label">
-                    User ID
-                </label>
+                <tr>
 
-                <input type="number"
-                       name="user_id"
-                       class="form-control"
-                       placeholder="Enter User ID"
-                       required>
+                    <th>ID</th>
+                    <th>Name</th>
+                    <th>Role</th>
+                    <th>Status</th>
+                    <th>Controller ID</th>
+                    <th>Transfer</th>
+                    <th>Actions</th>
 
-            </div>
+                </tr>
+
+            </thead>
+
+            <tbody>
+
+                {% for user in latest_users %}
+
+                <tr>
+
+                    <td>
+                        {{ user.id }}
+                    </td>
+
+                    <td>
+                        {{ user.name }}
+                    </td>
+
+                    <td>
+
+                        {% if user.role == "superadmin" %}
+
+                            <span class="badge bg-danger">
+                                SUPERADMIN
+                            </span>
+
+                        {% elif user.role == "admin" %}
+
+                            <span class="badge bg-warning text-dark">
+                                ADMIN
+                            </span>
+
+                        {% else %}
+
+                            <span class="badge bg-primary">
+                                USER
+                            </span>
+
+                        {% endif %}
+
+                    </td>
+
+                    <td>
+
+                        {% if user.status == "active" %}
+
+                            <span class="badge bg-success">
+                                ACTIVE
+                            </span>
+
+                        {% elif user.status == "blocked" %}
+
+                            <span class="badge bg-danger">
+                                BLOCKED
+                            </span>
+
+                        {% else %}
+
+                            <span class="badge bg-secondary">
+                                {{ user.status }}
+                            </span>
+
+                        {% endif %}
+
+                    </td>
+
+                    <td>
+
+                        {{ user.controller_id or 'N/A' }}
+
+                    </td>
 
 
-            <div class="col-md-5 mb-3">
+                    <!-- ================= TRANSFER ================= -->
 
-                <label class="form-label">
-                    New Admin / Superadmin ID
-                </label>
+                    <td>
 
-                <input type="number"
-                       name="new_controller"
-                       class="form-control"
-                       placeholder="Enter Controller ID"
-                       required>
+                        <form method="POST"
+                              action="/owner/transfer">
 
-            </div>
+                            <input type="hidden"
+                                   name="user_id"
+                                   value="{{ user.id }}">
+
+                            <select name="new_controller"
+                                    class="form-select form-select-sm"
+                                    required>
+
+                                <option value="">
+                                    Select Controller
+                                </option>
+
+                                {% for admin in latest_users %}
+
+                                    {% if admin.role in ['admin','superadmin'] %}
+
+                                        <option value="{{ admin.id }}">
+
+                                            ID {{ admin.id }}
+                                            -
+                                            {{ admin.name }}
+                                            ({{ admin.role }})
+
+                                        </option>
+
+                                    {% endif %}
+
+                                {% endfor %}
+
+                            </select>
+
+                            <button type="submit"
+                                    class="btn btn-warning btn-sm mt-2 w-100">
+
+                                🔁 Transfer
+
+                            </button>
+
+                        </form>
+
+                    </td>
 
 
-            <div class="col-md-2 d-flex align-items-end mb-3">
+                    <!-- ================= ACTIONS ================= -->
 
-                <button type="submit"
-                        class="btn btn-warning w-100">
+                    <td>
 
-                    Transfer
+                        {% if user.status != "blocked" %}
 
-                </button>
+                        <form method="POST"
+                              action="/owner/block-user/{{ user.id }}"
+                              style="display:inline;">
 
-            </div>
+                            <button class="btn btn-danger btn-sm">
 
-        </div>
+                                🚫 Block
 
-    </form>
+                            </button>
+
+                        </form>
+
+                        {% else %}
+
+                        <form method="POST"
+                              action="/owner/unblock-user/{{ user.id }}"
+                              style="display:inline;">
+
+                            <button class="btn btn-success btn-sm">
+
+                                🔓 Unblock
+
+                            </button>
+
+                        </form>
+
+                        {% endif %}
+
+
+                        <form method="POST"
+                              action="/owner/delete-user/{{ user.id }}"
+                              style="display:inline;">
+
+                            <button class="btn btn-dark btn-sm">
+
+                                🗑 Delete
+
+                            </button>
+
+                        </form>
+
+                    </td>
+
+                </tr>
+
+                {% endfor %}
+
+            </tbody>
+
+        </table>
+
+    </div>
 
 </div>
     <!-- ================= USERS ================= -->
