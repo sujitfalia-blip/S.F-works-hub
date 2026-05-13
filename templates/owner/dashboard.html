@@ -379,7 +379,63 @@
 
     </div>
 
+<!-- ================= USER TRANSFER ================= -->
 
+<div class="section">
+
+    <h3>🔁 Transfer User Control</h3>
+
+    <form method="POST"
+          action="/owner/transfer">
+
+        <div class="row">
+
+            <div class="col-md-5 mb-3">
+
+                <label class="form-label">
+                    User ID
+                </label>
+
+                <input type="number"
+                       name="user_id"
+                       class="form-control"
+                       placeholder="Enter User ID"
+                       required>
+
+            </div>
+
+
+            <div class="col-md-5 mb-3">
+
+                <label class="form-label">
+                    New Admin / Superadmin ID
+                </label>
+
+                <input type="number"
+                       name="new_controller"
+                       class="form-control"
+                       placeholder="Enter Controller ID"
+                       required>
+
+            </div>
+
+
+            <div class="col-md-2 d-flex align-items-end mb-3">
+
+                <button type="submit"
+                        class="btn btn-warning w-100">
+
+                    Transfer
+
+                </button>
+
+            </div>
+
+        </div>
+
+    </form>
+
+</div>
     <!-- ================= USERS ================= -->
 
     <div class="section">
