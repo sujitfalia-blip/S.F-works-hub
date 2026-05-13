@@ -409,32 +409,33 @@ def owner_dashboard():
         is_deleted=False
     ).count()
 
-# ================= ALL USERS =================
-latest_users = User.query.order_by(
-    User.id.desc()
-).all()
+
+    # ================= ALL USERS =================
+    latest_users = User.query.order_by(
+        User.id.desc()
+    ).all()
 
 
-# ================= LATEST BOOKINGS =================
-from models.booking import Booking
+    # ================= LATEST BOOKINGS =================
+    from models.booking import Booking
 
-latest_bookings = Booking.query.order_by(
-    Booking.id.desc()
-).limit(20).all()
+    latest_bookings = Booking.query.order_by(
+        Booking.id.desc()
+    ).limit(20).all()
 
 
-return render_template(
-    "owner/dashboard.html",
+    return render_template(
+        "owner/dashboard.html",
 
-    total_users=total_users,
-    total_admins=total_admins,
+        total_users=total_users,
+        total_admins=total_admins,
 
-    total_works=total_works,
-    approved_works=approved_works,
-    pending_works=pending_works,
+        total_works=total_works,
+        approved_works=approved_works,
+        pending_works=pending_works,
 
-    pending_admins=pending_admins,
+        pending_admins=pending_admins,
 
-    latest_users=latest_users,
-    latest_bookings=latest_bookings
-)
+        latest_users=latest_users,
+        latest_bookings=latest_bookings
+    )
