@@ -32,6 +32,7 @@ from routes.super_admin import super_admin
 from routes.user import user
 from routes.main import main
 from routes.work import work as work_bp
+from routes.booking_control import booking
 from routes.profile import profile_bp
 from routes.admin_tools import admin_tools
 
@@ -107,6 +108,7 @@ def create_app():
     app.register_blueprint(profile_bp)
     app.register_blueprint(admin_tools)
     app.register_blueprint(work_bp)
+    app.register_blueprint(booking)
 
     return app
 
