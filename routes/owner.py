@@ -7,6 +7,7 @@ from extensions import db, socketio
 
 from models.user import User
 from models.work_model import Work
+from models.work_application_model import WorkApplication
 
 owner = Blueprint('owner', __name__)
 
