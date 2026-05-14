@@ -2,7 +2,7 @@ from flask import Blueprint, render_template, session, jsonify, request
 from functools import wraps
 from models.user import User
 from models.booking import Booking
-from models.work import Work
+from models.work_model import Work
 from extensions import db
 from sqlalchemy.orm import load_only
 
