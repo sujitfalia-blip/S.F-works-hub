@@ -22,6 +22,7 @@ import cloudinary.uploader
 
 from models.chat import Chat
 from models.user import User
+from models.work_model import Work
 
 # ================= ROUTES =================
 
