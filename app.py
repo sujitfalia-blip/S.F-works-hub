@@ -130,27 +130,7 @@ with app.app_context():
 
     try:
 
-        inspector = db.inspect(db.engine)
-
-        columns = [
-            column['name']
-            for column in inspector.get_columns('works')
-        ]
-
-        if 'workers' not in columns:
-            db.session.execute(
-                db.text(
-                    'ALTER TABLE works ADD COLUMN workers VARCHAR(100)'
-                )
-            )
-
-        db.session.commit()
-
-        print("✅ Missing columns added successfully")
-
-    except Exception as e:
-
-        print("Migration Error:", str(e))
+        
         # ================= USER TABLE FIX =================
 
         db.session.execute(db.text("""
