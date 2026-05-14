@@ -50,7 +50,7 @@ def owner_only(f):
 # =================================================
 # 👤 APPROVE ADMIN / SUPER ADMIN
 # =================================================
-@owner.route('/owner/approve/<int:id>')
+@owner.route('/owner/approve/<int:id>', methods=["POST"])
 @owner_only
 def approve(id):
 
@@ -67,8 +67,7 @@ def approve(id):
     db.session.commit()
 
     return redirect('/owner/dashboard')
-
-
+    
 # =================================================
 # 🔁 TRANSFER USER
 # =================================================
