@@ -130,8 +130,6 @@ with app.app_context():
 
     db.create_all()
 
-    try:
-
     inspector = db.inspect(db.engine)
 
     columns = [
