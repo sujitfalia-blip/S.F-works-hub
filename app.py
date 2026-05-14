@@ -144,48 +144,6 @@ with app.app_context():
                 )
             )
 
-        if 'salary' not in columns:
-            db.session.execute(
-                db.text(
-                    'ALTER TABLE works ADD COLUMN salary VARCHAR(100)'
-                )
-            )
-
-        if 'date' not in columns:
-            db.session.execute(
-                db.text(
-                    'ALTER TABLE works ADD COLUMN date VARCHAR(100)'
-                )
-            )
-
-        if 'time' not in columns:
-            db.session.execute(
-                db.text(
-                    'ALTER TABLE works ADD COLUMN time VARCHAR(100)'
-                )
-            )
-
-        if 'phone' not in columns:
-            db.session.execute(
-                db.text(
-                    'ALTER TABLE works ADD COLUMN phone VARCHAR(20)'
-                )
-            )
-
-        if 'status' not in columns:
-            db.session.execute(
-                db.text(
-                    "ALTER TABLE works ADD COLUMN status VARCHAR(20) DEFAULT 'active'"
-                )
-            )
-
-        if 'is_deleted' not in columns:
-            db.session.execute(
-                db.text(
-                    'ALTER TABLE works ADD COLUMN is_deleted BOOLEAN DEFAULT FALSE'
-                )
-            )
-
         db.session.commit()
 
         print("✅ Missing columns added successfully")
@@ -193,7 +151,6 @@ with app.app_context():
     except Exception as e:
 
         print("Migration Error:", str(e))
-
         # ================= USER TABLE FIX =================
 
         db.session.execute(db.text("""
