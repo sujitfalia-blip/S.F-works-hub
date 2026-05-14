@@ -10,6 +10,7 @@ from flask import (
 
 from flask_login import login_required, current_user
 
+from models.booking import Booking
 from models.work_model import Work
 from models.work_application_model import WorkApplication
 from models.user import User
