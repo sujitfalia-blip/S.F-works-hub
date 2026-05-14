@@ -143,18 +143,6 @@ with app.app_context():
         print("❌ Error:", e)
     print("✅ All tables created")
     
-        # ================= USER TABLE FIX =================
-
-        db.session.execute(db.text("""
-        
-    except Exception as e:
-
-        print("❌ DB Update Error:", str(e))
-
-    print("✅ All tables created")
-
-
-
 # ================= USER CONNECT =================
 
 @socketio.on("connect")
