@@ -26,7 +26,8 @@ work = Blueprint("work", __name__)
 def create_work_route():
 
     if 'user_id' not in session:
-        return redirect('/login')
+        return redirect('/auth/login')
+
 
     data = {
         "title": request.form.get("title"),
@@ -73,7 +74,7 @@ def work_list():
 def apply_work(id):
 
     if 'user_id' not in session:
-        return redirect('/login')
+        return redirect('/auth/login')
 
     work_item = Work.query.filter_by(
         id=id,
