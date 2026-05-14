@@ -6,7 +6,7 @@ from datetime import datetime, timedelta
 from extensions import db, socketio
 
 from models.user import User
-from models.work import Work
+from models.work_model import Work
 
 owner = Blueprint('owner', __name__)
 
