@@ -22,15 +22,21 @@ work = Blueprint("work", __name__)
 # =====================================================
 # CREATE WORK
 # =====================================================
-@work.route('/create', methods=['POST'])
+@work.route('/create', methods=['GET', 'POST'])
 def create_work_route():
 
+    # ================= LOGIN CHECK =================
     if 'user_id' not in session:
         return redirect('/auth/login')
 
+    # ================= SHOW PAGE =================
+    if request.method == 'GET':
+        return render_template("create_work.html")
 
+    # ================= FORM DATA =================
     data = {
         "title": request.form.get("title"),
+        "description": request.form.get("description"),
         "workers": request.form.get("workers"),
         "salary": request.form.get("salary"),
         "date": request.form.get("date"),
@@ -38,14 +44,18 @@ def create_work_route():
         "phone": request.form.get("phone")
     }
 
-    create_work_service(
-        data,
-        session["user_id"]
-    )
+    # ================= VALIDATION =================
+    if not data["title"] or not data["salary"]:
+        flash("Title and Salary required")
+        return redirect('/work/create')
 
-    flash("Work posted successfully")
+    try:
+        create_work_service(data, session["user_id"])
+        flash("Work posted successfully")
+    except Exception as e:
+        flash(f"Error: {str(e)}")
 
-    return redirect('/user/dashboard')
+    return redirect('/works')
 
 
 # =====================================================
