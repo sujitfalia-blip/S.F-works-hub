@@ -10,7 +10,7 @@ from flask import (
 
 from flask_login import login_required, current_user
 
-from models.work import Work
+from models.work_model import Work
 from models.user import User
 from models.profile import Profile
 from models.chat import Chat
