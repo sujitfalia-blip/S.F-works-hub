@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Create Work - S.F Works Hub</title>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <style>
+
+        body {
+            margin: 0;
+            font-family: Arial;
+            background: linear-gradient(135deg,#eef2f7,#dfe9f3);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .card {
+            width: 100%;
+            max-width: 500px;
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        h2 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        input, textarea {
+            width: 100%;
+            padding: 12px;
+            margin-top: 10px;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+            font-size: 14px;
+        }
+
+        textarea {
+            resize: none;
+        }
+
+        .row {
+            display: flex;
+            gap: 10px;
+        }
+
+        .row input {
+            flex: 1;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            margin-top: 15px;
+            cursor: pointer;
+            font-size: 15px;
+        }
+
+        .otp-btn {
+            background: #007bff;
+            color: white;
+        }
+
+        .verify-btn {
+            background: #17a2b8;
+            color: white;
+        }
+
+        .submit-btn {
+            background: #28a745;
+            color: white;
+        }
+
+        .submit-btn:disabled {
+            background: gray;
+            cursor: not-allowed;
+        }
+
+        .status {
+            font-size: 13px;
+            margin-top: 10px;
+            text-align: center;
+        }
+
+    </style>
+</head>
+
+<body>
+
+<div class="card">
+
+    <h2>🛠️ Create Work Post</h2>
+
+    <form method="POST" action="/create">
+
+        <input type="text" name="title" placeholder="Work Title" required>
+
+        <textarea name="description" placeholder="Work Description"></textarea>
+
+        <div class="row">
+            <input type="text" name="workers" placeholder="Workers Needed" required>
+            <input type="text" name="salary" placeholder="Salary" required>
+        </div>
+
+        <div class="row">
+            <input type="date" name="date" required>
+            <input type="time" name="time" required>
+        </div>
+
+        <input type="text" name="phone" id="phone" placeholder="Phone Number (OTP verify)" required>
+
+        <!-- OTP SECTION -->
+        <button type="button" class="btn otp-btn" onclick="sendOTP()">
+            📩 Send OTP
+        </button>
+
+        <input type="text" id="otp" placeholder="Enter OTP">
+
+        <button type="button" class="btn verify-btn" onclick="verifyOTP()">
+            ✅ Verify OTP
+        </button>
+
+        <div class="status" id="status">❌ Phone not verified</div>
+
+        <!-- SUBMIT -->
+        <button type="submit" id="submitBtn" class="btn submit-btn" disabled>
+            🚀 Post Work
+        </button>
+
+    </form>
+
+</div>
+
+<!-- FIREBASE -->
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+
+<script>
+
+const firebaseConfig = {
+    apiKey: "YOUR_API_KEY",
+    authDomain: "YOUR_AUTH_DOMAIN",
+    projectId: "YOUR_PROJECT_ID",
+    appId: "YOUR_APP_ID"
+};
+
+firebase.initializeApp(firebaseConfig);
+
+// OTP SEND
+function sendOTP() {
+
+    let phone = document.getElementById("phone").value;
+
+    if (!phone) {
+        alert("Enter phone number");
+        return;
+    }
+
+    window.recaptchaVerifier = new firebase.auth.RecaptchaVerifier('submitBtn', {
+        'size': 'invisible'
+    });
+
+    firebase.auth().signInWithPhoneNumber(phone, window.recaptchaVerifier)
+        .then(function (result) {
+
+            window.confirmationResult = result;
+
+            alert("OTP Sent");
+
+        })
+        .catch(function (error) {
+            alert(error.message);
+        });
+}
+
+// OTP VERIFY
+function verifyOTP() {
+
+    let otp = document.getElementById("otp").value;
+
+    confirmationResult.confirm(otp)
+        .then(function (result) {
+
+            document.getElementById("submitBtn").disabled = false;
+            document.getElementById("status").innerHTML = "✅ Phone Verified";
+
+            alert("Verified Successfully");
+
+        })
+        .catch(function (error) {
+            alert("Invalid OTP");
+        });
+}
+
+</script>
+
+</body>
+  </html>
+  
