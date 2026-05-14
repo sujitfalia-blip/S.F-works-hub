@@ -141,7 +141,8 @@ with app.app_context():
 
     except Exception as e:
         print("❌ Error:", e)
-        
+    print("✅ All tables created")
+    
         # ================= USER TABLE FIX =================
 
         db.session.execute(db.text("""
