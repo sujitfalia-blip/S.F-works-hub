@@ -1,74 +1,40 @@
 from models.work_model import Work
-from extensions import db, socketio
+from extensions import db
+from datetime import datetime
 
 
 def create_work(data, user_id):
 
     try:
 
-        # =========================
-        # CREATE WORK
-        # =========================
+        # ================= VALIDATION =================
+        if not data.get("title") or not data.get("salary"):
+            raise ValueError("Title and Salary are required")
+
+        # ================= CREATE WORK =================
         work = Work(
-
             title=data.get("title"),
-
-            description=data.get(
-                "description",
-                "No description"
-            ),
-
+            description=data.get("description", "No description"),
             workers=data.get("workers"),
-
             salary=data.get("salary"),
-
             date=data.get("date"),
-
             time=data.get("time"),
-
             phone=data.get("phone"),
-
-            user_id=user_id
+            user_id=user_id,
+            status="active",
+            is_deleted=False,
+            created_at=datetime.utcnow(),
+            updated_at=datetime.utcnow()
         )
 
-        # =========================
-        # SAVE DATABASE
-        # =========================
+        # ================= SAVE =================
         db.session.add(work)
         db.session.commit()
-
-        # =========================
-        # SOCKET EMIT
-        # =========================
-        try:
-
-            socketio.emit(
-                "new_work",
-                {
-                    "id": work.id,
-                    "title": work.title,
-                    "workers": work.workers,
-                    "salary": work.salary
-                },
-                namespace="/"
-            )
-
-        except Exception as socket_error:
-
-            print(
-                "Socket Error:",
-                str(socket_error)
-            )
 
         return work
 
     except Exception as e:
-
         db.session.rollback()
-
-        print(
-            "Create Work Error:",
-            str(e)
-        )
-
+        print("Create Work Error:", str(e))
         return None
+        
