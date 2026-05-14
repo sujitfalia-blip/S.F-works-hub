@@ -126,8 +126,6 @@ app = create_app()
 
 with app.app_context():
 
-    # ================= CREATE ALL TABLES =================
-
     db.create_all()
 
     inspector = db.inspect(db.engine)
