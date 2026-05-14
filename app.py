@@ -132,8 +132,6 @@ with app.app_context():
 
     try:
 
-        with app.app_context():
-
     inspector = db.inspect(db.engine)
 
     columns = [
