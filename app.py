@@ -146,61 +146,7 @@ with app.app_context():
         # ================= USER TABLE FIX =================
 
         db.session.execute(db.text("""
-            ALTER TABLE "user"
-            ADD COLUMN IF NOT EXISTS profile_img TEXT
-        """))
-
-        db.session.execute(db.text("""
-            ALTER TABLE "user"
-            ADD COLUMN IF NOT EXISTS is_online BOOLEAN DEFAULT FALSE
-        """))
-
-        db.session.execute(db.text("""
-            ALTER TABLE "user"
-            ADD COLUMN IF NOT EXISTS last_seen TIMESTAMP
-        """))
-
-        db.session.execute(db.text("""
-            ALTER TABLE "user"
-            ADD COLUMN IF NOT EXISTS socket_id VARCHAR(100)
-        """))
-
-        # ================= CHAT TABLE FIX =================
-
-        db.session.execute(db.text("""
-            ALTER TABLE chat
-            ADD COLUMN IF NOT EXISTS is_read BOOLEAN DEFAULT FALSE
-        """))
-
-        db.session.execute(db.text("""
-            ALTER TABLE chat
-            ADD COLUMN IF NOT EXISTS read_at TIMESTAMP
-        """))
-
-        db.session.execute(db.text("""
-            ALTER TABLE chat
-            ADD COLUMN IF NOT EXISTS is_typing BOOLEAN DEFAULT FALSE
-        """))
-
-        db.session.execute(db.text("""
-            ALTER TABLE chat
-            ADD COLUMN IF NOT EXISTS typing_at TIMESTAMP
-        """))
-
-        db.session.execute(db.text("""
-            ALTER TABLE chat
-            ADD COLUMN IF NOT EXISTS is_deleted BOOLEAN DEFAULT FALSE
-        """))
-
-        db.session.execute(db.text("""
-            ALTER TABLE chat
-            ADD COLUMN IF NOT EXISTS deleted_at TIMESTAMP
-        """))
-
-        db.session.commit()
-
-        print("✅ Missing columns added successfully")
-
+        
     except Exception as e:
 
         print("❌ DB Update Error:", str(e))
@@ -208,9 +154,6 @@ with app.app_context():
     print("✅ All tables created")
 
 
-# =====================================================
-# ================= SOCKET EVENTS =====================
-# =====================================================
 
 # ================= USER CONNECT =================
 
