@@ -4,8 +4,9 @@
     <title>Available Works - S.F Works Hub</title>
 
     <style>
+
         body{
-            font-family: Arial;
+            font-family:Arial;
             margin:0;
             padding:20px;
             background:linear-gradient(135deg,#eef2f7,#dfe9f3);
@@ -21,7 +22,6 @@
             margin:auto;
         }
 
-        /* CARD */
         .card{
             background:white;
             padding:18px;
@@ -35,14 +35,12 @@
             transform:scale(1.01);
         }
 
-        /* TITLE */
         .title{
             font-size:18px;
             font-weight:bold;
             color:#333;
         }
 
-        /* BADGES */
         .badge{
             display:inline-block;
             padding:4px 10px;
@@ -60,7 +58,6 @@
             background:#007bff;
         }
 
-        /* INFO */
         .info{
             color:#555;
             margin:6px 0;
@@ -72,8 +69,9 @@
             color:gray;
         }
 
-        /* BUTTON */
         .btn{
+            border:none;
+            cursor:pointer;
             display:inline-block;
             padding:10px 14px;
             background:linear-gradient(90deg,#28a745,#1e7e34);
@@ -88,7 +86,6 @@
             transform:scale(1.05);
         }
 
-        /* TOP BAR */
         .topbar{
             display:flex;
             justify-content:space-between;
@@ -105,12 +102,16 @@
         }
 
         @media(max-width:600px){
+
             .topbar{
                 flex-direction:column;
                 gap:10px;
             }
+
         }
+
     </style>
+
 </head>
 
 <body>
@@ -119,9 +120,9 @@
 
 <div class="container">
 
-    <!-- SEARCH UI (future ready) -->
     <div class="topbar">
-        <input class="search" placeholder="🔍 Search work...">
+        <input class="search"
+               placeholder="🔍 Search work...">
     </div>
 
     {% for w in works %}
@@ -133,15 +134,38 @@
         </div>
 
         <div class="info">
-            <span class="badge workers">👷 {{ w.workers_needed }} Workers</span>
-            <span class="badge salary">💰 {{ w.salary }}</span>
+
+            <span class="badge workers">
+                👷 {{ w.workers }} Workers
+            </span>
+
+            <span class="badge salary">
+                💰 {{ w.salary }}
+            </span>
+
         </div>
 
-        <div class="meta">📅 {{ w.date }} | ⏰ {{ w.time }}</div>
+        <div class="meta">
+            📅 {{ w.date }} |
+            ⏰ {{ w.time }}
+        </div>
 
-        <div class="info">📞 Contact: {{ w.phone }}</div>
+        <div class="info">
+            📞 Contact: {{ w.phone }}
+        </div>
 
-        <a href="/apply_work/{{ w.id }}" class="btn">🚀 Apply Now</a>
+        <!-- APPLY FORM -->
+        <form method="POST"
+              action="/apply_work/{{ w.id }}">
+
+            <button type="submit"
+                    class="btn">
+
+                🚀 Apply Now
+
+            </button>
+
+        </form>
 
     </div>
 
