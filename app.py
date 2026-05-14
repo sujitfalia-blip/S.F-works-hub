@@ -130,28 +130,30 @@ with app.app_context():
     db.create_all()
 
     try:
-        db.session.execute(text("""
-    ALTER TABLE works
-    ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP
-"""))
 
-db.session.execute(text("""
-    ALTER TABLE works
-    ADD COLUMN IF NOT EXISTS created_at TIMESTAMP
-"""))
-
-db.session.commit()
         db.session.execute(text("""
             ALTER TABLE works
             ADD COLUMN IF NOT EXISTS user_id INTEGER
         """))
 
+        db.session.execute(text("""
+            ALTER TABLE works
+            ADD COLUMN IF NOT EXISTS created_at TIMESTAMP
+        """))
+
+        db.session.execute(text("""
+            ALTER TABLE works
+            ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP
+        """))
+
         db.session.commit()
 
-        print("✅ user_id column added successfully")
+        print("✅ Database Updated")
 
     except Exception as e:
+
         print("❌ Error:", e)
+
     print("✅ All tables created")
     
 # ================= USER CONNECT =================
