@@ -98,7 +98,7 @@
 
     <h2>🛠️ Create Work Post</h2>
 
-    <form method="POST" action="/create">
+    <form method="POST" action="{{ url_for('work.create_work_route') }}">
 
         <input type="text" name="title" placeholder="Work Title" required>
 
