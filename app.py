@@ -12,6 +12,7 @@ from flask_login import current_user, LoginManager
 
 from config import Config
 from extensions import db, socketio
+from sqlalchemy import text
 
 from flask_migrate import Migrate
 
@@ -129,7 +130,17 @@ with app.app_context():
     db.create_all()
 
     try:
+        db.session.execute(text("""
+            ALTER TABLE works
+            ADD COLUMN IF NOT EXISTS user_id INTEGER
+        """))
 
+        db.session.commit()
+
+        print("✅ user_id column added successfully")
+
+    except Exception as e:
+        print("❌ Error:", e)
         
         # ================= USER TABLE FIX =================
 
