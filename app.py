@@ -128,65 +128,71 @@ with app.app_context():
 
     db.create_all()
 
-    inspector = db.inspect(db.engine)
+    try:
 
-    columns = [
-        column['name']
-        for column in inspector.get_columns('works')
-    ]
+        inspector = db.inspect(db.engine)
 
-    if 'workers' not in columns:
-        db.session.execute(
-            db.text(
-                'ALTER TABLE works ADD COLUMN workers VARCHAR(100)'
+        columns = [
+            column['name']
+            for column in inspector.get_columns('works')
+        ]
+
+        if 'workers' not in columns:
+            db.session.execute(
+                db.text(
+                    'ALTER TABLE works ADD COLUMN workers VARCHAR(100)'
+                )
             )
-        )
 
-    if 'salary' not in columns:
-        db.session.execute(
-            db.text(
-                'ALTER TABLE works ADD COLUMN salary VARCHAR(100)'
+        if 'salary' not in columns:
+            db.session.execute(
+                db.text(
+                    'ALTER TABLE works ADD COLUMN salary VARCHAR(100)'
+                )
             )
-        )
 
-    if 'date' not in columns:
-        db.session.execute(
-            db.text(
-                'ALTER TABLE works ADD COLUMN date VARCHAR(100)'
+        if 'date' not in columns:
+            db.session.execute(
+                db.text(
+                    'ALTER TABLE works ADD COLUMN date VARCHAR(100)'
+                )
             )
-        )
 
-    if 'time' not in columns:
-        db.session.execute(
-            db.text(
-                'ALTER TABLE works ADD COLUMN time VARCHAR(100)'
+        if 'time' not in columns:
+            db.session.execute(
+                db.text(
+                    'ALTER TABLE works ADD COLUMN time VARCHAR(100)'
+                )
             )
-        )
 
-    if 'phone' not in columns:
-        db.session.execute(
-            db.text(
-                'ALTER TABLE works ADD COLUMN phone VARCHAR(20)'
+        if 'phone' not in columns:
+            db.session.execute(
+                db.text(
+                    'ALTER TABLE works ADD COLUMN phone VARCHAR(20)'
+                )
             )
-        )
 
-    if 'status' not in columns:
-        db.session.execute(
-            db.text(
-                "ALTER TABLE works ADD COLUMN status VARCHAR(20) DEFAULT 'active'"
+        if 'status' not in columns:
+            db.session.execute(
+                db.text(
+                    "ALTER TABLE works ADD COLUMN status VARCHAR(20) DEFAULT 'active'"
+                )
             )
-        )
 
-    if 'is_deleted' not in columns:
-        db.session.execute(
-            db.text(
-                'ALTER TABLE works ADD COLUMN is_deleted BOOLEAN DEFAULT FALSE'
+        if 'is_deleted' not in columns:
+            db.session.execute(
+                db.text(
+                    'ALTER TABLE works ADD COLUMN is_deleted BOOLEAN DEFAULT FALSE'
+                )
             )
-        )
 
-    db.session.commit()
+        db.session.commit()
 
-    print("✅ Missing columns added successfully")
+        print("✅ Missing columns added successfully")
+
+    except Exception as e:
+
+        print("Migration Error:", str(e))
 
         # ================= USER TABLE FIX =================
 
