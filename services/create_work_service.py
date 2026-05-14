@@ -1,4 +1,5 @@
-from models.work import Work
+from models.work_model import Work
+from models.work_application_model import WorkApplication
 from extensions import db, socketio
 
 
