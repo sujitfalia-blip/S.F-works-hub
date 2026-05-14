@@ -131,30 +131,7 @@ with app.app_context():
 
     try:
 
-        db.session.execute(text("""
-            ALTER TABLE works
-            ADD COLUMN IF NOT EXISTS user_id INTEGER
-        """))
-
-        db.session.execute(text("""
-            ALTER TABLE works
-            ADD COLUMN IF NOT EXISTS created_at TIMESTAMP
-        """))
-
-        db.session.execute(text("""
-            ALTER TABLE works
-            ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP
-        """))
-
-        db.session.commit()
-
-        print("✅ Database Updated")
-
-    except Exception as e:
-
-        print("❌ Error:", e)
-
-    print("✅ All tables created")
+        
     
 # ================= USER CONNECT =================
 
