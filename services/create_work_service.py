@@ -18,10 +18,9 @@ def create_work(data, user_id):
             salary=data.get("salary"),
             date=data.get("date"),
             time=data.get("time"),
-            phone=data.get("phone"),
+            mobile=data.get("phone"),
             user_id=user_id,
-            status="active",
-            is_deleted=False
+            status="pending"
         )
 
         # ================= SAVE =================
