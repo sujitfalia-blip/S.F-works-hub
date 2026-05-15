@@ -40,30 +40,81 @@ login_manager.login_view = "auth.login"
 
 # ================= DB FIX FUNCTION =================
 
-
 def fix_db(app):
-    try:
-        with app.app_context():
 
+    with app.app_context():
+
+        try:
+
+            # ================= MOBILE =================
             db.session.execute(text("""
-                ALTER TABLE works ADD COLUMN IF NOT EXISTS mobile VARCHAR(15);
+                ALTER TABLE works
+                ADD COLUMN IF NOT EXISTS mobile VARCHAR(15);
             """))
 
+            # ================= STATUS =================
             db.session.execute(text("""
-                ALTER TABLE works ADD COLUMN IF NOT EXISTS created_at TIMESTAMP;
+                ALTER TABLE works
+                ADD COLUMN IF NOT EXISTS status VARCHAR(20) DEFAULT 'pending';
             """))
 
+            # ================= ACTIVE =================
             db.session.execute(text("""
-                ALTER TABLE works ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP;
+                ALTER TABLE works
+                ADD COLUMN IF NOT EXISTS is_active BOOLEAN DEFAULT FALSE;
+            """))
+
+            # ================= SOFT DELETE =================
+            db.session.execute(text("""
+                ALTER TABLE works
+                ADD COLUMN IF NOT EXISTS is_deleted BOOLEAN DEFAULT FALSE;
+            """))
+
+            # ================= EDIT COUNT =================
+            db.session.execute(text("""
+                ALTER TABLE works
+                ADD COLUMN IF NOT EXISTS edit_count INTEGER DEFAULT 0;
+            """))
+
+            # ================= APPROVED BY =================
+            db.session.execute(text("""
+                ALTER TABLE works
+                ADD COLUMN IF NOT EXISTS approved_by INTEGER;
+            """))
+
+            # ================= REJECTED BY =================
+            db.session.execute(text("""
+                ALTER TABLE works
+                ADD COLUMN IF NOT EXISTS rejected_by INTEGER;
+            """))
+
+            # ================= EDITED BY =================
+            db.session.execute(text("""
+                ALTER TABLE works
+                ADD COLUMN IF NOT EXISTS edited_by INTEGER;
+            """))
+
+            # ================= CREATED =================
+            db.session.execute(text("""
+                ALTER TABLE works
+                ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT NOW();
+            """))
+
+            # ================= UPDATED =================
+            db.session.execute(text("""
+                ALTER TABLE works
+                ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP DEFAULT NOW();
             """))
 
             db.session.commit()
 
-            print("DB FIXED: all missing columns ensured")
+            print("DB FIXED SUCCESSFULLY")
 
-    except Exception as e:
-        print("DB FIX ERROR:", e)
+        except Exception as e:
 
+            db.session.rollback()
+
+            print("DB FIX ERROR:", e)
 # ================= APP FACTORY =================
 def create_app():
 
