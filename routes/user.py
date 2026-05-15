@@ -78,33 +78,86 @@ def post_work():
 @role_required("user")
 def dashboard():
 
-    if 'user_id' not in session:
+    # =================================================
+    # 🔐 SESSION CHECK
+    # =================================================
+    user_id = session.get("user_id")
+
+    if not user_id:
         return redirect('/auth/login')
 
-    user_id = session['user_id']
+    # =================================================
+    # 👤 CURRENT USER
+    # =================================================
+    current_user_data = db.session.get(User, user_id)
 
-    works = Work.query.filter_by(
-        user_id=user_id,
-        status="approved"
-    ).order_by(Work.id.desc()).all()
+    if not current_user_data:
+        session.clear()
+        return redirect('/auth/login')
 
-    current_user_data = User.query.get(user_id)
-
-    profiles = (
-        Profile.query
-        .join(User)
-        .filter(Profile.user_id != user_id)
+    # =================================================
+    # 💼 ALL APPROVED WORKS
+    # =================================================
+    works = (
+        db.session.query(Work, User)
+        .join(
+            User,
+            Work.user_id == User.id
+        )
+        .filter(
+            Work.status == "approved"
+        )
+        .order_by(
+            Work.created_at.desc()
+        )
         .all()
     )
 
-    return render_template(
-        "user/dashboard.html",
-        works=works,
-        profiles=profiles,
-        current_user=current_user_data
+    # =================================================
+    # 👥 ALL USER PROFILES
+    # =================================================
+    profiles = (
+        Profile.query
+        .join(
+            User,
+            Profile.user_id == User.id
+        )
+        .filter(
+            Profile.user_id != user_id
+        )
+        .order_by(
+            Profile.id.desc()
+        )
+        .all()
     )
 
+    # =================================================
+    # 📊 DASHBOARD STATS
+    # =================================================
+    total_works = Work.query.filter_by(
+        status="approved"
+    ).count()
 
+    total_profiles = Profile.query.count()
+
+    # =================================================
+    # 🖥️ RENDER TEMPLATE
+    # =================================================
+    return render_template(
+
+        "user/dashboard.html",
+
+        # CURRENT USER
+        current_user=current_user_data,
+
+        # WORKS
+        works=works,
+        total_works=total_works,
+
+        # PROFILES
+        profiles=profiles,
+        total_profiles=total_profiles
+    )
 # =================================================
 # 💬 CHAT SYSTEM (UNCHANGED BUT CLEAN)
 # =================================================
