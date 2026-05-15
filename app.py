@@ -1,33 +1,22 @@
 from gevent import monkey
 monkey.patch_all()
 
+import os
 from dotenv import load_dotenv
 load_dotenv()
 
-import os
-
 from flask import Flask
+from flask_login import LoginManager, current_user
 from flask_socketio import emit, join_room
-from flask_login import current_user, LoginManager
 
 from config import Config
 from extensions import db, socketio
-from sqlalchemy import text
-
 from flask_migrate import Migrate
 
-import cloudinary
-import cloudinary.uploader
-
-# ================= MODELS =================
-
-from models.chat import Chat
 from models.user import User
-from models.booking import Booking
+from models.chat import Chat
 from models.work_model import Work
 from models.work_application_model import WorkApplication
-
-# ================= ROUTES =================
 
 from routes.auth import auth
 from routes.owner import owner
@@ -40,176 +29,119 @@ from routes.booking_control import booking
 from routes.profile import profile_bp
 from routes.admin_tools import admin_tools
 
-# ================= LOGIN MANAGER =================
+import cloudinary
 
+
+# ================= LOGIN MANAGER =================
 login_manager = LoginManager()
 login_manager.login_view = "auth.login"
 
-# ================= CREATE APP =================
 
+# ================= APP FACTORY =================
 def create_app():
 
     app = Flask(__name__)
-
     app.config.from_object(Config)
 
-    # ================= LOGIN =================
-
+    # LOGIN
     login_manager.init_app(app)
 
     @login_manager.user_loader
     def load_user(user_id):
         return User.query.get(int(user_id))
 
-    # ================= CLOUDINARY =================
+    # DATABASE
+    db.init_app(app)
 
+    # SOCKET IO
+    socketio.init_app(app, cors_allowed_origins="*", async_mode="gevent")
+
+    # MIGRATION
+    Migrate(app, db)
+
+    # CLOUDINARY (✅ FIXED ADDED)
     cloudinary.config(
-        cloud_name="dion15zps",
-        api_key="136556886157942",
-        api_secret="MBvKiT2EFaCzm9BGB9K1itfmiDU",
+        cloud_name=os.getenv("CLOUDINARY_CLOUD_NAME", "dion15zps"),
+        api_key=os.getenv("CLOUDINARY_API_KEY", "136556886157942"),
+        api_secret=os.getenv("CLOUDINARY_API_SECRET", "MBvKiT2EFaCzm9BGB9K1itfmiDU"),
         secure=True
     )
 
-    # ================= MAX UPLOAD =================
-
-    app.config['MAX_CONTENT_LENGTH'] = 20 * 1024 * 1024
-
-    # ================= UPLOAD FOLDER =================
-
-    upload_path = app.config.get("UPLOAD_FOLDER")
-
-    if upload_path:
-
-        if os.path.exists(upload_path) and not os.path.isdir(upload_path):
-            os.remove(upload_path)
-
-        os.makedirs(upload_path, exist_ok=True)
-
-    # ================= DATABASE =================
-
-    db.init_app(app)
-
-    # ================= SOCKET IO =================
-
-    socketio.init_app(
-        app,
-        cors_allowed_origins="*",
-        async_mode="gevent"
-    )
-
-    # ================= MIGRATION =================
-
-    Migrate(app, db)
-
-    # ================= BLUEPRINTS =================
-
+    # BLUEPRINTS
     app.register_blueprint(auth)
     app.register_blueprint(owner)
     app.register_blueprint(admin_bp)
     app.register_blueprint(super_admin)
     app.register_blueprint(user)
     app.register_blueprint(main)
-    app.register_blueprint(profile_bp)
-    app.register_blueprint(admin_tools)
     app.register_blueprint(work)
     app.register_blueprint(booking)
+    app.register_blueprint(profile_bp)
+    app.register_blueprint(admin_tools)
 
     return app
 
 
-# ================= APP =================
-
 app = create_app()
 
-# =====================================================
-# ================= DATABASE AUTO FIX ==================
-# =====================================================
 
+# ================= DB INIT (SAFE) =================
 with app.app_context():
-
     db.create_all()
 
-    
 
-        
-    
-# ================= USER CONNECT =================
+# ================= SOCKET EVENTS =================
 
 @socketio.on("connect")
 def handle_connect():
-
-    try:
-
-        if current_user.is_authenticated:
-
+    if current_user.is_authenticated:
+        try:
             current_user.is_online = True
-
             db.session.commit()
+        except:
+            pass
 
-            print(f"✅ User Online: {current_user.id}")
-
-    except Exception as e:
-
-        print("❌ Connect Error:", str(e))
-
-
-# ================= USER DISCONNECT =================
 
 @socketio.on("disconnect")
 def handle_disconnect():
-
-    try:
-
-        if current_user.is_authenticated:
-
+    if current_user.is_authenticated:
+        try:
             current_user.is_online = False
-
             db.session.commit()
+        except:
+            pass
 
-            print(f"❌ User Offline: {current_user.id}")
-
-    except Exception as e:
-
-        print("❌ Disconnect Error:", str(e))
-
-
-# ================= JOIN ROOM =================
 
 @socketio.on("join")
 def on_join(data):
-
-    if not current_user.is_authenticated:
-        return
-
-    user_id = current_user.id
-
-    room = f"chat_{min(user_id, int(data['user_id']))}_{max(user_id, int(data['user_id']))}"
-
-    join_room(room)
-
-    print(f"✅ Joined Room: {room}")
-
-
-# ================= SEND MESSAGE =================
-@socketio.on("send_message")
-def handle_send_message(data):
-
     if not current_user.is_authenticated:
         return
 
     try:
-        receiver_id = data.get("receiver_id")
+        other_user = int(data.get("user_id"))
+        user_id = current_user.id
+
+        room = f"chat_{min(user_id, other_user)}_{max(user_id, other_user)}"
+        join_room(room)
+
+    except:
+        pass
+
+
+@socketio.on("send_message")
+def send_message(data):
+    if not current_user.is_authenticated:
+        return
+
+    try:
+        receiver_id = int(data.get("receiver_id"))
         message = data.get("message")
 
-        if not receiver_id or not message:
+        if not message:
             return
 
-        receiver_id = int(receiver_id)
-        sender_id = current_user.id
-
-        # ================= SAVE =================
         chat = Chat(
-            sender_id=sender_id,
+            sender_id=current_user.id,
             receiver_id=receiver_id,
             message=message.strip()
         )
@@ -217,123 +149,22 @@ def handle_send_message(data):
         db.session.add(chat)
         db.session.commit()
 
-        # ================= ROOM (WHATSAPP STYLE) =================
-        room = f"chat_{min(sender_id, receiver_id)}_{max(sender_id, receiver_id)}"
+        room = f"chat_{min(chat.sender_id, receiver_id)}_{max(chat.sender_id, receiver_id)}"
 
-        response = {
+        emit("receive_message", {
             "id": chat.id,
-            "sender_id": sender_id,
+            "sender_id": chat.sender_id,
             "receiver_id": receiver_id,
             "message": chat.message,
             "created_at": str(chat.created_at)
-        }
-
-        emit("receive_message", response, room=room)
-
-        print("✅ Message Sent")
+        }, room=room)
 
     except Exception as e:
-        print("❌ Chat Error:", str(e))
-
-# ================= MESSAGE READ =================
-
-@socketio.on("mark_read")
-def mark_read(data):
-
-    try:
-
-        message_id = data.get("message_id")
-
-        if not message_id:
-            return
-
-        message = Chat.query.get(message_id)
-
-        if message:
-
-            message.is_read = True
-
-            db.session.commit()
-
-            emit(
-                "message_read",
-                {
-                    "message_id": message.id
-                },
-                room=f"chat_{message.sender_id}"
-            )
-
-            print("✅ Message Read")
-
-    except Exception as e:
-
-        print("❌ Read Error:", str(e))
-
-
-# ================= TYPING =================
-
-@socketio.on("typing")
-def typing(data):
-
-    try:
-
-        if not current_user.is_authenticated:
-            return
-
-        receiver_id = data.get("receiver_id")
-
-        if not receiver_id:
-            return
-
-        room = f"chat_{receiver_id}"
-
-        emit(
-            "typing",
-            {
-                "user_id": current_user.id
-            },
-            room=room
-        )
-
-    except Exception as e:
-
-        print("❌ Typing Error:", str(e))
-
-
-# ================= STOP TYPING =================
-
-@socketio.on("stop_typing")
-def stop_typing(data):
-
-    try:
-
-        if not current_user.is_authenticated:
-            return
-
-        receiver_id = data.get("receiver_id")
-
-        if not receiver_id:
-            return
-
-        room = f"chat_{receiver_id}"
-
-        emit(
-            "stop_typing",
-            {
-                "user_id": current_user.id
-            },
-            room=room
-        )
-
-    except Exception as e:
-
-        print("❌ Stop Typing Error:", str(e))
+        print("Chat Error:", e)
 
 
 # ================= RUN =================
-
 if __name__ == "__main__":
-
     socketio.run(
         app,
         host="0.0.0.0",
