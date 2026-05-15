@@ -23,13 +23,18 @@ user = Blueprint("user", __name__, url_prefix="/user")
 # =================================================
 # 🟡 WORK POST (OTP + PENDING SYSTEM)
 # =================================================
-@user.route('/post_work', methods=['POST'])
+@user.route('/post_work', methods=['GET', 'POST'])
 def post_work():
 
     # 🔐 LOGIN CHECK
     if 'user_id' not in session:
         return redirect('/auth/login')
 
+    # ================= GET REQUEST =================
+    if request.method == "GET":
+        return render_template("create_work.html")
+
+    # ================= POST REQUEST =================
     title = request.form.get('title')
     workers = request.form.get('workers')
     salary = request.form.get('salary')
@@ -40,11 +45,11 @@ def post_work():
     # 🔴 VALIDATION
     if not all([title, workers, salary, date, time, phone]):
         flash("সব ফিল্ড পূরণ করা আবশ্যক!")
-        return redirect('/user/dashboard')
+        return redirect('/post_work')
 
     if len(phone) < 10:
         flash("সঠিক মোবাইল নম্বর দিন!")
-        return redirect('/user/dashboard')
+        return redirect('/post_work')
 
     # 📱 OTP GENERATE (future verification)
     otp = generate_otp(phone)
