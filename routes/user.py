@@ -158,6 +158,67 @@ def dashboard():
         profiles=profiles,
         total_profiles=total_profiles
     )
+
+@user.route('/apply_work/<int:work_id>', methods=['POST'])
+@role_required("user")
+def apply_work(work_id):
+
+    # ================= USER CHECK =================
+    user_id = session.get("user_id")
+
+    if not user_id:
+        return redirect('/auth/login')
+
+    try:
+
+        # ================= CHECK WORK =================
+        work = Work.query.filter_by(
+            id=work_id,
+            status="approved"
+        ).first()
+
+        if not work:
+            flash("Work not found!")
+            return redirect('/user/dashboard')
+
+        # ================= BLOCK OWN APPLY =================
+        if work.user_id == user_id:
+            flash("You cannot apply to your own work!")
+            return redirect('/user/dashboard')
+
+        # ================= DUPLICATE CHECK =================
+        already_applied = WorkApplication.query.filter_by(
+            user_id=user_id,
+            work_id=work_id
+        ).first()
+
+        if already_applied:
+            flash("You already applied!")
+            return redirect('/user/dashboard')
+
+        # ================= CREATE APPLICATION =================
+        application = WorkApplication(
+            user_id=user_id,
+            work_id=work_id,
+            status="pending"
+        )
+
+        # ================= SAVE =================
+        db.session.add(application)
+        db.session.commit()
+
+        flash("Application submitted successfully!")
+
+    except Exception as e:
+
+        db.session.rollback()
+
+        print("Apply Work Error:", str(e))
+
+        flash("Something went wrong!")
+
+    # ================= REDIRECT =================
+    return redirect('/user/dashboard')
 # =================================================
 # 💬 CHAT SYSTEM (UNCHANGED BUT CLEAN)
 # =================================================
