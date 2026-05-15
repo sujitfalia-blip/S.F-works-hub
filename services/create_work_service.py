@@ -1,6 +1,5 @@
 from models.work_model import Work
 from extensions import db
-from datetime import datetime
 
 
 def create_work(data, user_id):
@@ -22,9 +21,7 @@ def create_work(data, user_id):
             phone=data.get("phone"),
             user_id=user_id,
             status="active",
-            is_deleted=False,
-            created_at=datetime.utcnow(),
-            updated_at=datetime.utcnow()
+            is_deleted=False
         )
 
         # ================= SAVE =================
@@ -37,4 +34,3 @@ def create_work(data, user_id):
         db.session.rollback()
         print("Create Work Error:", str(e))
         return None
-        
