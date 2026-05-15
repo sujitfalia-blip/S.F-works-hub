@@ -1,31 +1,37 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Create Work - S.F Works Hub</title>
+    <meta charset="UTF-8">
+    <title>Post Work</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <style>
+
         body {
             margin: 0;
-            font-family: Arial;
-            background: linear-gradient(135deg,#eef2f7,#dfe9f3);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 20px;
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #e9f0ff, #f7f9fc);
         }
 
-        .card {
-            width: 100%;
-            max-width: 500px;
-            background: white;
+        .container {
+            max-width: 520px;
+            margin: 50px auto;
+            background: #fff;
             padding: 25px;
-            border-radius: 15px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            border-radius: 14px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
         }
 
         h2 {
             text-align: center;
+            margin-bottom: 5px;
+            color: #222;
+        }
+
+        .subtitle {
+            text-align: center;
+            font-size: 13px;
+            color: #777;
             margin-bottom: 20px;
         }
 
@@ -33,167 +39,102 @@
             width: 100%;
             padding: 12px;
             margin-top: 10px;
-            border-radius: 8px;
+            margin-bottom: 15px;
             border: 1px solid #ddd;
+            border-radius: 10px;
             font-size: 14px;
+            outline: none;
+            transition: 0.2s;
         }
 
-        textarea { resize: none; }
-
-        .row {
-            display: flex;
-            gap: 10px;
+        input:focus, textarea:focus {
+            border-color: #4a90e2;
+            box-shadow: 0 0 5px rgba(74,144,226,0.3);
         }
 
-        .row input { flex: 1; }
+        textarea {
+            resize: none;
+            height: 110px;
+        }
 
-        .btn {
+        button {
             width: 100%;
-            padding: 12px;
+            padding: 13px;
+            background: linear-gradient(135deg, #28a745, #20c997);
+            color: white;
             border: none;
-            border-radius: 8px;
-            margin-top: 15px;
+            border-radius: 10px;
+            font-size: 16px;
             cursor: pointer;
-            font-size: 15px;
+            transition: 0.3s;
+            font-weight: bold;
         }
 
-        .otp-btn { background: #007bff; color: white; }
-        .verify-btn { background: #17a2b8; color: white; }
-        .submit-btn { background: #28a745; color: white; }
-
-        .submit-btn:disabled {
-            background: gray;
-            cursor: not-allowed;
+        button:hover {
+            transform: scale(1.02);
         }
 
-        .status {
-            font-size: 13px;
-            margin-top: 10px;
+        .note {
+            font-size: 12px;
+            color: #666;
+            margin-bottom: 10px;
             text-align: center;
         }
+
+        .flash {
+            background: #ffe5e5;
+            color: #c0392b;
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            text-align: center;
+            font-size: 13px;
+        }
+
+        .header-badge {
+            text-align: center;
+            font-size: 12px;
+            color: #888;
+            margin-bottom: 15px;
+        }
+
     </style>
 </head>
 
 <body>
 
-<div class="card">
+<div class="container">
 
-    <h2>🛠️ Create Work Post</h2>
+    <h2>🚀 Post New Work</h2>
+    <div class="subtitle">Your work will be reviewed before publishing</div>
+    <div class="header-badge">Verified Job Posting System</div>
 
-    <form method="POST" action="{{ url_for('work.create_work_route') }}">
+    <!-- FLASH MESSAGE -->
+    {% with messages = get_flashed_messages() %}
+        {% if messages %}
+            {% for message in messages %}
+                <div class="flash">{{ message }}</div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
 
-        <input type="text" name="title" placeholder="Work Title" required>
+    <form method="POST" action="/post_work">
 
-        <textarea name="description" placeholder="Work Description"></textarea>
+        <input type="text" name="title" placeholder="e.g. 10 জন রাজমিস্ত্রি লাগবে" required>
 
-        <div class="row">
-            <input type="text" name="workers" placeholder="Workers Needed" required>
-            <input type="text" name="salary" placeholder="Salary" required>
+        <textarea name="description" placeholder="Work details লিখুন..." required></textarea>
+
+        <input type="text" name="mobile" placeholder="Mobile Number (Required)" required>
+
+        <div class="note">
+            ⚠️ Mobile number verification এর জন্য বাধ্যতামূলক
         </div>
 
-        <div class="row">
-            <input type="date" name="date" required>
-            <input type="time" name="time" required>
-        </div>
-
-        <input type="text" name="phone" id="phone" placeholder="Phone Number (OTP verify)" required>
-
-        <!-- OTP SEND -->
-        <button type="button" class="btn otp-btn" onclick="sendOTP()">
-            📩 Send OTP
-        </button>
-
-        <!-- OTP INPUT -->
-        <input type="text" id="otp" placeholder="Enter OTP">
-
-        <!-- OTP VERIFY -->
-        <button type="button" class="btn verify-btn" onclick="verifyOTP()">
-            ✅ Verify OTP
-        </button>
-
-        <div class="status" id="status">❌ Phone not verified</div>
-
-        <!-- SUBMIT -->
-        <button type="submit" id="submitBtn" class="btn submit-btn" disabled>
-            🚀 Post Work
-        </button>
-
-        <!-- 🔥 REQUIRED RECAPTCHA CONTAINER -->
-        <div id="recaptcha-container"></div>
+        <button type="submit">Submit Work</button>
 
     </form>
 
 </div>
-
-<!-- FIREBASE -->
-<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
-
-<script>
-
-const firebaseConfig = {
-    apiKey: "YOUR_API_KEY",
-    authDomain: "YOUR_AUTH_DOMAIN",
-    projectId: "YOUR_PROJECT_ID",
-    appId: "YOUR_APP_ID"
-};
-
-firebase.initializeApp(firebaseConfig);
-
-let confirmationResult;
-
-// ================= OTP SEND =================
-function sendOTP() {
-
-    let phone = document.getElementById("phone").value;
-
-    if (!phone) {
-        alert("Enter phone number");
-        return;
-    }
-
-    window.recaptchaVerifier = new firebase.auth.RecaptchaVerifier(
-        'recaptcha-container',
-        { size: 'invisible' }
-    );
-
-    firebase.auth().signInWithPhoneNumber(phone, window.recaptchaVerifier)
-        .then(function (result) {
-
-            confirmationResult = result;
-            alert("OTP Sent Successfully");
-
-        })
-        .catch(function (error) {
-            alert(error.message);
-        });
-}
-
-// ================= OTP VERIFY =================
-function verifyOTP() {
-
-    let otp = document.getElementById("otp").value;
-
-    if (!confirmationResult) {
-        alert("Send OTP first");
-        return;
-    }
-
-    confirmationResult.confirm(otp)
-        .then(function (result) {
-
-            document.getElementById("submitBtn").disabled = false;
-            document.getElementById("status").innerHTML = "✅ Phone Verified";
-
-            alert("Verified Successfully");
-
-        })
-        .catch(function () {
-            alert("Invalid OTP");
-        });
-}
-
-</script>
 
 </body>
 </html>
