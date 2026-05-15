@@ -8,6 +8,7 @@ load_dotenv()
 from flask import Flask
 from flask_login import LoginManager, current_user
 from flask_socketio import emit, join_room
+from sqlalchemy import text
 
 from config import Config
 from extensions import db, socketio
@@ -37,6 +38,20 @@ login_manager = LoginManager()
 login_manager.login_view = "auth.login"
 
 
+# ================= DB FIX FUNCTION =================
+def fix_db(app):
+    try:
+        with app.app_context():
+            db.session.execute(text("""
+                ALTER TABLE works 
+                ADD COLUMN IF NOT EXISTS mobile VARCHAR(15);
+            """))
+            db.session.commit()
+            print("DB FIXED: mobile column ensured")
+    except Exception as e:
+        print("DB FIX ERROR:", e)
+
+
 # ================= APP FACTORY =================
 def create_app():
 
@@ -59,7 +74,7 @@ def create_app():
     # MIGRATION
     Migrate(app, db)
 
-    # CLOUDINARY (✅ FIXED ADDED)
+    # CLOUDINARY
     cloudinary.config(
         cloud_name=os.getenv("CLOUDINARY_CLOUD_NAME", "dion15zps"),
         api_key=os.getenv("CLOUDINARY_API_KEY", "136556886157942"),
@@ -85,9 +100,10 @@ def create_app():
 app = create_app()
 
 
-# ================= DB INIT (SAFE) =================
+# ================= DB INIT =================
 with app.app_context():
     db.create_all()
+    fix_db(app)   # 🔥 AUTO FIX RUN HERE
 
 
 # ================= SOCKET EVENTS =================
@@ -170,4 +186,4 @@ if __name__ == "__main__":
         host="0.0.0.0",
         port=int(os.environ.get("PORT", 5000)),
         debug=False
-    )
+            )
