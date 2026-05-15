@@ -7,34 +7,14 @@ from extensions import db, socketio
 
 from models.user import User
 from models.work_model import Work
-from models.work_application_model import WorkApplication
 from models.booking import Booking
+
 
 owner = Blueprint('owner', __name__)
 
 
 # =================================================
-# 🔐 ROLE REQUIRED DECORATOR
-# =================================================
-def role_required(role):
-
-    def decorator(f):
-
-        @wraps(f)
-        def wrapper(*args, **kwargs):
-
-            if session.get("role") != role:
-                return "Unauthorized", 403
-
-            return f(*args, **kwargs)
-
-        return wrapper
-
-    return decorator
-
-
-# =================================================
-# 🔐 OWNER ONLY
+# 🔐 OWNER ONLY DECORATOR
 # =================================================
 def owner_only(f):
 
@@ -54,7 +34,7 @@ def owner_only(f):
 # =================================================
 @owner.route('/owner/approve/<int:id>', methods=["POST"])
 @owner_only
-def approve(id):
+def approve_user(id):
 
     user = User.query.get(id)
 
@@ -65,11 +45,11 @@ def approve(id):
         return "No approval needed"
 
     user.status = "active"
-
     db.session.commit()
 
     return redirect('/owner/dashboard')
-    
+
+
 # =================================================
 # 🔁 TRANSFER USER
 # =================================================
@@ -80,7 +60,6 @@ def transfer_user():
     user_id = int(request.form['user_id'])
     new_controller = int(request.form['new_controller'])
 
-    # ❌ prevent same transfer
     if user_id == new_controller:
         return "Invalid operation"
 
@@ -93,12 +72,10 @@ def transfer_user():
     if controller.role not in ["admin", "super_admin"]:
         return "Invalid controller role"
 
-    # 🔁 transfer
     user.controller_id = controller.id
 
     db.session.commit()
 
-    # 🔔 realtime notify
     socketio.emit("notify", {
         "message": f"{user.name} transferred successfully 🔁"
     })
@@ -107,7 +84,7 @@ def transfer_user():
 
 
 # =================================================
-# 📋 ALL WORKS
+# 📋 ALL WORKS (FILTER SUPPORT)
 # =================================================
 @owner.route('/owner/works')
 @owner_only
@@ -115,21 +92,16 @@ def all_works():
 
     status = request.args.get("status")
 
-    query = Work.query.filter_by(
-        is_deleted=False
+    query = Work.query.filter(
+        Work.status != "deleted"
     )
 
     if status:
         query = query.filter_by(status=status)
 
-    works = query.order_by(
-        Work.id.desc()
-    ).all()
+    works = query.order_by(Work.id.desc()).all()
 
-    return render_template(
-        "owner_works.html",
-        works=works
-    )
+    return render_template("owner_works.html", works=works)
 
 
 # =================================================
@@ -139,14 +111,9 @@ def all_works():
 @owner_only
 def approve_work(id):
 
-    work = Work.query.get(id)
-
-    if not work:
-        return "Not found"
+    work = Work.query.get_or_404(id)
 
     work.status = "approved"
-    work.is_active = True
-    work.approved_by = session.get('user_id')
 
     db.session.commit()
 
@@ -160,14 +127,9 @@ def approve_work(id):
 @owner_only
 def reject_work(id):
 
-    work = Work.query.get(id)
-
-    if not work:
-        return "Not found"
+    work = Work.query.get_or_404(id)
 
     work.status = "rejected"
-    work.is_active = False
-    work.rejected_by = session.get('user_id')
 
     db.session.commit()
 
@@ -175,57 +137,39 @@ def reject_work(id):
 
 
 # =================================================
-# ✏️ EDIT WORK
+# ✏️ EDIT WORK (FIXED FOR WORK_MODEL)
 # =================================================
 @owner.route('/owner/work/edit/<int:id>', methods=['GET', 'POST'])
 @owner_only
 def edit_work(id):
 
-    work = Work.query.get(id)
+    work = Work.query.get_or_404(id)
 
-    if not work:
-        return "Not found"
+    if request.method == "POST":
 
-    if request.method == "GET":
+        work.title = request.form['title']
+        work.description = request.form['description']
+        work.mobile = request.form['mobile']
 
-        return render_template(
-            "edit_work.html",
-            work=work
-        )
+        work.status = "pending"  # re-verify after edit
 
-    work.title = request.form['title']
-    work.workers_needed = request.form['workers_needed']
-    work.salary = request.form['salary']
-    work.date = request.form['date']
-    work.time = request.form['time']
-    work.phone = request.form['phone']
+        db.session.commit()
 
-    work.edit_count = (work.edit_count or 0) + 1
-    work.edited_by = session.get('user_id')
+        return redirect('/owner/works')
 
-    work.status = "pending"
-    work.is_active = False
-
-    db.session.commit()
-
-    return redirect('/owner/works')
+    return render_template("edit_work.html", work=work)
 
 
 # =================================================
-# 🗑 DELETE WORK
+# 🗑 DELETE WORK (SOFT DELETE)
 # =================================================
 @owner.route('/owner/work/delete/<int:id>')
 @owner_only
 def delete_work(id):
 
-    work = Work.query.get(id)
+    work = Work.query.get_or_404(id)
 
-    if not work:
-        return "Not found"
-
-    work.is_deleted = True
     work.status = "deleted"
-    work.is_active = False
 
     db.session.commit()
 
@@ -243,60 +187,41 @@ def owner_analytics():
 
     start_date = datetime.utcnow() - timedelta(days=days)
 
-    # ================= WORK STATS =================
-    total_works = db.session.query(
-        func.count(Work.id)
-    ).scalar()
+    total_works = db.session.query(func.count(Work.id)).scalar()
 
-    approved_works = db.session.query(
-        func.count(Work.id)
-    ).filter(
+    approved_works = db.session.query(func.count(Work.id)).filter(
         Work.status == "approved"
     ).scalar()
 
-    pending_works = db.session.query(
-        func.count(Work.id)
-    ).filter(
+    pending_works = db.session.query(func.count(Work.id)).filter(
         Work.status == "pending"
     ).scalar()
 
-    rejected_works = db.session.query(
-        func.count(Work.id)
-    ).filter(
+    rejected_works = db.session.query(func.count(Work.id)).filter(
         Work.status == "rejected"
     ).scalar()
 
-    deleted_works = db.session.query(
-        func.count(Work.id)
-    ).filter(
-        Work.is_deleted == True
+    deleted_works = db.session.query(func.count(Work.id)).filter(
+        Work.status == "deleted"
     ).scalar()
 
-    # ================= USER STATS =================
-    total_users = db.session.query(
-        func.count(User.id)
-    ).filter(
+    total_users = db.session.query(func.count(User.id)).filter(
         User.role == "user"
     ).scalar()
 
-    active_users = db.session.query(
-        func.count(User.id)
-    ).filter(
+    active_users = db.session.query(func.count(User.id)).filter(
         User.role == "user",
         User.status == "active"
     ).scalar()
 
     blocked_users = total_users - active_users
 
-    # ================= GROWTH =================
     work_growth = db.session.query(
         func.date(Work.created_at),
         func.count(Work.id)
     ).filter(
         Work.created_at >= start_date
-    ).group_by(
-        func.date(Work.created_at)
-    ).all()
+    ).group_by(func.date(Work.created_at)).all()
 
     user_growth = db.session.query(
         func.date(User.created_at),
@@ -304,32 +229,11 @@ def owner_analytics():
     ).filter(
         User.role == "user",
         User.created_at >= start_date
-    ).group_by(
-        func.date(User.created_at)
-    ).all()
-
-    # ================= LAST 7 DAYS =================
-    last_7 = datetime.utcnow() - timedelta(days=7)
-
-    new_users_7d = db.session.query(
-        func.count(User.id)
-    ).filter(
-        User.role == "user",
-        User.created_at >= last_7
-    ).scalar()
-
-    new_works_7d = db.session.query(
-        func.count(Work.id)
-    ).filter(
-        Work.created_at >= last_7
-    ).scalar()
+    ).group_by(func.date(User.created_at)).all()
 
     return jsonify({
-
         "success": True,
-
         "data": {
-
             "works": {
                 "total": total_works,
                 "approved": approved_works,
@@ -337,106 +241,59 @@ def owner_analytics():
                 "rejected": rejected_works,
                 "deleted": deleted_works
             },
-
             "users": {
                 "total": total_users,
                 "active": active_users,
-                "blocked": blocked_users,
-                "new_last_7_days": new_users_7d
+                "blocked": blocked_users
             },
-
             "growth": {
-
-                "works": [
-                    {
-                        "date": str(g[0]),
-                        "count": g[1]
-                    }
-                    for g in work_growth
-                ],
-
-                "users": [
-                    {
-                        "date": str(g[0]),
-                        "count": g[1]
-                    }
-                    for g in user_growth
-                ]
-            },
-
-            "recent": {
-                "new_users_7d": new_users_7d,
-                "new_works_7d": new_works_7d
+                "works": [{"date": str(g[0]), "count": g[1]} for g in work_growth],
+                "users": [{"date": str(g[0]), "count": g[1]} for g in user_growth]
             }
         }
     })
 
 
 # =================================================
-# 🏠 OWNER DASHBOARD
+# 🏠 OWNER DASHBOARD (CLEAN + FIXED)
 # =================================================
 @owner.route('/owner/dashboard')
 @owner_only
 def owner_dashboard():
 
-    # ================= USERS =================
-    total_users = User.query.filter_by(
-        role="user"
-    ).count()
+    total_users = User.query.filter_by(role="user").count()
 
-    # ================= ADMINS =================
     total_admins = User.query.filter(
         User.role.in_(["admin", "super_admin"])
     ).count()
 
-    # ================= PENDING ADMINS =================
     pending_admins = User.query.filter(
         User.role.in_(["admin", "super_admin"]),
         User.status == "pending"
     ).all()
 
-    # ================= WORKS =================
-    total_works = Work.query.filter_by(
-        is_deleted=False
+    total_works = Work.query.filter(
+        Work.status != "deleted"
     ).count()
 
-    approved_works = Work.query.filter_by(
-        status="approved",
-        is_deleted=False
-    ).count()
+    approved_works = Work.query.filter_by(status="approved").count()
 
-    pending_works = Work.query.filter_by(
-        status="pending",
-        is_deleted=False
-    ).count()
+    pending_works = Work.query.filter_by(status="pending").count()
 
-
-    # ================= ALL USERS =================
-    latest_users = User.query.order_by(
-        User.id.desc()
-    ).all()
-
-
-    # ================= LATEST BOOKINGS =================
-    from models.booking import Booking
+    latest_users = User.query.order_by(User.id.desc()).all()
 
     latest_bookings = Booking.query.order_by(
         Booking.id.desc()
     ).limit(20).all()
 
-
     return render_template(
         "owner/dashboard.html",
-
         total_users=total_users,
         total_admins=total_admins,
-
+        pending_admins=pending_admins,
         total_works=total_works,
         approved_works=approved_works,
         pending_works=pending_works,
-
-        pending_admins=pending_admins,
-
         latest_users=latest_users,
         latest_bookings=latest_bookings
-    )
+)
