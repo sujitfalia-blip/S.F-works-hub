@@ -45,12 +45,12 @@ def post_work():
 
     # 🔴 VALIDATION
     if not all([title, workers, salary, date, time, phone]):
-    flash("সব ফিল্ড পূরণ করা আবশ্যক!")
-    return redirect('/user/post_work')
+        flash("সব ফিল্ড পূরণ করা আবশ্যক!")
+        return redirect('/user/post_work')
 
     if len(phone) < 10:
-    flash("সঠিক মোবাইল নম্বর দিন!")
-    return redirect('/user/post_work')
+        flash("সঠিক মোবাইল নম্বর দিন!")
+        return redirect('/user/post_work')
     # 📱 OTP GENERATE (future verification)
     otp = generate_otp(phone)
     print("OTP:", otp)
