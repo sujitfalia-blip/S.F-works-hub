@@ -4,17 +4,14 @@ from flask import (
     session,
     redirect,
     render_template,
-    flash
+    flash,
+    url_for
 )
 
 from extensions import db
-
 from models.work_model import Work
 from models.work_application_model import WorkApplication
-
-from services.create_work_service import (
-    create_work as create_work_service
-)
+from services.create_work_service import create_work as create_work_service
 
 work = Blueprint("work", __name__)
 
@@ -25,15 +22,15 @@ work = Blueprint("work", __name__)
 @work.route('/create', methods=['GET', 'POST'])
 def create_work_route():
 
-    # ================= LOGIN CHECK =================
+    # LOGIN CHECK
     if 'user_id' not in session:
-        return redirect('/auth/login')
+        return redirect(url_for('auth.login'))
 
-    # ================= SHOW PAGE =================
+    # SHOW PAGE
     if request.method == 'GET':
         return render_template("create_work.html")
 
-    # ================= FORM DATA =================
+    # FORM DATA
     data = {
         "title": request.form.get("title"),
         "description": request.form.get("description"),
@@ -44,18 +41,25 @@ def create_work_route():
         "phone": request.form.get("phone")
     }
 
-    # ================= VALIDATION =================
+    # VALIDATION
     if not data["title"] or not data["salary"]:
         flash("Title and Salary required")
-        return redirect('/work/create')
+        return redirect(url_for('work.create_work_route'))
 
     try:
-        create_work_service(data, session["user_id"])
-        flash("Work posted successfully")
-    except Exception as e:
-        flash(f"Error: {str(e)}")
+        result = create_work_service(data, session["user_id"])
 
-    return redirect('/works')
+        if not result:
+            flash("Failed to create work")
+            return redirect(url_for('work.create_work_route'))
+
+        flash("Work posted successfully")
+        return redirect(url_for('work.work_list'))
+
+    except Exception as e:
+        db.session.rollback()
+        flash(f"Error: {str(e)}")
+        return redirect(url_for('work.create_work_route'))
 
 
 # =====================================================
@@ -71,10 +75,7 @@ def work_list():
         Work.id.desc()
     ).all()
 
-    return render_template(
-        "work_list.html",
-        works=works
-    )
+    return render_template("work_list.html", works=works)
 
 
 # =====================================================
@@ -84,7 +85,7 @@ def work_list():
 def apply_work(id):
 
     if 'user_id' not in session:
-        return redirect('/auth/login')
+        return redirect(url_for('auth.login'))
 
     work_item = Work.query.filter_by(
         id=id,
@@ -94,9 +95,9 @@ def apply_work(id):
 
     if not work_item:
         flash("Work not found")
-        return redirect('/works')
+        return redirect(url_for('work.work_list'))
 
-    # ================= DUPLICATE CHECK =================
+    # DUPLICATE CHECK
     already_applied = WorkApplication.query.filter_by(
         user_id=session['user_id'],
         work_id=id
@@ -104,17 +105,21 @@ def apply_work(id):
 
     if already_applied:
         flash("Already applied")
-        return redirect('/works')
+        return redirect(url_for('work.work_list'))
 
-    # ================= SAVE APPLICATION =================
-    application = WorkApplication(
-        user_id=session['user_id'],
-        work_id=id
-    )
+    try:
+        application = WorkApplication(
+            user_id=session['user_id'],
+            work_id=id
+        )
 
-    db.session.add(application)
-    db.session.commit()
+        db.session.add(application)
+        db.session.commit()
 
-    flash("Applied successfully")
+        flash("Applied successfully")
+        return redirect(url_for('work.work_list'))
 
-    return redirect('/works')
+    except Exception as e:
+        db.session.rollback()
+        flash(f"Error: {str(e)}")
+        return redirect(url_for('work.work_list'))
