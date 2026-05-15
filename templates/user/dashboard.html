@@ -11,6 +11,7 @@
 
 <style>
 
+/* ================= RESET ================= */
 *{
     margin:0;
     padding:0;
@@ -39,8 +40,6 @@ body{
     padding:0 15px;
     z-index:1000;
 }
-
-/* LEFT */
 
 .left{
     display:flex;
@@ -76,15 +75,12 @@ body{
     font-weight:700;
 }
 
-/* RIGHT */
-
 .right{
     display:flex;
     align-items:center;
     gap:10px;
 }
 
-/* NOTIFICATION FIXED */
 .notif{
     width:42px;
     height:42px;
@@ -96,8 +92,6 @@ body{
     cursor:pointer;
     font-size:18px;
 }
-
-/* PROFILE */
 
 .profile{
     display:flex;
@@ -118,7 +112,6 @@ body{
     border:2px solid #3b82f6;
 }
 
-/* ONLINE DOT */
 .online-dot{
     width:9px;
     height:9px;
@@ -161,7 +154,7 @@ body{
     cursor:pointer;
 }
 
-/* ================= SIDEBAR FIX ================= */
+/* ================= SIDEBAR ================= */
 
 .sidebar{
     position:fixed;
@@ -192,7 +185,8 @@ body{
     background:#1e293b;
 }
 
-/* OVERLAY FIX */
+/* OVERLAY */
+
 .overlay{
     position:fixed;
     inset:0;
@@ -205,13 +199,13 @@ body{
     display:block;
 }
 
-/* MAIN */
+/* ================= MAIN ================= */
 
 .main{
     padding:20px;
 }
 
-/* GRID */
+/* WORK GRID */
 
 .grid{
     display:grid;
@@ -227,75 +221,50 @@ body{
     overflow:hidden;
     position:relative;
     box-shadow:0 8px 20px rgba(0,0,0,0.3);
+    padding:15px;
 }
 
-/* STATUS FIX */
-.status{
-    position:absolute;
-    top:10px;
-    right:10px;
-    padding:5px 10px;
-    border-radius:20px;
-    font-size:11px;
-    font-weight:600;
-}
-
-.online{background:#22c55e;}
-.offline{background:#64748b;}
-
-/* AVATAR */
-.avatar{
-    width:82px;
-    height:82px;
-    border-radius:50%;
-    position:absolute;
-    left:50%;
-    transform:translateX(-50%);
-    bottom:-40px;
-    border:4px solid #111827;
-    background:white;
-}
-
-/* BODY */
-.body{
-    padding:55px 15px 18px;
-    text-align:center;
-}
-
-.body h3{
+.card h3{
     font-size:16px;
-    font-weight:700;
 }
 
-.body p{
+.card p{
     font-size:13px;
     color:#94a3b8;
+    margin-top:5px;
 }
 
-/* BUTTONS */
-.btns{
-    display:flex;
-    gap:8px;
-    margin-top:12px;
+/* BADGE */
+
+.badge{
+    display:inline-block;
+    margin-top:10px;
+    padding:4px 10px;
+    border-radius:20px;
+    font-size:11px;
+    background:#1e293b;
+    color:#38bdf8;
 }
+
+/* BUTTON */
 
 .btn{
-    flex:1;
-    padding:8px;
+    display:inline-block;
+    margin-top:10px;
+    padding:8px 10px;
     border-radius:8px;
-    text-decoration:none;
-    font-size:12px;
-    font-weight:600;
-}
-
-.view{
     background:#2563eb;
     color:white;
+    text-decoration:none;
+    font-size:12px;
 }
 
-.msg{
-    background:#1e293b;
-    color:white;
+/* EMPTY */
+
+.empty{
+    text-align:center;
+    margin-top:50px;
+    color:#94a3b8;
 }
 
 </style>
@@ -307,18 +276,25 @@ body{
 <!-- OVERLAY -->
 <div class="overlay" id="overlay" onclick="closeMenu()"></div>
 
-<!-- SIDEBAR FIXED -->
+<!-- SIDEBAR -->
 <div class="sidebar" id="sidebar">
 
     <a href="/user/dashboard">🏠 Dashboard</a>
     <a href="/profile">👤 My Profile</a>
     <a href="/gallery">🖼️ Gallery</a>
-    <a href="/work-post">💼 Work Posts</a>
+
+    <!-- FIXED: Work Post removed -->
+
+    <!-- NEW: Create Work Post -->
+    <a href="/post_work">➕ Create Work Post</a>
+
     <a href="/booking">📅 Booking</a>
     <a href="/referral">🔗 Referral</a>
+
+    <!-- FIXED: Help Line added -->
     <a href="/help-line">☎️ Help Line</a>
+
     <a href="/settings">⚙️ Settings</a>
-    <a href="/forgot-password">🔐 Forgot Password</a>
     <a href="/auth/logout">🚪 Logout</a>
 
 </div>
@@ -327,29 +303,25 @@ body{
 <div class="topbar">
 
     <div class="left">
-
         <button class="menu-btn" onclick="openMenu()">☰</button>
 
         <div class="logo">
             <div class="logo-box">SF</div>
             <b>S.F Hub</b>
         </div>
-
     </div>
 
     <div class="right">
 
-        <!-- NOTIFICATION FIXED -->
         <div class="notif">🔔</div>
 
-        <!-- PROFILE FIXED -->
         <div class="profile" onclick="window.location.href='/profile'">
 
             <span class="online-dot"></span>
 
             <img src="{{ current_user.profile.profile_img if current_user.profile and current_user.profile.profile_img else '/static/default.png' }}">
 
-            <small style="font-weight:600;">
+            <small>
                 {{ current_user.profile.name if current_user.profile and current_user.profile.name else 'User' }}
             </small>
 
@@ -362,52 +334,33 @@ body{
 <!-- SEARCH -->
 <div class="search-bar">
 
-    <input id="searchInput" type="text" placeholder="Search by name, area or skill...">
-
-    <button class="search-btn" onclick="filterUsers()">🔍</button>
+    <input id="searchInput" type="text" placeholder="Search works...">
+    <button class="search-btn" onclick="filterWorks()">🔍</button>
 
 </div>
 
 <!-- MAIN -->
 <div class="main">
 
+    {% if works and works|length > 0 %}
+
     <div class="grid">
 
-        {% for profile in profiles %}
+        {% for w in works %}
 
-        <div class="card user">
+        <div class="card work">
 
-            <!-- ONLINE/OFFLINE FIX -->
-            <div class="status {{ 'online' if loop.index % 2 == 0 else 'offline' }}">
-                {{ 'Online' if loop.index % 2 == 0 else 'Offline' }}
-            </div>
+            <h3>{{ w.title }}</h3>
 
-            <div style="height:110px;background:#1e293b;position:relative;">
+            <p>{{ w.description }}</p>
 
-                <img class="avatar"
-                     src="{{ profile.profile_img if profile.profile_img else '/static/default.png' }}">
+            <p>📱 {{ w.mobile }}</p>
 
-            </div>
+            <span class="badge">{{ w.status }}</span>
 
-            <div class="body">
+            <br>
 
-                <h3>{{ profile.name }}</h3>
-                <p>{{ profile.area }}</p>
-                <p>{{ profile.education }}</p>
-
-                <div class="btns">
-
-                    <a class="btn view" href="/profile/{{ profile.user_id }}">
-                        View
-                    </a>
-
-                    <a class="btn msg" href="/user/chat/{{ profile.user_id }}">
-                        Msg
-                    </a>
-
-                </div>
-
-            </div>
+            <a class="btn" href="/work/{{ w.id }}">View Details</a>
 
         </div>
 
@@ -415,11 +368,20 @@ body{
 
     </div>
 
+    {% else %}
+
+        <div class="empty">
+            <h3>No Work Found</h3>
+            <p>Create a work post to get started</p>
+        </div>
+
+    {% endif %}
+
 </div>
 
 <script>
 
-/* MENU FIX */
+/* MENU */
 function openMenu(){
     document.getElementById("sidebar").classList.add("active");
     document.getElementById("overlay").classList.add("active");
@@ -431,21 +393,20 @@ function closeMenu(){
 }
 
 /* SEARCH */
-function filterUsers(){
+function filterWorks(){
 
     let input = document.getElementById("searchInput").value.toLowerCase();
-    let users = document.querySelectorAll(".user");
+    let items = document.querySelectorAll(".work");
 
-    users.forEach(u => {
+    items.forEach(w => {
 
-        let name = u.querySelector("h3").innerText.toLowerCase();
-        let area = u.querySelectorAll("p")[0].innerText.toLowerCase();
-        let skill = u.querySelectorAll("p")[1].innerText.toLowerCase();
+        let title = w.querySelector("h3").innerText.toLowerCase();
+        let desc = w.querySelectorAll("p")[0].innerText.toLowerCase();
 
-        if(name.includes(input) || area.includes(input) || skill.includes(input)){
-            u.style.display = "block";
+        if(title.includes(input) || desc.includes(input)){
+            w.style.display = "block";
         }else{
-            u.style.display = "none";
+            w.style.display = "none";
         }
 
     });
@@ -455,4 +416,5 @@ function filterUsers(){
 </script>
 
 </body>
-</html>
+                          </html>
+                          
