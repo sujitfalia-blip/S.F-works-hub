@@ -39,18 +39,30 @@ login_manager.login_view = "auth.login"
 
 
 # ================= DB FIX FUNCTION =================
+
+
 def fix_db(app):
     try:
         with app.app_context():
+
             db.session.execute(text("""
-                ALTER TABLE works 
-                ADD COLUMN IF NOT EXISTS mobile VARCHAR(15);
+                ALTER TABLE works ADD COLUMN IF NOT EXISTS mobile VARCHAR(15);
             """))
+
+            db.session.execute(text("""
+                ALTER TABLE works ADD COLUMN IF NOT EXISTS created_at TIMESTAMP;
+            """))
+
+            db.session.execute(text("""
+                ALTER TABLE works ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP;
+            """))
+
             db.session.commit()
-            print("DB FIXED: mobile column ensured")
+
+            print("DB FIXED: all missing columns ensured")
+
     except Exception as e:
         print("DB FIX ERROR:", e)
-
 
 # ================= APP FACTORY =================
 def create_app():
