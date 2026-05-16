@@ -517,7 +517,15 @@ body{
     <a href="{{ url_for('work.work_list') }}">
     ✅ Work Approval List
     </a>
-    <a href="/bookings">📦 Bookings</a>
+    <div class="dashboard-card">
+
+    <h3>Bookings</h3>
+
+    <a href="{{ url_for('booking.my_bookings') }}" class="btn primary-btn">
+        📅 View My Bookings
+    </a>
+
+    </div>
     <a href="/referral">🔗 Referral</a>
     <a href="/help-line">☎️ Help Line</a>
     <a href="/settings">⚙️ Settings</a>
