@@ -26,7 +26,7 @@ from routes.super_admin import super_admin
 from routes.user import user
 from routes.main import main
 from routes.work_routes import work
-from routes.booking_control import booking
+from routes.booking import booking
 from routes.profile import profile_bp
 from routes.admin_tools import admin_tools
 
