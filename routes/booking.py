@@ -72,14 +72,11 @@ def my_bookings():
 # =========================================
 # USER CREATE BOOKING
 # =========================================
-
-@booking.route(
-    "/create_booking/<int:owner_id>",
-    methods=["POST"]
-)
+@booking.route("/create_booking/<int:owner_id>", methods=["POST"])
 def create_booking(owner_id):
 
-    if not login_required():
+    # ✅ login check (correct way)
+    if "user_id" not in session:
         flash("Login required", "danger")
         return redirect("/auth/login")
 
