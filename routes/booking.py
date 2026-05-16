@@ -68,6 +68,88 @@ def my_bookings():
         bookings=bookings
     )
 
+# =========================================
+# USER CREATE BOOKING
+# =========================================
+
+@booking.route(
+    "/create_booking/<int:work_id>",
+    methods=["POST"]
+)
+def create_booking(work_id):
+
+    if not login_required():
+        flash("Login required", "danger")
+        return redirect("/auth/login")
+
+    user_id = session.get("user_id")
+
+    # =====================================
+    # FIND WORK
+    # =====================================
+
+    work = Work.query.get_or_404(work_id)
+
+    # =====================================
+    # OWNER ID
+    # =====================================
+
+    owner_id = work.user_id
+
+    # =====================================
+    # PREVENT SELF BOOKING
+    # =====================================
+
+    if owner_id == user_id:
+
+        flash(
+            "You cannot book your own work",
+            "warning"
+        )
+
+        return redirect(request.referrer or "/")
+
+    # =====================================
+    # CHECK EXISTING BOOKING
+    # =====================================
+
+    existing = Booking.query.filter_by(
+        user_id=user_id,
+        owner_id=owner_id,
+        is_deleted=False
+    ).first()
+
+    if existing:
+
+        flash(
+            "Already booked",
+            "info"
+        )
+
+        return redirect(request.referrer or "/")
+
+    # =====================================
+    # CREATE BOOKING
+    # =====================================
+
+    booking_data = Booking(
+        user_id=user_id,
+        owner_id=owner_id,
+        status="pending",
+        is_active=False
+    )
+
+    db.session.add(booking_data)
+
+    db.session.commit()
+
+    flash(
+        "Booking created successfully",
+        "success"
+    )
+
+    return redirect("/my-bookings")
+
 
 # =========================================
 # ADMIN BOOKINGS
