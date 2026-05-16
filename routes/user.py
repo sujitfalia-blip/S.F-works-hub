@@ -74,6 +74,61 @@ def post_work():
 # =================================================
 # 🟢 USER DASHBOARD (ONLY APPROVED WORK)
 # =================================================
+# =================================================
+# 👤 PUBLIC PROFILE VIEW
+# =================================================
+@user.route('/profile/<int:user_id>')
+@role_required("user")
+def public_profile(user_id):
+
+    # ================= USER =================
+    profile_user = User.query.get_or_404(user_id)
+
+    # ================= PROFILE =================
+    profile = Profile.query.filter_by(
+        user_id=user_id
+    ).first()
+
+    # ================= USER WORKS =================
+    works = Work.query.filter_by(
+        user_id=user_id
+    ).order_by(
+        Work.id.desc()
+    ).all()
+
+    # ================= RENDER =================
+    return render_template(
+
+        "public_profile.html",
+
+        profile_user=profile_user,
+        profile=profile,
+        works=works
+    )
+
+
+# =================================================
+# ✅ WORK APPROVAL LIST
+# =================================================
+@user.route('/work-approval-list')
+@role_required("user")
+def work_approval_list():
+
+    # ================= PENDING WORKS =================
+    pending_works = Work.query.filter_by(
+        status="pending"
+    ).order_by(
+        Work.id.desc()
+    ).all()
+
+    # ================= RENDER =================
+    return render_template(
+
+        "work_approval_list.html",
+
+        pending_works=pending_works
+    )
+
 @user.route('/dashboard')
 @role_required("user")
 def dashboard():
