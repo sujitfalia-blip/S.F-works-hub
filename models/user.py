@@ -99,13 +99,6 @@ class User(UserMixin, db.Model):
         nullable=True
     )
 
-    """
-    user
-    admin
-    super_admin
-    owner
-    """
-
     # ======================
     # REFERRAL SYSTEM
     # ======================
@@ -199,11 +192,6 @@ class User(UserMixin, db.Model):
     lazy=True
     )
 
-    bookings = db.relationship(
-    "Booking",
-    backref="booking_user",
-    lazy=True
-    )
 
     # ======================
     # STRING
