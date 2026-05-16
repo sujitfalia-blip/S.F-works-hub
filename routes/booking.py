@@ -19,6 +19,7 @@ from extensions import db
 
 from models.booking import Booking
 from models.user import User
+from models import Work
 
 from permissions import (
     is_admin,
