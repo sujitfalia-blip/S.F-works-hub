@@ -1,6 +1,7 @@
 from extensions import db
 from datetime import datetime
 from flask_login import UserMixin
+from models import Booking
 
 
 class User(UserMixin, db.Model):
