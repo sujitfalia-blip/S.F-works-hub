@@ -949,18 +949,71 @@ body{
 
                     <b>
                         {{ p.user.bookings|length if p.user and p.user.bookings else 0 }}
-                    </b>
+<div class="users-section">
 
-                    <small>Bookings</small>
+    <div class="section-header">
+
+        <h2>👥 Community Members</h2>
+
+        <span class="user-count">
+            {{ users|length if users else 0 }} Users
+        </span>
+
+    </div>
+
+    {% if users and users|length > 0 %}
+
+    <div class="users-grid">
+
+        {% for p in profiles %}
+
+        <div class="user-card">
+
+            <div class="user-cover"></div>
+
+            <div class="user-profile">
+
+                <img src="{{ p.profile_img if p.profile_img else '/static/default.png' }}">
+
+                <span class="online-status"></span>
+
+            </div>
+
+            <div class="user-info">
+
+                <h3>{{ p.name if p.name else 'User' }}</h3>
+
+                <p class="user-email">
+                    {{ p.user.email if p.user else 'No Email' }}
+                </p>
+
+                <div class="user-badges">
+
+                    <span class="role-badge">
+                        {{ p.user.role if p.user else 'user' }}
+                    </span>
+
+                    <span class="active-badge">Active</span>
 
                 </div>
 
+            </div>
+
+            <div class="user-stats">
+
                 <div class="stat-box">
+                    <b>{{ p.user.works|length if p.user and p.user.works else 0 }}</b>
+                    <small>Works</small>
+                </div>
 
+                <div class="stat-box">
+                    <b>{{ p.user.bookings|length if p.user and p.user.bookings else 0 }}</b>
+                    <small>Bookings</small>
+                </div>
+
+                <div class="stat-box">
                     <b>ID</b>
-
                     <small>#{{ p.user.id if p.user else 0 }}</small>
-
                 </div>
 
             </div>
@@ -986,17 +1039,14 @@ body{
     {% else %}
 
     <div class="empty-users">
-
         <div class="empty-icon">👤</div>
         <h3>No Users Found</h3>
         <p>No community members available right now</p>
-
     </div>
 
     {% endif %}
 
-</div>
-
+    </div>
 <!-- ================= SCRIPT ================= -->
 
 <script>
