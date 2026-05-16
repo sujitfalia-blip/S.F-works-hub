@@ -157,10 +157,21 @@ def my_profile():
 # ================= VIEW OTHER PROFILE =================
 
 import json
+from models import Profile, Work
 
 @profile_bp.route('/profile/<int:user_id>')
 def view_profile(user_id):
 
+    profile = Profile.query.filter_by(user_id=user_id).first_or_404()
+
+    work = Work.query.filter_by(user_id=user_id).first()  # গুরুত্বপূর্ণ line
+
+    return render_template(
+        "profile.html",
+        profile=profile,
+        work=work
+    )
+    
     # ================= USER =================
 
     viewed_user = db.session.get(
