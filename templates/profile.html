@@ -509,8 +509,26 @@ body{
                     >
                         ✏️ Edit Profile
                     </a>
+                    {% else %}
 
-                    {% endif %}
+<form
+    action="{{ url_for('booking.create_booking', owner_id=profile.user_id) }}"
+    method="POST"
+>
+
+    <button
+        type="submit"
+        class="btn primary-btn"
+        style="border:none; cursor:pointer;"
+    >
+        📅 Book Now
+    </button>
+
+</form>
+
+{% endif %}
+
+                    
 
                     <a
                         href="/user/dashboard"
