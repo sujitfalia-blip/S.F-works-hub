@@ -23,6 +23,28 @@ class Work(db.Model):
         nullable=False
     )
 
+    =========================
+    # FOREIGN KEY
+    # =========================
+    user_id = db.Column(
+        db.Integer,
+        db.ForeignKey('user.id'),
+        nullable=False
+    )
+
+    created_at = db.Column(
+        db.DateTime,
+        default=datetime.utcnow
+    )
+
+    # =========================
+    # RELATIONSHIP
+    # =========================
+    user = db.relationship(
+        'User',
+        back_populates='works'
+    )
+
     # ================= CONTACT =================
     mobile = db.Column(
         db.String(15),
