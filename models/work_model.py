@@ -23,7 +23,7 @@ class Work(db.Model):
         nullable=False
     )
 
-    =========================
+    # =========================
     # FOREIGN KEY
     # =========================
     user_id = db.Column(
