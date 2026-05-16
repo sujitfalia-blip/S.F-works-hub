@@ -73,10 +73,10 @@ def my_bookings():
 # =========================================
 
 @booking.route(
-    "/create_booking/<int:work_id>",
+    "/create_booking/<int:owner_id>",
     methods=["POST"]
 )
-def create_booking(work_id):
+def create_booking(owner_id):
 
     if not login_required():
         flash("Login required", "danger")
