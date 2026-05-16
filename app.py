@@ -106,6 +106,17 @@ def fix_db(app):
                 ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP DEFAULT NOW();
             """))
 
+            db.session.execute(text("""
+            ALTER TABLE bookings
+            ADD COLUMN IF NOT EXISTS is_active BOOLEAN DEFAULT TRUE;
+            """))
+
+            db.session.execute(text("""
+            ALTER TABLE bookings
+            ADD COLUMN IF NOT EXISTS is_deleted BOOLEAN DEFAULT FALSE;
+            """))
+
+
             db.session.commit()
 
             print("DB FIXED SUCCESSFULLY")
@@ -115,6 +126,8 @@ def fix_db(app):
             db.session.rollback()
 
             print("DB FIX ERROR:", e)
+            print("DDL Auto Fix Error:", e)
+        
 # ================= APP FACTORY =================
 def create_app():
 
