@@ -86,7 +86,7 @@ def create_booking(owner_id):
     # FIND WORK
     # =====================================
 
-    work = Work.query.get_or_404(work_id)
+    work = Work.query.get_or_404(owner_id)
 
     # =====================================
     # OWNER ID
