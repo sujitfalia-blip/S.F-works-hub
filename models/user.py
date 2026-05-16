@@ -185,6 +185,12 @@ class User(UserMixin, db.Model):
         onupdate=datetime.utcnow
     )
 
+    works = db.relationship(
+    "Work",
+    backref="owner",
+    lazy=True
+    )
+
     # ======================
     # STRING
     # ======================
