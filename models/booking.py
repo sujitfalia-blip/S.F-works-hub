@@ -91,6 +91,16 @@ class Booking(db.Model):
     # unpaid
     # paid
 
+    is_active = db.Column(
+    db.Boolean,
+    default=False
+    )
+
+    is_deleted = db.Column(
+    db.Boolean,
+    default=False
+    )
+
     # =========================================
     # TIMESTAMPS
     # =========================================
