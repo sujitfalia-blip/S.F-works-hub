@@ -156,20 +156,36 @@ def my_profile():
 
 # ================= VIEW OTHER PROFILE =================
 
+import json
+
 @profile_bp.route('/profile/<int:user_id>')
 def view_profile(user_id):
 
-    profile = Profile.query.filter_by(
-        user_id=user_id
-    ).first()
+    # ================= USER =================
 
     viewed_user = db.session.get(
         User,
         user_id
     )
 
+    if not viewed_user:
+        return "User not found"
+
+    # ================= PROFILE =================
+
+    profile = Profile.query.filter_by(
+        user_id=user_id
+    ).first()
+
     if not profile:
-        return "Profile not found"
+        return render_template(
+            "profile.html",
+            user=viewed_user,
+            profile=None,
+            gallery=[]
+        )
+
+    # ================= GALLERY =================
 
     gallery = []
 
@@ -181,17 +197,20 @@ def view_profile(user_id):
                 profile.gallery
             )
 
-        except:
+            if not isinstance(gallery, list):
+                gallery = []
 
+        except Exception:
             gallery = []
+
+    # ================= RENDER =================
 
     return render_template(
         "profile.html",
         user=viewed_user,
         profile=profile,
         gallery=gallery
-    )
-
+            )
 
 # ================= PROFILE SETUP =================
 
