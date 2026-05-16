@@ -187,7 +187,7 @@ class User(UserMixin, db.Model):
 
     works = db.relationship(
     "Work",
-    backref="owner",
+    back_populates="user",
     lazy=True
     )
 
