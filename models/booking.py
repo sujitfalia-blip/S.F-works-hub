@@ -126,6 +126,18 @@ class Booking(db.Model):
         lazy=True
     )
 
+    user = db.relationship(
+    "User",
+    foreign_keys=[user_id],
+    backref="user_bookings"
+    )
+
+    owner = db.relationship(
+    "User",
+    foreign_keys=[owner_id],
+    backref="owner_bookings"
+    )
+
     # =========================================
     # STRING METHOD
     # =========================================
