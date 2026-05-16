@@ -72,8 +72,9 @@ def my_bookings():
 # =========================================
 # USER CREATE BOOKING
 # =========================================
-@booking.route("/create_booking/<int:owner_id>", methods=["POST"])
-def create_booking(owner_id):
+@booking.route("/create_booking/<int:work_id>")
+def create_booking(work_id):
+    
 
     # ✅ login check (correct way)
     if "user_id" not in session:
@@ -86,7 +87,7 @@ def create_booking(owner_id):
     # FIND WORK
     # =====================================
 
-    work = Work.query.get_or_404(owner_id)
+    work = Work.query.get_or_404(work_id)
 
     # =====================================
     # OWNER ID
