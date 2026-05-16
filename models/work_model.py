@@ -23,29 +23,6 @@ class Work(db.Model):
         nullable=False
     )
 
-    # =========================
-    # FOREIGN KEY
-    # =========================
-    user_id = db.Column(
-        db.Integer,
-        db.ForeignKey('user.id'),
-        nullable=False
-    )
-
-    created_at = db.Column(
-        db.DateTime,
-        default=datetime.utcnow
-    )
-
-    # =========================
-    # RELATIONSHIP
-    # =========================
-    user = db.relationship(
-        'User',
-        back_populates='works'
-    )
-
-    # ================= CONTACT =================
     mobile = db.Column(
         db.String(15),
         nullable=False
@@ -54,8 +31,15 @@ class Work(db.Model):
     # ================= USER =================
     user_id = db.Column(
         db.Integer,
+        db.ForeignKey('user.id'),
         nullable=False,
         index=True
+    )
+
+    # ================= RELATIONSHIP =================
+    user = db.relationship(
+        'User',
+        back_populates='works'
     )
 
     # ================= STATUS =================
@@ -64,24 +48,17 @@ class Work(db.Model):
         nullable=False,
         default="pending"
     )
-    # pending
-    # approved
-    # rejected
-    # deleted
 
-    # ================= ACTIVE =================
     is_active = db.Column(
         db.Boolean,
         default=False
     )
 
-    # ================= SOFT DELETE =================
     is_deleted = db.Column(
         db.Boolean,
         default=False
     )
 
-    # ================= EDIT TRACKING =================
     edit_count = db.Column(
         db.Integer,
         default=0
