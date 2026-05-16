@@ -512,8 +512,7 @@ body{
                     {% else %}
 
 <form
-    action="{{ url_for('booking.create_booking', owner_id=profile.user_id) }}"
-    method="POST"
+    action="{{ url_for('booking.create_booking', work_id=profile.work_id) }}"
 >
 
     <button
