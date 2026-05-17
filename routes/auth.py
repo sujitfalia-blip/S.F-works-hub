@@ -137,35 +137,36 @@ def login():
 
     user = User.query.filter_by(phone=phone).first()
 
+    # ================= USER CHECK =================
     if not user:
         return "User not found"
 
+    # ================= STATUS CHECK =================
     if user.status == "blocked":
         return "Account blocked"
 
     if user.status != "active":
         return "Account not approved yet"
 
+    # ================= PASSWORD CHECK =================
     if not check_password_hash(user.password, password):
         return "Wrong password"
 
-    session['user_id'] = user.id
-    session['role'] = user.role
+    # ================= SESSION SET =================
+    session["user_id"] = user.id
+    session["role"] = user.role
+
+    role = (user.role or "").lower().strip()
 
     # ================= ROLE REDIRECT =================
-    if user.role == "owner":
-        return redirect('/owner/dashboard')
+    if role == "super_admin":
+        return redirect("/admin/")
 
-    elif user.role == "super_admin":
-        return redirect('/super/admins')
-
-    elif user.role == "admin":
-        return redirect('/admin/users')
+    elif role == "admin":
+        return redirect("/admin/")
 
     else:
-        return redirect('/user/dashboard')
-
-
+        return redirect("/user/dashboard")
 # =========================================================
 # LOGOUT
 # =========================================================
