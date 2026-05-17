@@ -455,96 +455,111 @@ body{
 
     <!-- ================= PROFILE SECTION ================= -->
 
-    <div class="profile-section">
+    <h1>Profile Page</h1>
 
-        <div class="profile-header">
+<div class="profile-section">
 
-            <!-- PROFILE IMAGE -->
+    <div class="profile-header">
 
-            <img
-                class="profile-img"
-                src="{{ profile.profile_img if profile and profile.profile_img else url_for('static', filename='default.png') }}"
-                onclick="openImage(this.src)"
-            >
+        <!-- PROFILE IMAGE -->
+        <img
+            class="profile-img"
+            src="{{ profile.profile_img if profile and profile.profile_img else url_for('static', filename='default.png') }}"
+            onclick="openImage(this.src)"
+        >
 
-            <!-- USER INFO -->
+        <!-- USER INFO -->
+        <div class="user-info">
 
-            <div class="user-info">
+            <h1>
+                {{ profile.name or user.username or 'No Name' }}
+            </h1>
 
-                <h1>
-                    {{ profile.name or 'No Name' }}
-                </h1>
+            <p class="work">
+                {{ profile.work_desc or 'Digital Creator' }}
+            </p>
 
-                <p class="work">
-                    {{ profile.work_desc or 'Digital Creator' }}
-                </p>
+            <div class="user-details">
 
-                <div class="user-details">
+                <span>
+                    📍 {{ profile.area or 'Unknown Area' }}
+                </span>
 
-                    <span>
-                        📍 {{ profile.area or 'Unknown Area' }}
-                    </span>
+                <span>
+                    🌍 {{ profile.country or 'Country' }}
+                </span>
 
-                    <span>
-                        🌍 {{ profile.country or 'Country' }}
-                    </span>
+                {% if session.get('user_id') == user.id %}
 
-                    {% if session.get('user_id') == user.id %}
+                <span>
+                    📞 {{ user.phone }}
+                </span>
 
-                    <span>
-                        📞 {{ user.phone }}
-                    </span>
+                {% endif %}
+
+            </div>
+
+            <!-- ACTION BUTTONS -->
+            <div class="action-buttons">
+
+                {% if session.get('user_id') == user.id %}
+
+                    <a href="/profile/setup" class="btn primary-btn">
+                        ✏️ Edit Profile
+                    </a>
+
+                {% else %}
+
+                    {% if work %}
+
+                        <form action="{{ url_for('booking.create_booking', work_id=work.id) }}" method="POST">
+                            <button type="submit" class="btn primary-btn" style="border:none; cursor:pointer;">
+                                📅 Book Now
+                            </button>
+                        </form>
+
+                    {% else %}
+
+                        <button class="btn primary-btn" disabled>
+                            No Work Available
+                        </button>
 
                     {% endif %}
 
-                </div>
+                {% endif %}
 
-                <div class="action-buttons">
-
-                    {% if session.get('user_id') == user.id %}
-
-                    <a
-                        href="/profile/setup"
-                        class="btn primary-btn"
-                    >
-                        ✏️ Edit Profile
-                    </a>
-                    {% else %}
-
-
-<form
-    action="{{ url_for('booking.create_booking', work_id=work.id) }}"
-    method="POST"
->
-
-    <button
-        type="submit"
-        class="btn primary-btn"
-        style="border:none; cursor:pointer;"
-    >
-        📅 Book Now
-    </button>
-
-</form>
-
-{% endif %}
-
-                    
-
-                    <a
-                        href="/user/dashboard"
-                        class="btn secondary-btn"
-                    >
-                        ⬅ Dashboard
-                    </a>
-
-                </div>
+                <a href="/user/dashboard" class="btn secondary-btn">
+                    ⬅ Dashboard
+                </a>
 
             </div>
 
         </div>
 
     </div>
+
+</div>
+
+<hr>
+
+<!-- OPTIONAL SIMPLE INFO SECTION -->
+
+<p>{{ profile.bio if profile else "No profile info" }}</p>
+
+{% if work %}
+
+    <h3>Available Work</h3>
+    <h4>{{ work.title }}</h4>
+
+    <form action="{{ url_for('booking.create_booking', work_id=work.id) }}" method="POST">
+        <button type="submit">📅 Book Now</button>
+    </form>
+
+{% else %}
+
+    <p>No work available</p>
+
+{% endif %}
 
     <!-- ================= CONTENT ================= -->
 
