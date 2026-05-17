@@ -16,6 +16,7 @@ from models.chat import Chat
 from extensions import db
 from services.otp_service import generate_otp
 from decorators.auth import role_required
+from utils.decorators import login_required
 
 
 user = Blueprint("user", __name__, url_prefix="/user")
