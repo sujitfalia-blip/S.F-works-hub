@@ -151,22 +151,27 @@ def analytics():
         "works": works
     })
 
-# GET SINGLE USER (FIXED)
-@admin_bp.route("/user/<int:user_id>")
+# ================= USERS PAGE (HTML) =================
+@admin_bp.route("/users-page")
 @admin_required
-def get_user(user_id):
+def users_page():
+    return render_template("admin/users.html")
 
-    user = User.query.get(user_id)
 
-    if not user:
-        return error("User not found", 404)
+# ================= USERS API (JSON) =================
+@admin_bp.route("/api/users")
+@admin_required
+def users_api():
+
+    user_id = session.get("user_id")
+
+    users = User.query.filter_by(controller_id=user_id).all()
 
     return success({
-        "id": user.id,
-        "name": user.name,
-        "email": user.email,
-        "status": user.status,
-        "created_at": str(user.created_at),
-        "last_login": str(user.last_login) if user.last_login else None
+        "users": [{
+            "id": u.id,
+            "name": u.name,
+            "status": u.status
+        } for u in users]
     })
     
