@@ -174,4 +174,23 @@ def users_api():
             "status": u.status
         } for u in users]
     })
-    
+
+@admin_bp.route("/user/<int:user_id>")
+@admin_required
+def get_user(user_id):
+
+    user = User.query.get(user_id)
+
+    if not user:
+        return jsonify({"success": False, "message": "User not found"}), 404
+
+    return jsonify({
+        "user": {
+            "id": user.id,
+            "name": user.name,
+            "email": user.email,
+            "status": user.status,
+            "created_at": str(user.created_at),
+            "last_login": str(user.last_login) if user.last_login else None
+        }
+    })
