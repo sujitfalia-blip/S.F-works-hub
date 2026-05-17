@@ -132,12 +132,13 @@ def login():
     phone = request.form.get('phone')
     password = request.form.get('password')
 
+    # ================= VALIDATION =================
     if not phone or not password:
         return "All fields required"
 
+    # ================= FIND USER =================
     user = User.query.filter_by(phone=phone).first()
 
-    # ================= USER CHECK =================
     if not user:
         return "User not found"
 
@@ -152,21 +153,37 @@ def login():
     if not check_password_hash(user.password, password):
         return "Wrong password"
 
-    # ================= SESSION SET =================
-    session["user_id"] = user.id
-    session["role"] = user.role
+    # ================= UPDATE ONLINE STATUS =================
+    user.is_online = True
+    user.last_seen = datetime.utcnow()
 
-    role = (user.role or "").lower().strip()
+    db.session.commit()
+
+    # ================= SESSION =================
+    session.clear()
+
+    session["user_id"] = user.id
+    session["role"] = (user.role or "").lower().strip()
+
+    role = session["role"]
 
     # ================= ROLE REDIRECT =================
-    if role == "super_admin":
-        return redirect("/admin/")
 
+    # OWNER
+    if role == "owner":
+        return redirect("/owner/dashboard")
+
+    # SUPER ADMIN
+    elif role == "super_admin":
+        return redirect("/super-admin/dashboard")
+
+    # ADMIN
     elif role == "admin":
         return redirect("/admin/")
 
-    else:
-        return redirect("/user/dashboard")
+    # USER
+    return redirect("/user/dashboard")
+    
 # =========================================================
 # LOGOUT
 # =========================================================
