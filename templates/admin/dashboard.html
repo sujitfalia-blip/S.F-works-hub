@@ -139,6 +139,16 @@ th, td {
     border-radius: 10px;
 }
 
+/* ================= PAGINATION ================= */
+#paginationBox {
+    margin-top: 15px;
+    text-align: center;
+}
+
+#paginationBox button {
+    margin: 2px;
+}
+
 /* ================= RESPONSIVE ================= */
 @media(max-width: 900px){
     .cards { grid-template-columns: 1fr 1fr; }
@@ -173,10 +183,7 @@ th, td {
 
         <div style="display:flex; gap:10px;">
             <input class="search-box" placeholder="Search...">
-
-            <button class="btn primary" onclick="toggleDark()">
-                🌙
-            </button>
+            <button class="btn primary" onclick="toggleDark()">🌙</button>
         </div>
     </div>
 
@@ -249,9 +256,9 @@ socket.on("user_update", () => {
     loadUsers();
 });
 
-/* ================= LOAD USERS ================= */
-async function loadUsers(){
-    const res = await fetch("/admin/users");
+/* ================= LOAD USERS (PAGINATION READY) ================= */
+async function loadUsers(page = 1) {
+    const res = await fetch(`/admin/users?page=${page}`);
     const data = await res.json();
 
     const tbody = document.getElementById("usersTable");
@@ -264,24 +271,53 @@ async function loadUsers(){
             <td>${u.name}</td>
             <td>${u.status}</td>
             <td>
-                <button class="btn primary" onclick="viewUser(${u.id})">View</button>
+                <button class="btn primary" onclick="viewUser(${u.id})">
+                    View
+                </button>
             </td>
-        </tr>`;
+        </tr>
+        `;
     });
+
+    renderPagination(data.data.pagination);
 }
 
-loadUsers();
+/* ================= PAGINATION ================= */
+function renderPagination(p) {
+    let html = `<div style="margin-top:10px;">`;
 
-/* ================= PROFILE MODAL ================= */
+    for (let i = 1; i <= p.pages; i++) {
+        html += `
+        <button class="btn ${i === p.current ? 'primary' : ''}"
+                onclick="loadUsers(${i})">
+            ${i}
+        </button>`;
+    }
+
+    html += `</div>`;
+
+    document.getElementById("paginationBox")?.remove();
+
+    const div = document.createElement("div");
+    div.id = "paginationBox";
+    div.innerHTML = html;
+
+    document.querySelector(".table-box").appendChild(div);
+}
+
+/* ================= USER MODAL ================= */
 function viewUser(id){
     document.getElementById("modal").style.display = "block";
     document.getElementById("profileData").innerHTML =
-        "Loading user ID: " + id;
+        "Loading User ID: " + id;
 }
 
 function closeModal(){
     document.getElementById("modal").style.display = "none";
 }
+
+/* ================= INIT ================= */
+loadUsers();
 
 </script>
 
