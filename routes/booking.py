@@ -72,8 +72,7 @@ def my_bookings():
 # =========================================
 # USER CREATE BOOKING
 # =========================================
-@booking_bp.route('/create/<int:work_id>', methods=['POST'])
-@login_required
+@booking.route('/create/<int:work_id>', methods=['POST'])
 def create_booking(work_id):
 
     work = Work.query.get_or_404(work_id)
