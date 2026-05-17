@@ -203,8 +203,8 @@ def get_user(user_id):
             "phone": getattr(user, "phone", None),
             "address": getattr(user, "address", None),
 
-            # 🖼️ PROFILE IMAGE (IMPORTANT)
-            "image": getattr(user, "profile_image", None),
+            # ✅ IMAGE FIX HERE
+            "profile_img": getattr(user, "profile_img", "/static/default.png"),
 
             "status": user.status,
             "role": getattr(user, "role", "user"),
