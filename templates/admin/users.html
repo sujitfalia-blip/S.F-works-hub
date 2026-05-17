@@ -7,7 +7,6 @@
 
 <style>
 
-/* ================= THEME ================= */
 :root {
     --bg: #f4f6f9;
     --card: #ffffff;
@@ -22,7 +21,6 @@ body.dark {
     --text: #fff;
 }
 
-/* ================= GLOBAL ================= */
 body {
     margin: 0;
     font-family: Arial, sans-serif;
@@ -30,7 +28,7 @@ body {
     color: var(--text);
 }
 
-/* ================= HEADER ================= */
+/* HEADER */
 .header {
     display: flex;
     justify-content: space-between;
@@ -46,7 +44,7 @@ body {
     outline: none;
 }
 
-/* ================= CARD TABLE ================= */
+/* TABLE CARD */
 .card {
     margin: 20px;
     background: var(--card);
@@ -71,7 +69,7 @@ th {
     font-size: 13px;
 }
 
-/* ================= BUTTON ================= */
+/* BUTTON */
 .btn {
     padding: 6px 12px;
     border: none;
@@ -84,7 +82,7 @@ th {
     color: white;
 }
 
-/* ================= MODAL ================= */
+/* MODAL */
 .modal {
     display: none;
     position: fixed;
@@ -93,7 +91,7 @@ th {
     z-index: 9999;
 }
 
-/* USER MODAL */
+/* MODAL BOX */
 .user-modal {
     width: 520px;
     max-width: 95%;
@@ -109,6 +107,7 @@ th {
     to { transform: scale(1); opacity: 1; }
 }
 
+/* HEADER */
 .modal-header {
     display: flex;
     justify-content: space-between;
@@ -156,8 +155,8 @@ th {
     grid-column: span 2;
 }
 
-/* ================= RESPONSIVE ================= */
-@media(max-width: 768px){
+/* RESPONSIVE */
+@media(max-width:768px){
     .profile-grid {
         grid-template-columns: 1fr;
     }
@@ -172,20 +171,14 @@ th {
 
 <body>
 
-<!-- ================= HEADER ================= -->
 <div class="header">
-
     <h2>👥 Users Management</h2>
-
     <div class="search-box">
         <input type="text" placeholder="Search users..." oninput="searchUsers(this.value)">
     </div>
-
 </div>
 
-<!-- ================= TABLE ================= -->
 <div class="card">
-
     <table>
         <thead>
             <tr>
@@ -195,13 +188,11 @@ th {
                 <th>Action</th>
             </tr>
         </thead>
-
         <tbody id="usersTable"></tbody>
     </table>
-
 </div>
 
-<!-- ================= MODAL ================= -->
+<!-- MODAL -->
 <div id="modal" class="modal">
 
     <div class="user-modal">
@@ -211,17 +202,14 @@ th {
             <button class="close-btn" onclick="closeModal()">✖</button>
         </div>
 
-        <div id="profileData" class="profile-grid">
-            Loading...
-        </div>
+        <div id="profileData" class="profile-grid">Loading...</div>
 
     </div>
-
 </div>
 
 <script>
 
-/* ================= LOAD USERS (SAFE) ================= */
+/* LOAD USERS */
 async function loadUsers() {
     try {
         const res = await fetch("/admin/api/users");
@@ -247,11 +235,11 @@ async function loadUsers() {
         });
 
     } catch (err) {
-        console.error("Load error:", err);
+        console.error(err);
     }
 }
 
-/* ================= VIEW USER (PRODUCTION SAFE) ================= */
+/* 🔥 FINAL VIEW USER (PRODUCTION SAFE) */
 async function viewUser(id){
 
     document.getElementById("modal").style.display = "block";
@@ -260,23 +248,22 @@ async function viewUser(id){
     try {
         const res = await fetch(`/admin/user/${id}`);
 
-        if(!res.ok){
-            throw new Error("API failed");
-        }
+        if(!res.ok) throw new Error("API failed");
 
         const data = await res.json();
-        const u = data.user;
+        const u = data.user || {};
 
         document.getElementById("profileData").innerHTML = `
-        
-        <div class="profile-box">
-            <h4>ID</h4>
-            <p>${u.id || '-'}</p>
+
+        <div class="profile-box full" style="text-align:center;">
+            <img src="${u.profile_img || '/static/default.png'}"
+                 style="width:90px;height:90px;border-radius:50%;object-fit:cover;border:3px solid #3b82f6;">
+            <h3 style="margin:10px 0 0;">${u.name || '-'}</h3>
         </div>
 
         <div class="profile-box">
-            <h4>Name</h4>
-            <p>${u.name || '-'}</p>
+            <h4>ID</h4>
+            <p>${u.id || '-'}</p>
         </div>
 
         <div class="profile-box">
@@ -285,18 +272,33 @@ async function viewUser(id){
         </div>
 
         <div class="profile-box">
+            <h4>Phone</h4>
+            <p>${u.phone || 'N/A'}</p>
+        </div>
+
+        <div class="profile-box">
             <h4>Status</h4>
             <p>${u.status || '-'}</p>
         </div>
 
-        <div class="profile-box full">
-            <h4>Created At</h4>
-            <p>${u.created_at || '-'}</p>
+        <div class="profile-box">
+            <h4>Role</h4>
+            <p>${u.role || 'user'}</p>
         </div>
 
         <div class="profile-box full">
-            <h4>Last Login</h4>
-            <p>${u.last_login || 'Never'}</p>
+            <h4>Address</h4>
+            <p>${u.address || 'N/A'}</p>
+        </div>
+
+        <div class="profile-box full">
+            <h4>Created At</h4>
+            <p>${u.created_at || 'N/A'}</p>
+        </div>
+
+        <div class="profile-box full">
+            <h4>Last Seen</h4>
+            <p>${u.last_seen || 'N/A'}</p>
         </div>
 
         `;
@@ -308,33 +310,22 @@ async function viewUser(id){
     }
 }
 
-/* ================= CLOSE MODAL ================= */
+/* CLOSE MODAL */
 function closeModal(){
     document.getElementById("modal").style.display = "none";
 }
 
-/* ================= SEARCH ================= */
+/* SEARCH */
 function searchUsers(value){
-    const rows = document.querySelectorAll("#usersTable tr");
-
-    rows.forEach(r => {
-        r.style.display = r.innerText.toLowerCase().includes(value.toLowerCase())
-        ? "" : "none";
+    document.querySelectorAll("#usersTable tr").forEach(r=>{
+        r.style.display = r.innerText.toLowerCase().includes(value.toLowerCase()) ? "" : "none";
     });
 }
 
-/* ================= CLOSE OUTSIDE CLICK ================= */
-window.onclick = function(event){
-    const modal = document.getElementById("modal");
-    if(event.target === modal){
-        modal.style.display = "none";
-    }
-}
-
-/* ================= INIT ================= */
+/* INIT */
 document.addEventListener("DOMContentLoaded", loadUsers);
 
 </script>
 
 </body>
-  </html>
+</html>
