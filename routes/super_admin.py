@@ -10,6 +10,7 @@ from models.activity_log import ActivityLog
 from extensions import db
 from extensions import socketio
 from services.logger import log_activity
+from utils.decorators import login_required, admin_required
 
 super_admin = Blueprint('super_admin', __name__, url_prefix="/super")
 
