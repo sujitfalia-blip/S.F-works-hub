@@ -81,10 +81,10 @@ def users():
 @admin_required
 def update_user_status(id):
 
-    user = User.query.get_or_404(id)
-
-    if user.controller_id != session.get("user_id"):
-        return error("Unauthorized", 403)
+    user = User.query.filter_by(
+    id=id,
+    controller_id=session.get("user_id")
+).first_or_404()
 
     data = request.get_json(silent=True) or {}
     status = data.get("status")
