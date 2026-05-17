@@ -175,3 +175,34 @@ def users_api():
         } for u in users]
     })
 
+# ================= USER DETAILS (POPUP) =================
+
+@admin_bp.route("/user/<int:user_id>")
+@admin_required
+def get_user(user_id):
+
+    admin_id = session.get("user_id")
+
+    user = User.query.filter_by(
+        id=user_id,
+        controller_id=admin_id
+    ).first()
+
+    if not user:
+        return jsonify({
+            "success": False,
+            "message": "User not found"
+        }), 404
+
+    return jsonify({
+        "success": True,
+        "user": {
+            "id": user.id,
+            "name": user.name,
+            "email": getattr(user, "email", None),
+            "status": user.status,
+            "role": getattr(user, "role", "user"),
+            "created_at": user.created_at.isoformat() if user.created_at else None,
+            "last_seen": user.last_seen.isoformat() if user.last_seen else None
+        }
+    })
