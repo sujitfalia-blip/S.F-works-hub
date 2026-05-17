@@ -161,15 +161,15 @@ def my_profile():
 @profile_bp.route('/profile/<int:user_id>')
 def view_profile(user_id):
 
+    user = User.query.get_or_404(user_id)
     profile = Profile.query.filter_by(user_id=user_id).first_or_404()
     work = Work.query.filter_by(user_id=user_id).first()
-    user = User.query.get_or_404(user_id)
 
     return render_template(
         "profile.html",
+        user=user,
         profile=profile,
-        work=work,
-        user=user
+        work=work
     )
     
     # ================= USER =================
