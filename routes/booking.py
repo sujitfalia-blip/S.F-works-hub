@@ -454,3 +454,79 @@ def delete_booking(id):
     )
 
     return redirect(request.referrer or "/bookings")
+
+# =========================================
+# OWNER FULL BOOKING CONTROL
+# OWNER CAN CONTROL ALL BOOKINGS
+# =========================================
+
+@booking.route("/owner/bookings")
+def owner_bookings():
+
+    if not login_required():
+        return redirect("/auth/login")
+
+    # =====================================
+    # ONLY OWNER ACCESS
+    # =====================================
+
+    if not is_owner():
+        abort(403)
+
+    # =====================================
+    # ALL BOOKINGS
+    # =====================================
+
+    bookings = Booking.query.filter_by(
+        is_deleted=False
+    ).order_by(
+        desc(Booking.id)
+    ).all()
+
+    # =====================================
+    # TOTAL COUNTS
+    # =====================================
+
+    total_bookings = Booking.query.filter_by(
+        is_deleted=False
+    ).count()
+
+    pending_bookings = Booking.query.filter_by(
+        status="pending",
+        is_deleted=False
+    ).count()
+
+    approved_bookings = Booking.query.filter_by(
+        status="approved",
+        is_deleted=False
+    ).count()
+
+    rejected_bookings = Booking.query.filter_by(
+        status="rejected",
+        is_deleted=False
+    ).count()
+
+    blocked_bookings = Booking.query.filter_by(
+        status="blocked",
+        is_deleted=False
+    ).count()
+
+    # =====================================
+    # RENDER
+    # =====================================
+
+    return render_template(
+        "owner_bookings.html",
+
+        bookings=bookings,
+
+        total_bookings=total_bookings,
+
+        pending_bookings=pending_bookings,
+
+        approved_bookings=approved_bookings,
+
+        rejected_bookings=rejected_bookings,
+
+        blocked_bookings=blocked_bookings
+    )
