@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Admin Dashboard Pro</title>
+<title>S.F Works Hub Admin</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
 <style>
@@ -10,8 +10,9 @@
 /* ================= THEME ================= */
 :root {
     --bg: #f4f6f9;
-    --card: white;
+    --card: #ffffff;
     --text: #111;
+    --primary: #3b82f6;
     --sidebar: #0f172a;
 }
 
@@ -29,14 +30,50 @@ body {
     color: var(--text);
 }
 
+/* ================= TOPBAR ================= */
+.topbar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 60px;
+    background: var(--card);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 15px;
+    z-index: 1000;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+.logo {
+    font-weight: bold;
+    font-size: 18px;
+    color: #22c55e;
+}
+
+.search-box input {
+    padding: 8px 12px;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    width: 250px;
+}
+
 /* ================= SIDEBAR ================= */
 .sidebar {
-    width: 240px;
-    height: 100vh;
-    background: var(--sidebar);
-    color: white;
     position: fixed;
+    top: 60px;
+    left: -260px;
+    width: 240px;
+    height: 100%;
+    background: var(--sidebar);
     padding: 20px;
+    transition: 0.3s;
+    z-index: 999;
+}
+
+.sidebar.open {
+    left: 0;
 }
 
 .sidebar a {
@@ -48,19 +85,19 @@ body {
 
 /* ================= MAIN ================= */
 .main {
-    margin-left: 260px;
+    margin-top: 70px;
     padding: 20px;
 }
 
-/* ================= TOPBAR ================= */
-.topbar {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    background: var(--card);
-    padding: 15px;
-    border-radius: 10px;
+/* ================= BUTTON ================= */
+.btn {
+    padding: 8px 12px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
 }
+
+.primary { background: var(--primary); color: white; }
 
 /* ================= CARDS ================= */
 .cards {
@@ -70,10 +107,19 @@ body {
     margin-top: 20px;
 }
 
-.card {
+.card-btn {
     background: var(--card);
-    padding: 18px;
-    border-radius: 12px;
+    border-radius: 14px;
+    padding: 20px;
+    border: none;
+    cursor: pointer;
+    text-align: left;
+    transition: 0.2s;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+
+.card-btn:hover {
+    transform: translateY(-3px);
 }
 
 /* ================= TABLE ================= */
@@ -84,37 +130,12 @@ body {
     border-radius: 12px;
 }
 
-table {
-    width: 100%;
-    border-collapse: collapse;
-}
-
-th, td {
-    padding: 12px;
-    border-bottom: 1px solid #ddd;
-}
-
-/* ================= BUTTONS ================= */
-.btn {
-    padding: 6px 10px;
-    border: none;
-    border-radius: 6px;
-    cursor: pointer;
-}
-
-.primary { background: #3b82f6; color: white; }
-.danger { background: #ef4444; color: white; }
-
 /* ================= MODAL ================= */
 .modal {
     display: none;
     position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
+    inset: 0;
     background: rgba(0,0,0,0.6);
-    z-index: 9999;
 }
 
 .modal-content {
@@ -125,84 +146,82 @@ th, td {
     border-radius: 10px;
 }
 
-/* ================= PAGINATION ================= */
-#paginationBox {
-    margin-top: 15px;
-    text-align: center;
-}
-
-#paginationBox button {
-    margin: 3px;
-}
-
 /* ================= RESPONSIVE ================= */
 @media(max-width: 900px){
     .cards { grid-template-columns: 1fr 1fr; }
+    .search-box input { width: 140px; }
 }
+
 </style>
 </head>
 
 <body>
 
+<!-- ================= TOPBAR ================= -->
+<div class="topbar">
+
+    <button class="btn primary" onclick="toggleSidebar()">☰</button>
+
+    <div class="logo">S.F Works Hub</div>
+
+    <div class="search-box">
+        <input type="text" placeholder="Search users, works..." oninput="searchTable(this.value)">
+    </div>
+
+    <button class="btn primary" onclick="toggleDark()">🌙</button>
+</div>
+
 <!-- ================= SIDEBAR ================= -->
-<div class="sidebar">
-    <h2 style="color:#22c55e;">ADMIN PANEL</h2>
+<div class="sidebar" id="sidebar">
 
     <a href="/admin/">📊 Dashboard</a>
     <a href="/admin/users">👥 Users</a>
     <a href="/admin/bookings">📅 Bookings</a>
     <a href="/admin/works">🧾 Works</a>
     <a href="/admin/profiles">👤 Profiles</a>
+
 </div>
 
 <!-- ================= MAIN ================= -->
 <div class="main">
 
-    <div class="topbar">
-        <div>
-            <h3 style="margin:0;">Welcome Admin</h3>
-            <small>User ID: {{ user_id }}</small>
-        </div>
-
-        <button class="btn primary" onclick="toggleDark()">🌙</button>
-    </div>
+    <h3>Welcome Admin</h3>
+    <small>User ID: {{ user_id }}</small>
 
     <!-- CARDS -->
     <div class="cards">
 
-        <div class="card">
+        <button class="card-btn">
             <h4>Total Users</h4>
             <h2>{{ total }}</h2>
-        </div>
+        </button>
 
-        <div class="card">
+        <button class="card-btn">
             <h4>Active</h4>
             <h2>{{ active }}</h2>
-        </div>
+        </button>
 
-        <div class="card">
+        <button class="card-btn">
             <h4>Blocked</h4>
             <h2>{{ blocked }}</h2>
-        </div>
+        </button>
 
-        <div class="card">
+        <button class="card-btn">
             <h4>Bookings</h4>
             <h2 id="bookingCount">--</h2>
-        </div>
+        </button>
 
     </div>
 
-    <!-- USERS TABLE -->
+    <!-- TABLE -->
     <div class="table-box">
         <h3>Users</h3>
-
-        <table>
+        <table width="100%">
             <thead>
                 <tr>
                     <th>ID</th><th>Name</th><th>Status</th><th>Action</th>
                 </tr>
             </thead>
-
             <tbody id="usersTable"></tbody>
         </table>
     </div>
@@ -214,7 +233,7 @@ th, td {
     <div class="modal-content">
         <h3>User Profile</h3>
         <div id="profileData"></div>
-        <button onclick="closeModal()" class="btn danger">Close</button>
+        <button onclick="closeModal()" class="btn primary">Close</button>
     </div>
 </div>
 
@@ -223,23 +242,34 @@ th, td {
 
 <script>
 
-let socket = null;
+/* ================= SIDEBAR TOGGLE ================= */
+function toggleSidebar(){
+    document.getElementById("sidebar").classList.toggle("open");
+}
 
 /* ================= DARK MODE ================= */
 function toggleDark(){
     document.body.classList.toggle("dark");
 }
 
-/* ================= SAFE LOAD USERS ================= */
+/* ================= SEARCH ================= */
+function searchTable(value){
+    let rows = document.querySelectorAll("#usersTable tr");
+    rows.forEach(r => {
+        r.style.display = r.innerText.toLowerCase().includes(value.toLowerCase())
+            ? "" : "none";
+    });
+}
+
+/* ================= USERS LOAD ================= */
 async function loadUsers(page = 1) {
     try {
         const res = await fetch(`/admin/users?page=${page}`);
         const data = await res.json();
 
         const users = data?.data?.users || [];
-        const pagination = data?.data?.pagination || null;
-
         const tbody = document.getElementById("usersTable");
+
         tbody.innerHTML = "";
 
         users.forEach(u => {
@@ -256,34 +286,9 @@ async function loadUsers(page = 1) {
             </tr>`;
         });
 
-        if (pagination) renderPagination(pagination);
-
     } catch (err) {
-        console.error("LoadUsers Error:", err);
+        console.error(err);
     }
-}
-
-/* ================= PAGINATION SAFE ================= */
-function renderPagination(p) {
-
-    if (!p) return;
-
-    let html = `<div id="paginationBox">`;
-
-    for (let i = 1; i <= p.pages; i++) {
-        html += `
-        <button class="btn ${i === p.current ? 'primary' : ''}"
-                onclick="loadUsers(${i})">
-            ${i}
-        </button>`;
-    }
-
-    html += `</div>`;
-
-    const old = document.getElementById("paginationBox");
-    if (old) old.remove();
-
-    document.querySelector(".table-box").insertAdjacentHTML("beforeend", html);
 }
 
 /* ================= MODAL ================= */
@@ -297,24 +302,10 @@ function closeModal(){
     document.getElementById("modal").style.display = "none";
 }
 
-/* ================= SOCKET SAFE ================= */
-try {
-    socket = io();
-
-    socket.on("user_update", () => {
-        loadUsers();
-    });
-
-} catch(e){
-    console.warn("Socket disabled:", e);
-}
-
 /* ================= INIT ================= */
-document.addEventListener("DOMContentLoaded", () => {
-    loadUsers();
-});
+document.addEventListener("DOMContentLoaded", loadUsers);
 
 </script>
 
 </body>
-                                       </html>
+</html>
