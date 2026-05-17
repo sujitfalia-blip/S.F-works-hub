@@ -89,7 +89,9 @@ class User(UserMixin, db.Model):
         index=True
     )
 
-    "last_login": str(user.last_seen) if user.last_seen else None
+    last_seen = db.Column(
+        db.DateTime,
+        default=datetime.utcnow
     )
 
     socket_id = db.Column(
