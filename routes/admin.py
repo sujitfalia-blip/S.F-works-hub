@@ -151,20 +151,22 @@ def analytics():
         "works": works
     })
 
-@admin_bp.route("/admin/user/<int:user_id>")
+# GET SINGLE USER (FIXED)
+@admin_bp.route("/user/<int:user_id>")
+@admin_required
 def get_user(user_id):
+
     user = User.query.get(user_id)
 
     if not user:
-        return {"error": "User not found"}, 404
+        return error("User not found", 404)
 
-    return {
-        "user": {
-            "id": user.id,
-            "name": user.name,
-            "email": user.email,
-            "status": user.status,
-            "created_at": str(user.created_at),
-            "last_login": str(user.last_login) if user.last_login else None
-        }
-}
+    return success({
+        "id": user.id,
+        "name": user.name,
+        "email": user.email,
+        "status": user.status,
+        "created_at": str(user.created_at),
+        "last_login": str(user.last_login) if user.last_login else None
+    })
+    
