@@ -176,7 +176,6 @@ def users_api():
     })
 
 # ================= USER DETAILS (POPUP) =================
-
 @admin_bp.route("/user/<int:user_id>")
 @admin_required
 def get_user(user_id):
@@ -185,7 +184,8 @@ def get_user(user_id):
 
     user = User.query.filter_by(
         id=user_id,
-        controller_id=admin_id
+        controller_id=admin_id,
+        is_deleted=False
     ).first()
 
     if not user:
@@ -199,18 +199,23 @@ def get_user(user_id):
         "user": {
             "id": user.id,
             "name": user.name,
-            "email": getattr(user, "email", None),
-            "phone": getattr(user, "phone", None),
-            "address": getattr(user, "address", None),
 
-            # ✅ IMAGE FIX HERE
-            "profile_img": getattr(user, "profile_img", "/static/default.png"),
+            "phone": user.phone,
+            "email": user.email,
 
+            "skill": getattr(user, "skill", None),
+            "area": getattr(user, "area", None),
+
+            "profile_img": user.profile_img or "/static/default.png",
+
+            "role": user.role,
             "status": user.status,
-            "role": getattr(user, "role", "user"),
 
-            "created_at": user.created_at.isoformat() if user.created_at else None,
-            "last_seen": user.last_seen.isoformat() if user.last_seen else None
+            "is_online": user.is_online,
+            "last_seen": user.last_seen.isoformat() if user.last_seen else None,
+
+            "created_at": user.created_at.isoformat() if user.created_at else None
         }
     })
     
+
