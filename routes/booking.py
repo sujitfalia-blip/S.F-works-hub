@@ -72,16 +72,22 @@ def my_bookings():
 # =========================================
 # USER CREATE BOOKING
 # =========================================
-@booking.route("/create_booking/<int:work_id>")
+@booking_bp.route('/create/<int:work_id>', methods=['POST'])
+@login_required
 def create_booking(work_id):
-    
 
-    # ✅ login check (correct way)
-    if "user_id" not in session:
-        flash("Login required", "danger")
-        return redirect("/auth/login")
+    work = Work.query.get_or_404(work_id)
 
-    user_id = session.get("user_id")
+    booking = Booking(
+        user_id=current_user.id,
+        owner_id=work.user_id,
+        work_id=work.id
+    )
+
+    db.session.add(booking)
+    db.session.commit()
+
+    return redirect(url_for('profile.view_profile', user_id=work.user_id))
 
     # =====================================
     # FIND WORK
