@@ -241,7 +241,12 @@ body {
 <div class="sidebar" id="sidebar">
     <a href="/admin/">📊 Dashboard</a>
     <a href="/admin/users-page">👥 Users</a>
-    <a href="/admin/bookings">📅 Bookings</a>
+    <a
+    href="{{ url_for('booking.admin_bookings') }}"
+    class="btn btn-primary"
+>
+    Open Booking Control
+    </a>
     <a href="/admin/works">🧾 Works</a>
     <a href="/admin/profiles">👤 Profiles</a>
 </div>
