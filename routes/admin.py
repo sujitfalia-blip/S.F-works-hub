@@ -200,9 +200,17 @@ def get_user(user_id):
             "id": user.id,
             "name": user.name,
             "email": getattr(user, "email", None),
+            "phone": getattr(user, "phone", None),
+            "address": getattr(user, "address", None),
+
+            # 🖼️ PROFILE IMAGE (IMPORTANT)
+            "image": getattr(user, "profile_image", None),
+
             "status": user.status,
             "role": getattr(user, "role", "user"),
+
             "created_at": user.created_at.isoformat() if user.created_at else None,
             "last_seen": user.last_seen.isoformat() if user.last_seen else None
         }
     })
+    
