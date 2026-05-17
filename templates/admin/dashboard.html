@@ -7,10 +7,10 @@
 
 <style>
 
-/* ================= THEME ================= */
+/* ================= GLASS THEME ================= */
 :root {
     --bg: #f4f6f9;
-    --card: #ffffff;
+    --card: rgba(255,255,255,0.8);
     --text: #111;
     --primary: #3b82f6;
     --sidebar: #0f172a;
@@ -18,7 +18,7 @@
 
 body.dark {
     --bg: #0b1220;
-    --card: #111827;
+    --card: rgba(17,24,39,0.85);
     --text: #fff;
 }
 
@@ -38,6 +38,7 @@ body {
     right: 0;
     height: 60px;
     background: var(--card);
+    backdrop-filter: blur(10px);
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -109,28 +110,30 @@ body {
 
 .card-btn {
     background: var(--card);
+    backdrop-filter: blur(10px);
     border-radius: 14px;
     padding: 20px;
     border: none;
     cursor: pointer;
     text-align: left;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.08);
     transition: 0.2s;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
 }
 
 .card-btn:hover {
-    transform: translateY(-3px);
+    transform: translateY(-4px);
 }
 
 /* ================= TABLE ================= */
 .table-box {
     margin-top: 25px;
     background: var(--card);
+    backdrop-filter: blur(10px);
     padding: 15px;
     border-radius: 12px;
 }
 
-/* ================= MODAL OVERLAY ================= */
+/* ================= MODAL ================= */
 .modal {
     display: none;
     position: fixed;
@@ -139,15 +142,17 @@ body {
     z-index: 9999;
 }
 
-/* ================= USER MODAL (PROFESSIONAL) ================= */
+/* ================= USER MODAL (GLASS CLEAN UI) ================= */
 .user-modal {
     width: 520px;
     max-width: 95%;
-    background: var(--card);
-    border-radius: 14px;
     margin: 6% auto;
+    background: var(--card);
+    backdrop-filter: blur(15px);
+    border-radius: 14px;
     overflow: hidden;
-    animation: pop 0.2s ease-in-out;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.3);
+    animation: pop 0.2s ease;
 }
 
 @keyframes pop {
@@ -155,6 +160,7 @@ body {
     to { transform: scale(1); opacity: 1; }
 }
 
+/* HEADER */
 .modal-header {
     display: flex;
     justify-content: space-between;
@@ -182,15 +188,16 @@ body {
 
 /* PROFILE BOX */
 .profile-box {
-    background: var(--bg);
+    background: rgba(255,255,255,0.2);
+    backdrop-filter: blur(10px);
     padding: 12px;
     border-radius: 10px;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+    box-shadow: 0 4px 10px rgba(0,0,0,0.08);
 }
 
 .profile-box h4 {
     margin: 0;
-    font-size: 13px;
+    font-size: 12px;
     color: gray;
 }
 
@@ -205,7 +212,7 @@ body {
     grid-column: span 2;
 }
 
-/* ================= RESPONSIVE ================= */
+/* RESPONSIVE */
 @media(max-width: 900px){
     .cards { grid-template-columns: 1fr 1fr; }
     .search-box input { width: 140px; }
@@ -245,7 +252,6 @@ body {
     <h3>Welcome Admin</h3>
     <small>User ID: {{ user_id }}</small>
 
-    <!-- CARDS -->
     <div class="cards">
 
         <button class="card-btn">
@@ -270,9 +276,9 @@ body {
 
     </div>
 
-    <!-- TABLE -->
     <div class="table-box">
         <h3>Users</h3>
+
         <table width="100%">
             <thead>
                 <tr>
@@ -285,7 +291,7 @@ body {
 
 </div>
 
-<!-- ================= FULL USER DETAILS MODAL ================= -->
+<!-- ================= USER MODAL (ONLY ONE - CLEAN) ================= -->
 <div id="modal" class="modal">
 
     <div class="user-modal">
@@ -300,14 +306,12 @@ body {
         </div>
 
     </div>
-</div>
 
-<!-- ================= SOCKET ================= -->
-<script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+</div>
 
 <script>
 
-/* ================= UI CONTROLS ================= */
+/* ================= UI ================= */
 function toggleSidebar(){
     document.getElementById("sidebar").classList.toggle("open");
 }
@@ -317,15 +321,13 @@ function toggleDark(){
 }
 
 function searchTable(value){
-    let rows = document.querySelectorAll("#usersTable tr");
-    rows.forEach(r => {
-        r.style.display = r.innerText.toLowerCase().includes(value.toLowerCase())
-            ? "" : "none";
+    document.querySelectorAll("#usersTable tr").forEach(r=>{
+        r.style.display = r.innerText.toLowerCase().includes(value.toLowerCase()) ? "" : "none";
     });
 }
 
-/* ================= USERS LOAD ================= */
-async function loadUsers(page = 1) {
+/* ================= USERS ================= */
+async function loadUsers(page=1){
     const res = await fetch(`/admin/users?page=${page}`);
     const data = await res.json();
 
@@ -334,75 +336,66 @@ async function loadUsers(page = 1) {
 
     tbody.innerHTML = "";
 
-    users.forEach(u => {
+    users.forEach(u=>{
         tbody.innerHTML += `
         <tr>
             <td>${u.id}</td>
             <td>${u.name}</td>
             <td>${u.status}</td>
-            <td>
-                <button class="btn primary" onclick="viewUser(${u.id})">
-                    View
-                </button>
-            </td>
+            <td><button class="btn primary" onclick="viewUser(${u.id})">View</button></td>
         </tr>`;
     });
 }
 
-/* ================= USER DETAILS POPUP (PRODUCTION) ================= */
+/* ================= FINAL USER VIEW (CLEAN FIXED) ================= */
 async function viewUser(id){
 
     document.getElementById("modal").style.display = "block";
-    document.getElementById("profileData").innerHTML =
-        "<p>Loading user details...</p>";
+    document.getElementById("profileData").innerHTML = "<p>Loading...</p>";
 
     try {
         const res = await fetch(`/admin/user/${id}`);
-        const data = await res.json();
 
-        const u = data?.user || {};
+        if(!res.ok) throw new Error("API Error");
+
+        const data = await res.json();
+        const u = data.user;
 
         document.getElementById("profileData").innerHTML = `
-        
         <div class="profile-box">
-            <h4>User ID</h4>
-            <p>${u.id || '-'}</p>
+            <h4>ID</h4>
+            <p>${u.id}</p>
         </div>
 
         <div class="profile-box">
             <h4>Name</h4>
-            <p>${u.name || '-'}</p>
+            <p>${u.name}</p>
         </div>
 
         <div class="profile-box">
             <h4>Status</h4>
-            <p>${u.status || '-'}</p>
+            <p>${u.status}</p>
         </div>
 
         <div class="profile-box">
             <h4>Email</h4>
-            <p>${u.email || 'N/A'}</p>
+            <p>${u.email}</p>
         </div>
 
         <div class="profile-box full">
-            <h4>Created At</h4>
-            <p>${u.created_at || 'Unknown'}</p>
+            <h4>Created</h4>
+            <p>${u.created_at}</p>
         </div>
-
-        <div class="profile-box full">
-            <h4>Last Login</h4>
-            <p>${u.last_login || 'Not available'}</p>
-        </div>
-
         `;
 
-    } catch (err) {
+    } catch(err){
+        console.error(err);
         document.getElementById("profileData").innerHTML =
-            "<p style='color:red;'>Failed to load user</p>";
+            "<p style='color:red;'>User load failed</p>";
     }
 }
 
-/* ================= CLOSE MODAL ================= */
+/* ================= CLOSE ================= */
 function closeModal(){
     document.getElementById("modal").style.display = "none";
 }
