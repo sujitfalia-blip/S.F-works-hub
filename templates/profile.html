@@ -511,6 +511,7 @@ body{
                     </a>
                     {% else %}
 
+
 <form
     action="{{ url_for('booking.create_booking', work_id=work.id) }}"
     method="POST"
@@ -525,6 +526,7 @@ body{
     </button>
 
 </form>
+
 {% endif %}
 
                     
