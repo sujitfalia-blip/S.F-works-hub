@@ -512,7 +512,8 @@ body{
                     {% else %}
 
 <form
-    action="{{ url_for('booking.create_booking', work_id=profile.work_id) }}"
+    action="{{ url_for('booking.create_booking', work_id=work.id) }}"
+    method="POST"
 >
 
     <button
@@ -524,7 +525,6 @@ body{
     </button>
 
 </form>
-
 {% endif %}
 
                     
