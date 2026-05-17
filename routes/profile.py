@@ -9,6 +9,7 @@ from flask import (
 from models.profile import Profile
 from models import Profile, Work
 from models.user import User
+from models.work import Work
 
 from extensions import db
 
