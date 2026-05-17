@@ -6,6 +6,7 @@ from models.work_model import Work
 from models.work_application_model import WorkApplication
 from extensions import db
 from sqlalchemy.orm import load_only
+from utils.decorators import admin_required
 
 admin_bp = Blueprint("admin", __name__, url_prefix="/admin")
 
@@ -17,17 +18,6 @@ def success(data=None, message="OK"):
 
 def error(msg="Error", code=400):
     return jsonify({"success": False, "message": msg}), code
-
-
-# ================= AUTH =================
-
-def admin_required(f):
-    @wraps(f)
-    def wrapper(*args, **kwargs):
-        if session.get("role") != "admin":
-            return error("Unauthorized", 403)
-        return f(*args, **kwargs)
-    return wrapper
 
 
 # ================= DASHBOARD =================
